@@ -88,6 +88,8 @@ Focused issues, reproducible reports and sanitised test contributions are welcom
 
 This independent project builds on work from [PyLoxone](https://github.com/JoDehli/PyLoxone) and its contributors. It does not imply official affiliation with Loxone or upstream approval of unreleased changes.
 
+Thanks also to **Sebastian** for his contributions to this project.
+
 Development is human-directed, with LLM assistance for drafting and implementation under supervisory review.
 
 Licensed under the [Apache License 2.0](LICENSE), matching PyLoxone. Relevant upstream copyright, attribution and notice requirements will be retained when code is reused.
