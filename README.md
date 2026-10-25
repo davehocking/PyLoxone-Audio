@@ -2,27 +2,23 @@
 
 A Python library for extending [PyLoxone](https://github.com/JoDehli/PyLoxone) capabilities on the Loxone Audio Server.
 
-The aim was to provide a separately maintained, testable audio library that PyLoxone can use while keeping **one Home Assistant integration, one setup and the existing room entities**.
+PyLoxone-Audio is a separately maintained, testable audio library used through a companion PyLoxone adapter. Home Assistant retains **one integration, one setup and the existing room entities**.
 
-> **Development Status**
->
-> This repository currently contains the early versions of this library.
-> Implementation will require PyLoxone changes to pull capabilities from the library.
-> A "PyLoxone adapter" will be provided to the PyLoxone repo.
-> This is not yet a supported installation for ordinary users.
+## Version 0.1.0
+
+The 0.1.0 scope covers Audio Server communication, now-playing metadata, playback and source-return behaviour, together with the PyLoxone adapter and tests for both.
+
+Package availability and release-specific compatibility information belong on the [Releases page](https://github.com/davehocking/PyLoxone-Audio/releases). The library version is separate from the PyLoxone integration version; publishing a library package does not itself add support to an upstream PyLoxone release.
 
 ## Why a separate library?
 
-Audio communication and playback behaviour should be developed and tested independently of Home Assistant-specific configuration and entities.
-A library allows those capabilities to be developed without causing increased testing and integration efforts for the main PyLoxone repo.
+Audio communication and playback behaviour are developed and tested independently of Home Assistant-specific configuration and entities. Keeping that work in a library gives it its own tests and releases, while the adapter tests cover its use within PyLoxone. PyLoxone still needs host-side review and compatibility testing when it adopts an adapter or dependency update.
 
-PyLoxone is the intended consumer of the Library, but the library is intended to remain Home Assistant-independent, so other Python applications could use it in future.
+PyLoxone is the main consumer, but the library remains Home Assistant-independent so other Python applications can use it.
 
 This project complements PyLoxone; it is not a replacement for PyLoxone, Home Assistant or Loxone's own applications.
 
 ## Architecture and responsibilities
-
-The boundary is:
 
 ```text
 Home Assistant
@@ -31,65 +27,71 @@ Home Assistant
             └─ PyLoxone-Audio: native audio communication and playback state
 ```
 
-**The library** handles audio communication, now-playing and source metadata, playback/source operations, source-return behaviour, and its own connection lifecycle, events and errors.
+**The library** handles audio communication, now-playing and source metadata, playback/source operations, source-return behaviour, and its own connection lifecycle, events and errors. It does not import Home Assistant.
 
-**The PyLoxone adapter** handles Home Assistant configuration, room/player mapping, entities, services, availability and integration setup/unload. It supplies existing authenticated access through an agreed interface rather than introducing a second user setup.
+**The PyLoxone adapter** connects the library to the existing integration's configuration, room/player mapping, entities, services, availability and setup/unload lifecycle. It supplies existing authenticated access rather than introducing a second user setup. Non-audio PyLoxone functionality remains the responsibility of PyLoxone.
 
-The "public interface" will stay small and stable. Ordinary internal library bug fixes should not require structural adapter changes.
-New capabilities or intentional breaking API changes may still need coordinated updates.
+The adapter is maintained alongside the library in this repository under `adapters/pyloxone/`. It is applied within PyLoxone, not installed as a separate Home Assistant integration. The adapter documentation identifies its supported host base and the matching library version.
 
-The intended Home Assistant experience uses standard media-player entities and controls: **no patched Home Assistant Core or frontend, injected JavaScript/CSS, or project-specific custom card**.
+The adapter uses the library's public interface. Ordinary internal library bug fixes should not require structural adapter changes. New capabilities or intentional breaking API changes may still need coordinated updates.
+
+Home Assistant uses standard media-player entities and controls: **no patched Home Assistant Core or frontend, injected JavaScript/CSS, or project-specific custom card**.
 
 ## Audio behaviour
 
-The initial focus is Loxone Audio Server-backed rooms.
-The Sources supported are **Local Library, Loxone Radio, Spotify, TuneIn and Line-In**, where available and configured in Loxone.
-Not every installation has every source or subscription. No support is planned for SoundSuit, though development effort wouldn't be expected to be huge.
+Version 0.1.0 focuses on Loxone Audio Server-backed rooms. Supported sources are **Local Library, Loxone Radio, Spotify, TuneIn and Line-In**, where available and configured in Loxone. Not every installation has every source or subscription. SoundSuit is outside the 0.1.0 scope.
 
-Line-In appears last in the available-source list; due to HA's UI Handling, sometimes the source-list needs to be "scrolled" on mobile devices, this can partially obscure the "LineIn" source.
+Line-In appears last in the available-source list. Home Assistant's mobile source selector can require scrolling; placing Line-In last keeps the more frequently used sources easier to reach.
 
-The main play-back principles are:
+The main playback principles are:
 
-- **Confirm the requested source.** A successful native command must be followed by fresh now-playing feedback from the correct room identifying the requested source.
-- **Respect the active provider.** Spotify keeps ownership of its live session and queue. Returning to a source does not always mean returning to exact previously played track.
-- **Remember useful last-good state.** The previous track and track position (For Local-Library) should be "resumed" when returning to local library. Failed or unconfirmed attempts must not erase the last qualified source history.
-- **Treat position restoration as an extra.** Where applicable, make at most one bounded best-effort attempt to restore a remembered position. Do not require proof of an exact position or turn confirmed source playback into an error because that optional step failed.
-- **Avoid surprise playback.** No blind retries, replay or substitute content when an operation cannot be confirmed. Superseded Home Assistant requests and integration unload must still be handled cleanly.
+- **Confirm the requested source.** A successful native command is followed by fresh now-playing feedback from the correct room identifying the requested source.
+- **Respect the active provider.** Spotify keeps ownership of its live session and queue. Returning to a source does not always mean returning to the exact previously played track. Ordinary Spotify transfer uses Spotify Connect.
+- **Remember useful last-good state.** Local Library returns to the remembered track where available. Failed or unconfirmed attempts do not erase the last qualified source history.
+- **Treat position restoration as an extra.** Where applicable, make at most one bounded best-effort attempt to restore a remembered position. Exact-position proof is not required, and failure of that optional step does not turn confirmed source playback into an error.
+- **Avoid surprise playback.** No blind retries, replay or substitute content when an operation cannot be confirmed. Superseded Home Assistant requests and integration unload are handled cleanly.
+
+## Repository layout
+
+The 0.1.0 source tree separates the portable library from its Home Assistant adapter:
+
+```text
+pyloxone_audio/       Home Assistant-independent library
+adapters/pyloxone/    PyLoxone adapter, host-base information and instructions
+tests/library/       Portable library tests
+tests/adapter/       Audio-adapter and library/host contract tests
+```
+
+This repository contains tests for this project and its adapter, not a copy of the full PyLoxone test suite. General PyLoxone connection, authentication, sensor and other non-audio tests belong to the host project and are excluded here. Broader host regression runs are separate compatibility checks, not part of this library's published test suite.
+
+The Python package contains the portable library. The adapter stays separate from that package so installing the library does not install Home Assistant integration files.
 
 ## Installation and releases
 
-**For Home Assistant users:** As the library and adapter are integrated, the normal route remains "installing or updating PyLoxone". PyLoxone pins a tested library version in its manifest, and Home Assistant will install that dependency automatically. No separate integration or manual `pip` step is be needed.
+**For Home Assistant users:** use a PyLoxone build that includes the matching audio adapter. Its manifest pins a tested library version, and Home Assistant installs that dependency automatically. The normal installation unit is PyLoxone; a separate integration or manual `pip` step is not required for a released, compatible pair. The presence of the adapter in this repository does not mean an upstream PyLoxone release already includes it.
 
-**For Python developers:** versioned package distribution through PyPI is planned. Installation commands and API examples will be added when a testable package is available; they are not advertised yet.
+**For Python developers:** the library is packaged as a versioned wheel and source distribution, independently of the Home Assistant adapter. Use the artifacts and compatibility information for the selected release. Installing the Python library alone does not add an integration to Home Assistant.
 
-A new library release will **not** automatically update existing PyLoxone installations. Adoption happens when a PyLoxone release selects a tested compatible version, which need *not* be the newest published version. Breaking interface changes will need explicit compatibility notes and coordinated adapter updates.
+A new library release does **not** automatically update existing PyLoxone installations. Adoption happens when a PyLoxone release selects a tested compatible version, which need *not* be the newest published version. Breaking interface changes need explicit compatibility notes and coordinated adapter updates.
 
 ## Testing and compatibility
 
-This repository hosts the library source, portable tests, documentation and release history. The test suite and CI workflows have not yet been published here.
+The project has two test groups:
 
-Planned coverage includes:
+- **Library tests** cover metadata parsing, playback/source policy, state and timing, communication errors, delayed events, disconnects and cancellation. They run without importing Home Assistant.
+- **Adapter tests** exercise the audio library within the owning PyLoxone/Home Assistant paths, including room mapping, native entity behaviour, setup/unload, source selection and the library/adapter contract.
 
-- Metadata parsing, state handling and source-return behaviour.
-- Synthetic communication tests for success, errors, delayed events, disconnects and cancellation.
-- Library/adapter contract tests, with Home Assistant integration tests accompanying the host-side changes.
-- Real-device checks alongside reproducible offline tests.
+Automated tests use sanitised fixtures and synthetic transports rather than controlling a household's devices. Real-device checks supplement those tests; passing offline tests is not proof of every device, firmware or audible playback outcome.
 
-Supported Python, Home Assistant, PyLoxone and device/firmware versions will be documented from tested evidence. No universal device or legacy Music Server compatibility is claimed.
+Compatibility claims apply to the Python, Home Assistant, PyLoxone and device/firmware versions actually tested. No universal device or legacy Music Server compatibility is claimed.
 
-## Roadmap
-
-- [ ] Complete and validate the simplified source-return behaviour.
-- [ ] Extract the Home Assistant-independent library and define its public interface.
-- [ ] Build and test the PyLoxone adapter.
-- [ ] Publish reviewed source, tests, CI and compatibility documentation.
-- [ ] Release a versioned package and propose a tested PyLoxone dependency update.
+Detailed development tracing, private rolling captures and household-specific tooling are excluded from the library and adapter deliverables. Ordinary useful runtime warnings and errors remain.
 
 ## Contributing
 
-Focused issues, reproducible reports and sanitised test contributions are welcome. Include relevant software/device versions and the expected versus observed behaviour.
+Focused issues, reproducible reports and sanitised test contributions are welcome. Include relevant software/device versions and the expected versus observed behaviour. Keep library tests independent of Home Assistant and adapter tests focused on audio integration behaviour; general PyLoxone tests belong with PyLoxone.
 
-**Do not post passwords, tokens, credentials or unredacted device exports.** Remove household-specific information from logs and fixtures before sharing them. Developer setup and test commands will accompany the published implementation.
+**Do not post passwords, tokens, credentials or unredacted device exports.** Remove household-specific information from logs and fixtures before sharing them.
 
 ## Acknowledgements and licence
 
@@ -99,4 +101,4 @@ Thanks also to [Sebastian (@SebastianEitzert)](https://github.com/SebastianEitze
 
 Development is human-directed, with LLM assistance for drafting and implementation under supervisory review.
 
-Licensed under the [Apache License 2.0](LICENSE), matching PyLoxone. Relevant upstream copyright, attribution and notice requirements will be retained when code is reused.
+Licensed under the [Apache License 2.0](LICENSE), matching PyLoxone. Relevant upstream copyright, attribution and notice requirements are retained when code is reused.
