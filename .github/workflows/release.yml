@@ -1,0 +1,73 @@
+name: Test, build and publish Python package
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Install build and portable test dependencies
+        run: |
+          python -m pip install build twine setuptools pytest pytest-asyncio pytest-socket PyYAML
+          python -m pip install .
+      - name: Check release tag against package metadata
+        if: github.event_name == 'release'
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          python -c "import os,tomllib; v=tomllib.load(open('pyproject.toml','rb'))['project']['version']; expected='v'+v; actual=os.environ['RELEASE_TAG']; assert actual==expected, f'Release tag {actual!r} must equal {expected!r}'"
+      - name: Check publishing contract
+        run: python -m unittest discover -s tests/release -v
+      - name: Test portable library from source
+        run: python tools/test_project.py library --work-dir "${RUNNER_TEMP}/library-source-check"
+      - name: Build distributions and validate PyPI metadata
+        env:
+          SOURCE_DATE_EPOCH: '1792886400'
+        run: |
+          python -m build
+          python -m twine check --strict dist/*
+      - name: Test the built wheel, without source shadowing
+        run: |
+          python -m pip install --no-deps --target "${RUNNER_TEMP}/wheel-install" dist/*.whl
+          python tools/test_project.py library --library-root "${RUNNER_TEMP}/wheel-install" --work-dir "${RUNNER_TEMP}/library-wheel-check"
+      - name: Store tested distributions
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        with:
+          name: python-distributions
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/PyLoxone-Audio
+    permissions:
+      contents: read
+    steps:
+      - name: Retrieve tested distributions
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
+        with:
+          name: python-distributions
+          path: dist/
+      - name: Publish with the protected PyPI API token
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          attestations: false

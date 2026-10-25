@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PyLoxone-Audio"
+version = "0.1.0"
+description = "Native audio transport and source policies for PyLoxone"
+readme = "README.md"
+requires-python = ">=3.14"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE.md"]
+dependencies = ["websockets>=14,<16", "pycryptodome>=3.20", "aiohttp"]
+
+[project.urls]
+Homepage = "https://github.com/davehocking/PyLoxone-Audio"
+Repository = "https://github.com/davehocking/PyLoxone-Audio"
+Issues = "https://github.com/davehocking/PyLoxone-Audio/issues"
+Releases = "https://github.com/davehocking/PyLoxone-Audio/releases"
+
+[tool.setuptools]
+packages = ["pyloxone_audio"]
+
+[tool.setuptools.package-data]
+pyloxone_audio = ["py.typed"]

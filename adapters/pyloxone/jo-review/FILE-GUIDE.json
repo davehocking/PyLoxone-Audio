@@ -1,0 +1,202 @@
+[
+  {
+    "file": "custom_components/loxone/audio.py",
+    "what": "Schedule portable metadata in the owning HA config-entry task",
+    "why": "Keep one HA lifecycle and library-owned receiver cleanup",
+    "tests": "test_audioserver_ha.py; test_host_0102_lifecycle_ha.py",
+    "base_sha256": null,
+    "assembled_sha256": "ecfbfc2f6e6fae025602ea74c1b69d4d942b8f53b78b078d24314440a36fc8f7"
+  },
+  {
+    "file": "custom_components/loxone/audio_announcement.py",
+    "what": "HA announcement preparation/delegation",
+    "why": "Keep HA-specific service/source restoration ownership outside portable runtime",
+    "tests": "test_audio_announcement.py; test_announcement_ownership.py",
+    "base_sha256": null,
+    "assembled_sha256": "ad4ee58ea1920c08d6e35c4a3e3636630d0df5a06cd40e3fdcafc10c88db4efe"
+  },
+  {
+    "file": "custom_components/loxone/audio_artwork.py",
+    "what": "HA artwork handling and placeholder",
+    "why": "Keep native UI/authenticated HTTP boundary host-owned",
+    "tests": "test_audio_artwork_ha.py; test_audio_artwork_recovery_ha.py",
+    "base_sha256": null,
+    "assembled_sha256": "b0099249f05510f0e65b2581936522e863574ced2f00ac02f6c6e3cfeb837fdd"
+  },
+  {
+    "file": "custom_components/loxone/audio_catalogue.py",
+    "what": "Alias portable catalogue module",
+    "why": "Preserve module identity without a duplicate catalogue implementation",
+    "tests": "test_audio_catalogue.py; test_configured_sources.py",
+    "base_sha256": null,
+    "assembled_sha256": "2d1ceaad3b6b0bf1808669baf869f21fb1dd6f2e102b731f7d7e29f87111b901"
+  },
+  {
+    "file": "custom_components/loxone/audio_models.py",
+    "what": "Translate neutral library catalogue to HA BrowseMedia",
+    "why": "HA type conversion remains in adapter",
+    "tests": "test_audio_catalogue_ha.py; test_browse_settlement_history_ha.py",
+    "base_sha256": null,
+    "assembled_sha256": "8d0604937972fbbb6df2c126b3a2439e0cb749edb983276dcbe3fbd6805a3b09"
+  },
+  {
+    "file": "custom_components/loxone/audio_radio.py",
+    "what": "Alias portable radio discovery",
+    "why": "No second discovery implementation",
+    "tests": "test_audio_radio.py; test_audio_radio_ha.py",
+    "base_sha256": null,
+    "assembled_sha256": "a693a828aafa001836470aeccecb5177483f1d9dea7db5ecdc0875a6e007c69c"
+  },
+  {
+    "file": "custom_components/loxone/audio_sources.py",
+    "what": "HA source orchestration and callbacks into portable policies",
+    "why": "Native settlement plus fresh exact target/source feedback; optional restore not a success gate",
+    "tests": "test_source_return_simplification_ha.py; test_source_simple_wire_ha.py; test_browse_settlement_history_ha.py",
+    "base_sha256": null,
+    "assembled_sha256": "ecfb1b5d4c2a0b6404f3245b561e887d33c075a1d7a9f1e242a35922e849edf9"
+  },
+  {
+    "file": "custom_components/loxone/config_flow.py",
+    "what": "Add optional audio options and validated bindings to existing entry",
+    "why": "One setup/options flow; preserve unrelated controls/settings",
+    "tests": "test_configured_sources.py; test_audio_owner_feedback_ha.py; test_spotify_continuity_options.py",
+    "base_sha256": "d9065ec12bfd063498f8d092c98579df2a632f316539b775f6513616dcf0baa3",
+    "assembled_sha256": "be45fb6abc4625e0bc167bcf474d5c5033867e0ff5e86fa6f1091ae5ef3600a9"
+  },
+  {
+    "file": "custom_components/loxone/const.py",
+    "what": "Add two audio option keys only; retain upstream TEXT",
+    "why": "Narrow overlap reconciliation, not a platform rollback",
+    "tests": "test_host_0102_lifecycle_ha.py; official test_text_input.py",
+    "base_sha256": "120eb02562e357736a9522613ca6bbaaeda05f9c6c70b07117c79cdce1ef09b6",
+    "assembled_sha256": "c5f7730c6d4d59295388ff2763e155843c462f13f4fe821c9b574a345c238ea3"
+  },
+  {
+    "file": "custom_components/loxone/coordinator.py",
+    "what": "Own optional audio resources; close them before native API",
+    "why": "Unchanged upstream owning entrypoint calls real cleanup; preserve cancellation/error visibility",
+    "tests": "test_host_0102_lifecycle_ha.py; test_audioserver_ha.py; official test_unload_cleanup.py",
+    "base_sha256": "7208055cd6d45d9cf1d0a724cf4d299764a832a5a339f1ab7974da2f46769751",
+    "assembled_sha256": "b5d3e90fd2c0cf75258c47ba86f343bfcf3c33fd5933c44b34ca348c7bbd78d5"
+  },
+  {
+    "file": "custom_components/loxone/manifest.json",
+    "what": "Add exact PyLoxone-Audio==0.1.0 pin only",
+    "why": "Normal HA requirement handling; keep 0.10.2 and prior requirements",
+    "tests": "test_distribution_dependencies.py; generated archive manifest/checksum verification",
+    "base_sha256": "2a6717c693010200a5796ccd02bb67a281ab4b1797cfb69c56b0a78c8a1107a8",
+    "assembled_sha256": "13b63052c80b66f4e78d6405fa916015beab40010dcd509408ffb9b9d4622b40"
+  },
+  {
+    "file": "custom_components/loxone/media_player.py",
+    "what": "Extend existing AudioZoneV2 with library composition/native media services",
+    "why": "Keep IDs/native UI and opt-in behaviour; no fallback room start on failed audio",
+    "tests": "test_audioserver_ha.py; test_source_contract_guards_ha.py; test_host_0102_lifecycle_ha.py",
+    "base_sha256": "e0499cb11a10bd0a71d8be319ef999be09e509dc6e479b4c5e71fff7199aa7de",
+    "assembled_sha256": "a223f0a161133225b99a577ce40daf7fdb0cc47554ef65b15c6e83bfa67f7cf4"
+  },
+  {
+    "file": "custom_components/loxone/music-placeholder.png",
+    "what": "Provide source-safe native UI placeholder image",
+    "why": "Existing native artwork fallback, not a custom card",
+    "tests": "test_audio_artwork_ha.py",
+    "base_sha256": null,
+    "assembled_sha256": "8e08a2c8be93393303bf2c53c0d534210f97cf71b7c98e8c6d92290bb8102b97"
+  },
+  {
+    "file": "custom_components/loxone/pyloxone_api/audioserver.py",
+    "what": "Alias actual portable native module",
+    "why": "Keep native transport identity and on-demand token callback; no duplicate auth store",
+    "tests": "test_audioserver_playback.py; test_source_native_schema_ha.py; external import alias positive/negative guards",
+    "base_sha256": null,
+    "assembled_sha256": "afbda2359d83f28f47846dd9d4a7dc397fcc2e190fa6057107dcd54a4f3235f9"
+  },
+  {
+    "file": "custom_components/loxone/spotify_continuity.py",
+    "what": "HA Spotify session/provider access and public-library selection",
+    "why": "Spotify retains session/queue; no explicit transfer/play takeover; normal auth owner",
+    "tests": "test_spotify_repeated_lifecycle_ha.py; test_spotify_continuity_ha.py; test_spotify_continuity_ownership.py",
+    "base_sha256": null,
+    "assembled_sha256": "208a02edbcbd054ace7b3bff3910e419acd04b2d351e2a2745ca5c0aa196f282"
+  },
+  {
+    "file": "custom_components/loxone/translations/cs.json",
+    "what": "Add audio options/error translations in this language",
+    "why": "Preserve native existing integration UI and useful error translation",
+    "tests": "test_audio_languages.py",
+    "base_sha256": "686aa88a8856c9edce74352288c32a86f1997c10d5d76d4f64bb721820f2b167",
+    "assembled_sha256": "efff5dc47f8545b8d707616d8b757cd14b7b1f4295c71b2b0de6aa07de0b16e9"
+  },
+  {
+    "file": "custom_components/loxone/translations/de.json",
+    "what": "Add audio options/error translations in this language",
+    "why": "Preserve native existing integration UI and useful error translation",
+    "tests": "test_audio_languages.py",
+    "base_sha256": "d672d814b0e58aafeef873e5c86f34533998673017d38979c80b01db5849d1b4",
+    "assembled_sha256": "b1577ad15a44e9c4c1c044fec82aede30de6f665b648ab80eb0b2eb45efb45a8"
+  },
+  {
+    "file": "custom_components/loxone/translations/en.json",
+    "what": "Add audio options/error translations in this language",
+    "why": "Preserve native existing integration UI and useful error translation",
+    "tests": "test_audio_languages.py",
+    "base_sha256": "3914c46e47ca7a21c86b7031a5ee94c66c22c75db1c169bfc6248d3eb5846285",
+    "assembled_sha256": "a8e2967b35608086e7f08cbc024cfc0b745256f36f4cd40c9e0c0490fe611cab"
+  },
+  {
+    "file": "custom_components/loxone/translations/es.json",
+    "what": "Add audio options/error translations in this language",
+    "why": "Preserve native existing integration UI and useful error translation",
+    "tests": "test_audio_languages.py",
+    "base_sha256": null,
+    "assembled_sha256": "62561c3702e9f6a4e6b443bd11b23122b3b09e8a2762caed169fea40df8fc7e0"
+  },
+  {
+    "file": "custom_components/loxone/translations/fr.json",
+    "what": "Add audio options/error translations in this language",
+    "why": "Preserve native existing integration UI and useful error translation",
+    "tests": "test_audio_languages.py",
+    "base_sha256": null,
+    "assembled_sha256": "2026cfb40672c2d1c79c62298f0659ac0e9796102e8ed864738b95101be6418c"
+  },
+  {
+    "file": "custom_components/loxone/translations/it.json",
+    "what": "Add audio options/error translations in this language",
+    "why": "Preserve native existing integration UI and useful error translation",
+    "tests": "test_audio_languages.py",
+    "base_sha256": null,
+    "assembled_sha256": "d6e816539d7c043377ca8a956efe1bd9df848ac8bbb55f3bb59ab17c4a391015"
+  },
+  {
+    "file": "custom_components/loxone/translations/nl.json",
+    "what": "Add audio options/error translations in this language",
+    "why": "Preserve native existing integration UI and useful error translation",
+    "tests": "test_audio_languages.py",
+    "base_sha256": null,
+    "assembled_sha256": "d58f20970d81ee870b424636605dd7424de61ad1b62b8bf296426c7f1339b64e"
+  },
+  {
+    "file": "custom_components/loxone/translations/pt-BR.json",
+    "what": "Add audio options/error translations in this language",
+    "why": "Preserve native existing integration UI and useful error translation",
+    "tests": "test_audio_languages.py",
+    "base_sha256": null,
+    "assembled_sha256": "aef7aee2c8d6dc445a7b388b4c25f39e9aa77843356081af06ab4eaea4665488"
+  },
+  {
+    "file": "custom_components/loxone/translations/pt-PT.json",
+    "what": "Add audio options/error translations in this language",
+    "why": "Preserve native existing integration UI and useful error translation",
+    "tests": "test_audio_languages.py",
+    "base_sha256": null,
+    "assembled_sha256": "7b4c1dd52815f3b8ed732baa4f30d75eee4a5b09724a2cc7dd9c559a810b8d97"
+  },
+  {
+    "file": "custom_components/loxone/translations/pt.json",
+    "what": "Add audio options/error translations in this language",
+    "why": "Preserve native existing integration UI and useful error translation",
+    "tests": "test_audio_languages.py",
+    "base_sha256": null,
+    "assembled_sha256": "7b4c1dd52815f3b8ed732baa4f30d75eee4a5b09724a2cc7dd9c559a810b8d97"
+  }
+]

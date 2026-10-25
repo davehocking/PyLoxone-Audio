@@ -33,6 +33,8 @@ Home Assistant
 
 The adapter is maintained alongside the library in this repository under `adapters/pyloxone/`. It is applied within PyLoxone, not installed as a separate Home Assistant integration. The adapter documentation identifies its supported host base and the matching library version.
 
+The current reference adapter targets released PyLoxone **0.10.2**, exact public commit `3db77b81f69c77cc814675d191061533b464df5e`, with library **0.1.0**. The maintained `preview-build/` directory supplies a complete pinned integration ZIP, provenance/checksums, repeatable build/verification and install/update/rollback/native-UI test instructions. Its focused `adapters/pyloxone/jo-review/` pack is for upstream review; no upstream adoption is claimed.
+
 The adapter uses the library's public interface. Ordinary internal library bug fixes should not require structural adapter changes. New capabilities or intentional breaking API changes may still need coordinated updates.
 
 Home Assistant uses standard media-player entities and controls: **no patched Home Assistant Core or frontend, injected JavaScript/CSS, or project-specific custom card**.
@@ -51,6 +53,17 @@ The main playback principles are:
 - **Treat position restoration as an extra.** Where applicable, make at most one bounded best-effort attempt to restore a remembered position. Exact-position proof is not required, and failure of that optional step does not turn confirmed source playback into an error.
 - **Avoid surprise playback.** No blind retries, replay or substitute content when an operation cannot be confirmed. Superseded Home Assistant requests and integration unload are handled cleanly.
 
+## Is Home Assistant's Spotify integration required?
+
+**No. Spotify configured in Loxone and Home Assistant's separate Spotify integration are different things.** The library does not depend on Home Assistant, and the PyLoxone adapter does not require HA's Spotify integration to load.
+
+- **Without HA Spotify:** native room controls, now-playing information, source selection and Loxone-backed Browse/Search remain available where configured and supported. That includes Spotify configured in Loxone. Spotify return uses the current native session or qualified remembered content where available; an empty source with no usable session/history needs a selection in Browse or Spotify Connect, not an invented replacement track. Supported native seeking and best-effort position restoration do not require HA Spotify.
+- **With HA Spotify and an explicit room/account/device binding:** the adapter can check the authenticated Spotify user and current receiver, then ask **Loxone** to resume that account's existing Spotify session. This can use the live session rather than restarting a remembered track. **It does not seek back to a saved playback position: position remains Spotify's responsibility.** Installing HA Spotify alone does not configure that binding.
+- **What this enhancement does not do:** it does not rebuild Spotify's queue, restore a playlist or exact position through Spotify's API, transfer playback from another receiver, or supply Spotify Browse/Search or now-playing metadata. Those are not reasons to install HA Spotify for this project.
+- **When the optional evidence is unavailable:** missing/unloaded HA Spotify, unreadable state or no reported session do not by themselves block a valid native return, and do not produce missing-integration warnings. Positive evidence of another account/receiver is a conflict, not permission to silently fall back and take over playback. Ordinary errors and newer-request/lifecycle cancellation still apply.
+
+See [Spotify support and the exact function/API map](https://github.com/davehocking/PyLoxone-Audio/blob/v0.1.0/SPOTIFY.md) for setup fields, active versus retained legacy methods, concrete fallback cases and test coverage.
+
 ## Repository layout
 
 The 0.1.0 source tree separates the portable library from its Home Assistant adapter:
@@ -58,6 +71,7 @@ The 0.1.0 source tree separates the portable library from its Home Assistant ada
 ```text
 pyloxone_audio/       Home Assistant-independent library
 adapters/pyloxone/    PyLoxone adapter, host-base information and instructions
+preview-build/       Complete pinned integration preview and tester instructions
 tests/library/       Portable library tests
 tests/adapter/       Audio-adapter and library/host contract tests
 ```
@@ -69,6 +83,8 @@ The Python package contains the portable library. The adapter stays separate fro
 ## Installation and releases
 
 **For Home Assistant users:** use a PyLoxone build that includes the matching audio adapter. Its manifest pins a tested library version, and Home Assistant installs that dependency automatically. The normal installation unit is PyLoxone; a separate integration or manual `pip` step is not required for a released, compatible pair. The presence of the adapter in this repository does not mean an upstream PyLoxone release already includes it.
+
+The maintained preview targets **PyLoxone 0.10.2 with PyLoxone-Audio 0.1.0**. Before installing it, verify that the exact library version is listed on [PyPI](https://pypi.org/project/PyLoxone-Audio/0.1.0/) and check the matching [release](https://github.com/davehocking/PyLoxone-Audio/releases). A source checkout or preview ZIP alone is not proof of publication. The preview is excluded from both Python wheel and sdist, but retained in the library repository. Its provenance records offline bundle validation; public dependency availability is a separate release check. No upstream adoption or universal hardware/HAOS compatibility is claimed.
 
 **For Python developers:** the library is packaged as a versioned wheel and source distribution, independently of the Home Assistant adapter. Use the artifacts and compatibility information for the selected release. Installing the Python library alone does not add an integration to Home Assistant.
 

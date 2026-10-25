@@ -1,0 +1,29 @@
+{
+  "audio_event": [
+    {
+      "album": "",
+      "artist": "",
+      "audiopath": "loxoneradio:stream:449c2aa2",
+      "audiotype": 1,
+      "clientState": "on",
+      "coverurl": "https://coverart.streampal.net/?mount=loxone_loxone0&cache=<x>",
+      "duration": 0,
+      "duration_ms": 0,
+      "mode": "play",
+      "name": "Büro",
+      "parent": null,
+      "pbr": 16397,
+      "playerid": 22,
+      "plrepeat": 0,
+      "plshuffle": 1,
+      "power": "on",
+      "qid": "<qid>",
+      "qindex": 0,
+      "station": "Focus",
+      "time": 0,
+      "title": "Universal Solution - In Your System",
+      "type": 2,
+      "volume": 30
+    }
+  ]
+}

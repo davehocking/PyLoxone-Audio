@@ -1,0 +1,16 @@
+09:17:17.920  eventype=100  Alarm      <- start
+09:17:22.475  eventype=None Linein     <- "end"
+09:17:22.536  eventype=100  Alarm
+09:17:22.576  eventype=None Linein
+09:17:22.643  eventype=100  Alarm
+09:17:22.679  eventype=None Linein
+09:17:22.733  eventype=100  Alarm
+09:17:22.761  eventype=None Linein
+09:17:22.808  eventype=100  Alarm
+09:17:22.835  eventype=None Linein
+09:17:22.884  eventype=100  Alarm
+09:17:22.907  eventype=None Linein
+09:17:22.948  eventype=100  Alarm
+09:17:22.966  eventype=None Linein
+09:17:23.008  eventype=100  Alarm      mode=stop
+09:17:23.023  eventype=None Linein     mode=stop   <- real end

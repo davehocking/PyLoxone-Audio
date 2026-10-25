@@ -1,0 +1,13 @@
+# Keep complete integration previews out of Python source distributions.
+prune preview-build
+prune checks
+prune adapters
+prune tools
+prune tests/adapter
+include API.md
+include NOTICE.md
+include LICENSE
+include README.md
+include SPOTIFY.md
+prune tests/release
+recursive-include tests/library *.py *.ini *.json *.txt *.md

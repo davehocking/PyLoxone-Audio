@@ -1,0 +1,193 @@
+{
+  "entity": {
+    "climate": {
+      "room_controller_v2": {
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "schedule": "Schedule",
+              "paused_door_window": "Paused (Door/Window)"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "override_reason": {
+        "state": {
+          "none": "None",
+          "presence": "Presence",
+          "window_open": "Window Open",
+          "comfort_override": "Comfort Override",
+          "eco_override": "Eco Override",
+          "eco_plus_override": "Eco+ Override",
+          "prepare_heat_up": "Prepare State Heat Up",
+          "prepare_cool_down": "Prepare State Cool Down",
+          "overridden_by_source": "Overridden by source",
+          "fixed": "Fixed Setpoint"
+        }
+      }
+    }
+  },
+  "config": {
+    "abort": {
+      "single_instance_allowed": "Already configured. Only a single configuration possible.",
+      "already_configured": "This Miniserver is already configured.",
+      "invalid_import": "The loxone: configuration in configuration.yaml could not be imported: username and password must be latin-1 compatible.",
+      "reauth_successful": "The credentials were updated."
+    },
+    "step": {
+      "user": {
+        "title": "Set up Loxone",
+        "description": "Configure your Loxone Miniserver connection",
+        "data": {
+          "username": "User",
+          "port": "Port",
+          "host": "Miniserver Ip",
+          "password": "Password",
+          "verify_ssl": "Verify the Miniserver TLS certificate",
+          "audioserver_host": "Audioserver host (optional; port 7091)",
+          "audioserver_spotify_return": "Spotify return room bindings (advanced; optional)",
+          "audioserver_playback": "Use Audio Server player play/pause (experimental; off by default)",
+          "generate_scenes": "generate scenes",
+          "generate_lightcontroller_subcontrols": "Enable LightControllerV2 subcontrols by default",
+          "generate_scenes_delay": "Delay for the scene generation if enabled"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate Loxone",
+        "description": "The Miniserver rejected the username or password. Enter the current credentials.",
+        "data": {
+          "username": "User",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_credentials_encoding": "Username and password must be latin-1 compatible.",
+      "invalid_audioserver_host": "Enter a bare Audioserver hostname or IP address without a port, URL, path or credentials.",
+      "invalid_spotify_return": "Enter unique room/account/device bindings and enable Audio Server playback.",
+      "audioserver_playback_requires_host": "Set the Audioserver host before enabling player play/pause."
+    }
+  },
+  "options": {
+    "error": {
+      "invalid_audioserver_host": "Enter a bare Audioserver hostname or IP address without a port, URL, path or credentials.",
+      "invalid_spotify_return": "Enter unique room/account/device bindings and enable Audio Server playback.",
+      "audioserver_playback_requires_host": "Set the Audioserver host before enabling player play/pause."
+    },
+    "step": {
+      "init": {
+        "data": {
+          "username": "User",
+          "port": "Port",
+          "host": "Miniserver Ip",
+          "password": "Password",
+          "verify_ssl": "Verify the Miniserver TLS certificate",
+          "audioserver_host": "Audioserver host (optional; port 7091)",
+          "audioserver_spotify_return": "Spotify return room bindings (advanced; optional)",
+          "audioserver_playback": "Use Audio Server player play/pause (experimental; off by default)",
+          "generate_scenes": "Generate scenes",
+          "generate_lightcontroller_subcontrols": "Enable LightControllerV2 subcontrols by default",
+          "generate_scenes_delay": "Delay for the scene generation if enabled"
+        },
+        "description": "PyLoxone edit settings:",
+        "title": "PyLoxone settings"
+      }
+    }
+  },
+  "services": {
+    "reload": {
+      "name": "Pyloxone Reload",
+      "description": "Reloads the Loxone integration by reconnecting to the Miniserver and refreshing all entities. This is useful after making configuration changes in Loxone Config or when connection issues occur. All current entity states will be re\\-synchronized from the Miniserver."
+    },
+    "refresh_token": {
+      "name": "Refresh Miniserver token",
+      "description": "Immediately refreshes the authentication token for the selected Loxone config entry and waits for the Miniserver to confirm the new token.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Loxone config entry",
+          "description": "Select which configured Miniserver should refresh its token."
+        }
+      }
+    },
+    "event_websocket_command": {
+      "name": "Send Websocket command",
+      "description": "Send websocket commands to the loxone server. You can send a command to the Miniserver using an entity or using a UUID. If you specify both, the command will be sent to the Entity. More info and commands can be found on the Loxone Website",
+      "fields": {
+        "uuid": {
+          "name": "UUID",
+          "description": "Uuid for entity which you want to send a command."
+        },
+        "device": {
+          "name": "Entity",
+          "description": "Device which you want to send a command"
+        },
+        "value": {
+          "name": "Command",
+          "description": "Command which you want to send"
+        }
+      }
+    },
+    "event_secured_websocket_command": {
+      "name": "Send secured websocket command",
+      "description": "Send websocket commands to the loxone server. You can send a command to the Miniserver using an entity or using a UUID. If you specify both, the command will be sent to the Entity. More info and commands can be found on the Loxone Website",
+      "fields": {
+        "uuid": {
+          "name": "UUID",
+          "description": "Uuid for entity which you want to send a command."
+        },
+        "device": {
+          "name": "Entity",
+          "description": "Device which you want to send a command"
+        },
+        "value": {
+          "name": "Command",
+          "description": "Command which you want to send"
+        },
+        "code": {
+          "name": "Password",
+          "description": "Visual password for this entity."
+        }
+      }
+    },
+    "sync_areas": {
+      "name": "Sync areas",
+      "description": "Applies areas to the loxone entites based on the room from loxone. If area not exists entites will not be changed",
+      "fields": {
+        "create_areas": {
+          "name": "Create areas",
+          "description": "Force to create areas when they not exist in HA"
+        }
+      }
+    },
+    "enable_sun_automation": {
+      "name": "Enable sun automation",
+      "description": "Enable Sun automation for Loxone Jalousie"
+    },
+    "disable_sun_automation": {
+      "name": "Disable sun automation",
+      "description": "Disable Sun automation for Loxone Jalousie"
+    },
+    "quick_shade": {
+      "name": "Quick shade",
+      "description": "Move Loxone Jalousie to shade position. Position is set by Loxone depends on multiple values."
+    }
+  },
+  "exceptions": {
+    "audioserver_announcement_unavailable": {"message": "Audio Server announcements are unavailable or a previous request is still unresolved. No new announcement was sent."},
+    "audioserver_announcement_failed": {"message": "The Audio Server announcement did not complete reliably. Playback may have occurred. No automatic retry was sent."},
+    "audioserver_seek_unavailable": {
+      "message": "Seeking is unavailable for this track or position."
+    },
+    "audioserver_seek_failed": {
+      "message": "The seek was not confirmed for the current track. No retry or playback start was sent."
+    },
+    "audioserver_playback_failed": {
+      "message": "Audio Server playback was not confirmed. No fallback or automatic retry was sent."
+    },
+    "audioserver_playback_unavailable": {
+      "message": "Audio Server playback is unavailable. No room-start fallback was sent."
+    }
+  }
+}

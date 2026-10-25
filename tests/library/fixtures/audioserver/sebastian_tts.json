@@ -1,0 +1,27 @@
+{
+  "audio_event": [
+    {
+      "album": "",
+      "artist": "LOXONE",
+      "audiopath": "file:///home/public/Event_Sounds/tts/<hash>.mp3",
+      "audiotype": 1,
+      "clientState": "on",
+      "coverurl": "http://<audioserver>:7091/imgcache/?item=customtts&viaproxy=<uuid>",
+      "duration": 0,
+      "eventype": 3,
+      "mode": "play",
+      "name": "Wohn-Ess Beriech",
+      "pbr": 0,
+      "playerid": 15,
+      "plrepeat": 0,
+      "plshuffle": 0,
+      "power": "on",
+      "qindex": 0,
+      "station": "",
+      "time": 0,
+      "title": "TTS: test",
+      "url": "",
+      "volume": 40
+    }
+  ]
+}

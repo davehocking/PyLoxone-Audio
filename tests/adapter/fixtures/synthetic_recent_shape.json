@@ -1,0 +1,65 @@
+{
+  "items": [
+    {
+      "audiopath": "loxoneradio:stream:synthetic-0",
+      "title": "Synthetic item 0",
+      "type": 2
+    },
+    {
+      "audiopath": "spotify@synthetic-account:track:synthetic-1",
+      "title": "Synthetic item 1",
+      "type": 2
+    },
+    {
+      "audiopath": "tunein:station:synthetic-2",
+      "title": "Synthetic item 2",
+      "type": 2
+    },
+    {
+      "audiopath": "library:local:track:synthetic-3",
+      "title": "Synthetic item 3",
+      "type": 2
+    },
+    {
+      "audiopath": "library:local:folder:synthetic-4",
+      "title": "Synthetic item 4",
+      "type": 1
+    },
+    {
+      "audiopath": "library:local:track:synthetic-5",
+      "title": "Synthetic item 5",
+      "type": 2
+    },
+    {
+      "audiopath": "library:local:track:synthetic-6",
+      "title": "Synthetic item 6",
+      "type": 2
+    },
+    {
+      "audiopath": "spotify:track:synthetic-7",
+      "title": "Synthetic item 7",
+      "type": 2
+    },
+    {
+      "audiopath": "spotify:track:synthetic-8",
+      "title": "Synthetic item 8",
+      "type": 2
+    },
+    {
+      "audiopath": "spotify@synthetic-account:playlist:synthetic-9",
+      "title": "Synthetic item 9",
+      "type": 7
+    },
+    {
+      "audiopath": "linein:ABCDEF123456#1000001",
+      "title": "Synthetic item 10",
+      "type": 6
+    },
+    {
+      "audiopath": "library:local:folder:synthetic-11",
+      "title": "Synthetic item 11",
+      "type": 1
+    }
+  ],
+  "ts": 0
+}
