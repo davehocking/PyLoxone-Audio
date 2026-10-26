@@ -39,6 +39,30 @@ The adapter uses the library's public interface. Ordinary internal library bug f
 
 Home Assistant uses standard media-player entities and controls: **no patched Home Assistant Core or frontend, injected JavaScript/CSS, or project-specific custom card**.
 
+## Required Audio Server configuration
+
+**Enable the Audio Server playback option to use this project's enhanced audio
+functions through the matching PyLoxone adapter.** Installing the library alone
+or entering the Audio Server address does not enable them.
+
+In the existing PyLoxone integration's configuration/options:
+
+1. Set **Audioserver host** to the Audio Server's bare hostname or IP address.
+2. Turn ON **Use Audio Server player play/pause (experimental; off by default)**
+   (`audioserver_playback: true`). This is the current option label.
+3. Save the options before testing the enhanced audio features.
+
+Despite the label, this option enables more than play/pause: the native command
+client is also required for Browse/Search, source selection and return,
+supported seeking and announcements. With it OFF, the library can still load
+and a configured host can supply metadata, but those enhanced functions remain
+unavailable. Existing non-audio PyLoxone functionality and Miniserver-only
+controls are not disabled.
+
+These instructions describe the current reference adapter. The wording and
+configuration approach can be revisited once JoDehli's upstream approach is
+agreed; no change of defaults or upstream adoption is implied here.
+
 ## Audio behaviour
 
 Version 0.1.0 focuses on Loxone Audio Server-backed rooms. Supported sources are **Local Library, Loxone Radio, Spotify, TuneIn and Line-In**, where available and configured in Loxone. Not every installation has every source or subscription. SoundSuit is outside the 0.1.0 scope.
