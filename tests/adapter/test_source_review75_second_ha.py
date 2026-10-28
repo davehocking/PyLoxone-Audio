@@ -38,9 +38,7 @@ async def test_malformed_source_item_does_not_poison_either_last_success_or_choi
 async def test_paused_native_same_track_foreign_user_is_not_confirmation(hass, audio_setup, monkeypatch):
     entity, emit, writes, _session, spotify = await session_room(hass, audio_setup, monkeypatch)
     await emit({**spotify, 'mode':'pause'})
-    entity._spotify_return.close()
-    entity._spotify_return = None
-    entity._spotify_binding = None
+
     sent = asyncio.Event()
     async def request(client, command, key, *, is_current, on_send, **kwargs):
         assert is_current()
@@ -78,9 +76,13 @@ async def test_invalid_playable_kind_cannot_cancel_valid_existing_owner(hass, au
     entity, _emit, writes, _session, _spotify = await session_room(hass, audio_setup, monkeypatch)
     entered, closing, release = asyncio.Event(), asyncio.Event(), asyncio.Event()
     original = wire.AudioServerCommands._async_request
-    lock = entity._spotify_return._account['lock']
     if phase == 'waiting':
-        await lock.acquire()
+        accounts = entity._audio_commands.async_service_accounts
+        async def waiting_accounts():
+            entered.set()
+            await release.wait()
+            return await accounts()
+        monkeypatch.setattr(entity._audio_commands, 'async_service_accounts', waiting_accounts)
     else:
         async def request(client, command, key, *, is_current, on_send, **kwargs):
             if '/serviceplay/spotify/' in command:
@@ -113,8 +115,7 @@ async def test_invalid_playable_kind_cannot_cancel_valid_existing_owner(hass, au
         assert entity._source_task is owner and not owner.done()
     finally:
         release.set()
-        if lock.locked():
-            lock.release()
+
         for task in (action,newer):
             if task:
                 task.cancel()
@@ -123,7 +124,7 @@ async def test_invalid_playable_kind_cannot_cancel_valid_existing_owner(hass, au
 
 @pytest.mark.asyncio
 async def test_unload_repeated_cancellation_does_not_interrupt_open_transport_cleanup(hass, audio_setup, monkeypatch):
-    entity, emit, _writes = await install_sources(hass,audio_setup,monkeypatch,spotify=True)
+    entity, emit, _writes = await install_sources(hass,audio_setup,monkeypatch,spotify=True, previous_spotify=True)
     await emit(library_row())
     entered, closing, release, closed = asyncio.Event(), asyncio.Event(), asyncio.Event(), asyncio.Event()
     async def request(client, command, key, *, is_current, on_send, **kwargs):
@@ -159,32 +160,3 @@ async def test_unload_repeated_cancellation_does_not_interrupt_open_transport_cl
             if task:
                 task.cancel()
         await asyncio.gather(*(task for task in (action,unload) if task),return_exceptions=True)
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize('state', ['native-paused-empty-history', 'provider-own-empty-history', 'provider-restricted'])
-async def test_actual_resumable_session_is_not_denied_or_replaced_by_history_absence(hass, audio_setup, monkeypatch, state):
-    entity, emit, writes, session, spotify = await session_room(hass,audio_setup,monkeypatch)
-    if state == 'native-paused-empty-history':
-        await emit({**spotify,'mode':'pause'})
-        entity._spotify_return.close()
-        entity._spotify_return = None
-        entity._spotify_binding = None
-    elif state == 'provider-restricted':
-        session.current['device']['is_restricted'] = True
-    if state != 'provider-restricted':
-        entity._radio_catalogue.source_choices.pop('Spotify',None)
-        entity._radio_catalogue.source_sessions.clear()
-        async def empty_history(client, player):
-            return {'items': [], 'ts': 0}
-        monkeypatch.setattr(wire.AudioServerCommands,'async_recent_sources',empty_history)
-    async def request(client, command, key, *, is_current, on_send, **kwargs):
-        assert is_current()
-        on_send()
-        writes.append(command)
-        assert command == 'audio/7/serviceplay/spotify/synthetic-account/'
-        audio_setup.queues[0].put_nowait(json.dumps({'audio_event':[spotify]}))
-    monkeypatch.setattr(wire.AudioServerCommands,'_async_request',request)
-    await hass.services.async_call('media_player','select_source',{'entity_id':entity.entity_id,'source':'Spotify'},blocking=True)
-    assert writes == ['audio/7/serviceplay/spotify/synthetic-account/']
-    assert entity._radio_catalogue.source_session('Spotify').audio_path == spotify['audiopath']

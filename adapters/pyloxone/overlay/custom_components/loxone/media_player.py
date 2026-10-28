@@ -21,6 +21,7 @@ from homeassistant.components.media_player import (
     MediaPlayerEntityFeature,
     MediaPlayerState,
     MediaType,
+    RepeatMode,
     SearchError,
     SearchMedia,
     SearchMediaQuery,
@@ -49,10 +50,11 @@ from .const import (
 )
 from .helpers import add_room_and_cat_to_value_values, get_all, get_or_create_device
 from .miniserver import get_miniserver_from_hass
-from .pyloxone_api.audioserver import AudioCommandError, AudioServerCommands, audio_player_id
+from .pyloxone_api.audioserver import (
+    AudioCommandError, AudioRepeatMode, AudioServerCommands, audio_mode_supported, audio_player_id,
+)
 from .spotify_continuity import (
-    CONF_SPOTIFY_RETURN, SpotifyBinding, SpotifySourceReturn,
-    async_restore_dispatch_fences, spotify_room_uncertain, validate_bindings,
+    async_restore_dispatch_fences, spotify_room_uncertain,
 )
 
 if TYPE_CHECKING:
@@ -147,6 +149,9 @@ async def async_setup_entry(
             hass.data[DOMAIN][config_entry.entry_id].audio_metadata = audio_metadata
 
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    diagnostics = getattr(coordinator, "audio_diagnostics", None)
+    if audio_metadata is not None:
+        audio_metadata.diagnostics = diagnostics
     playback_enabled = config_entry.options.get(CONF_AUDIOSERVER_PLAYBACK, False) is True
     audio_commands = None
     if playback_enabled:
@@ -159,12 +164,8 @@ async def async_setup_entry(
             _LOGGER.warning("Optional Audio Server playback unavailable; play/pause will not fall back to room start")
         else:
             coordinator.audio_commands = audio_commands
+            audio_commands.diagnostics = diagnostics
 
-    try:
-        spotify_bindings = validate_bindings(config_entry.options.get(CONF_SPOTIFY_RETURN, {}))
-    except ValueError:
-        _LOGGER.debug("Optional Spotify return mappings are invalid; using native sources")
-        spotify_bindings = {}
 
     for audioZone in get_all(loxconfig, "AudioZoneV2"):
         audioZone = add_room_and_cat_to_value_values(loxconfig, audioZone)
@@ -178,7 +179,7 @@ async def async_setup_entry(
                 audio_metadata=audio_metadata,
                 audio_commands=audio_commands,
                 audio_commands_enabled=playback_enabled,
-                spotify_return_binding=spotify_bindings.get(audioZone.get("uuidAction")),
+
                 **audioZone,
             )
         )
@@ -197,7 +198,7 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         *,
         audio_commands: AudioServerCommands | None = None,
         audio_commands_enabled: bool = False,
-        spotify_return_binding: dict | None = None,
+
         **kwargs: Any,
     ) -> None:
         """Retain native controls and optionally bind an exact metadata player ID."""
@@ -215,6 +216,7 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         self._source_generation = 0
         self._source_target = None
         self._source_feedback = None
+        self._source_return_rejection = None
         self._transport_tasks: set[asyncio.Task] = set()
         self._discovery_tasks: set[asyncio.Task] = set()
         self._source_favourites = ()
@@ -236,15 +238,6 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
             if audio_commands_enabled and audio_commands is not None and self._audio_player_id is not None else None
         )
 
-        self._spotify_binding = None
-        self._spotify_return = None
-        self._spotify_return_configured = spotify_return_binding is not None
-        if self._spotify_return_configured:
-            try:
-                self._spotify_binding = SpotifyBinding.parse(spotify_return_binding)
-            except ValueError:
-                _LOGGER.debug("Optional Spotify return mapping is invalid; using native sources")
-        self._create_spotify_return()
 
         self.type = "AudioZoneV2"
         self._attr_device_info = get_or_create_device(self.unique_id, self.name, self.type, self.room)
@@ -254,8 +247,7 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         # Registry entity-ID changes remove and re-add this same instance.
         await async_restore_dispatch_fences(self.hass)
         self._audio_removed = False
-        if self._spotify_return is not None and self._spotify_return.closed:
-            self._create_spotify_return()
+
         await super().async_added_to_hass()
         if self._audio_metadata is not None and self._audio_player_id is not None:
             self.async_on_remove(
@@ -296,13 +288,13 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         self._audio_sources_ready = False
         try:
             await self._radio_catalogue.async_refresh_sources()
-            self._attr_source_list = list(self._radio_catalogue.source_descriptors) or None
+            self._attr_source_list = list(self._radio_catalogue.previous_source_labels) or None
             self._audio_sources_ready = self._radio_catalogue.source_inventory_complete
         except (AudioCommandError, ValueError, TimeoutError):
             _LOGGER.warning("Optional native source history unavailable; keeping browse and other controls")
         finally:
             # Presence can be known even when optional content history fails.
-            self._attr_source_list = list(self._radio_catalogue.source_descriptors) or None
+            self._attr_source_list = list(self._radio_catalogue.previous_source_labels) or None
 
     async def async_will_remove_from_hass(self) -> None:
         """Cancel preparation/event waiting before removing this entity."""
@@ -311,8 +303,7 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         self._cover_metadata_hash = None
         self._cover_cache = None
         self._source_generation += 1
-        if self._spotify_return is not None:
-            self._spotify_return.close()
+
         cancelled = False
         for task in {*self._discovery_tasks, *self._transport_tasks, self._announcement_task, self._source_task}:
             if task is not None and task is not asyncio.current_task():
@@ -334,8 +325,12 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         if self._audio_removed or self._audio_metadata is None or self._audio_player_id is None:
             return
         metadata = self._audio_metadata.get(self._audio_player_id)
-        if metadata is None and self._spotify_return is not None:
-            self._spotify_return.invalidate()
+
+        self._attr_shuffle = metadata.shuffle if metadata else None
+        self._attr_repeat = (
+            {AudioRepeatMode.OFF: RepeatMode.OFF, AudioRepeatMode.ALL: RepeatMode.ALL,
+             AudioRepeatMode.ONE: RepeatMode.ONE}.get(metadata.repeat) if metadata else None
+        )
         self._attr_media_title = metadata.title if metadata else None
         self._attr_media_artist = metadata.artist if metadata else None
         self._attr_media_album_name = metadata.album if metadata else None
@@ -393,7 +388,7 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         artwork_metadata = (
             replace(metadata, event=None, event_active=None, position=None, duration=None,
                     position_updated_at=None, playback_mode=None, received_at=None, playback_restrictions=None,
-                    native_mode=None)
+                    native_mode=None, shuffle=None, repeat=None, shuffle_switch_supported=None)
             if metadata
             else None
         )
@@ -410,15 +405,35 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         # sample: one delayed old reply must not replace a confirmed visit.
         previous = self._source_feedback
         settled = self._source_task is None
+        eligible = audio_sources.passive_history_eligible(
+            metadata, previous, settled=settled, initial_generation=self._source_generation == 0,
+        )
+        accept_return = True
+        if settled and self._source_return_rejection is not None and metadata is not None:
+            saved, rejected = self._source_return_rejection
+            if metadata.source == saved.source and metadata.source_name == saved.source_name:
+                identity = metadata.audio_path
+                if metadata.audio_path == saved.audio_path and eligible:
+                    self._source_return_rejection = None
+                elif metadata.audio_path:
+                    if rejected is None or identity == rejected:
+                        # Continuing a rejected return is truthful now-playing,
+                        # not permission to replace the preceding bookmark.
+                        self._source_return_rejection = (saved, identity)
+                        accept_return = False
+                    elif eligible:
+                        # A different later selection can qualify by the normal
+                        # passive two-sample rule. This is not an issuer claim.
+                        self._source_return_rejection = None
+                    else:
+                        accept_return = False
         source_label = self._radio_catalogue.remember_source(
             metadata, intent=None if settled else self._source_target,
-            accept=audio_sources.passive_history_eligible(
-                metadata, previous, settled=settled, initial_generation=self._source_generation == 0,
-            ),
+            accept=accept_return and eligible,
         ) if self._radio_catalogue is not None else None
         self._source_feedback = metadata
         if self._radio_catalogue is not None:
-            self._attr_source_list = list(self._radio_catalogue.source_descriptors) or None
+            self._attr_source_list = list(self._radio_catalogue.previous_source_labels) or None
         self._attr_source = source_label or (metadata.source if metadata else None)
         # Preserve common Loxone attributes and native playback state. None is
         # unknown (including disconnect), not an observed event completion.
@@ -547,14 +562,75 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         metadata = self._audio_metadata.get(self._audio_player_id) if self._audio_metadata is not None else None
         if metadata and metadata.source in {"Loxone Radio", "TuneIn"}:
             features &= ~(MediaPlayerEntityFeature.NEXT_TRACK | MediaPlayerEntityFeature.PREVIOUS_TRACK)
-        if self._can_announce() and self._attr_source_list:
+        if self._can_announce() and self._radio_catalogue is not None and self._radio_catalogue.source_descriptors:
             features |= MediaPlayerEntityFeature.SELECT_SOURCE
         if self._can_announce():
             features |= MediaPlayerEntityFeature.PLAY_MEDIA | MediaPlayerEntityFeature.MEDIA_ANNOUNCE
             features |= MediaPlayerEntityFeature.BROWSE_MEDIA | MediaPlayerEntityFeature.SEARCH_MEDIA
         if self._can_seek():
             features |= MediaPlayerEntityFeature.SEEK
+        if self._can_set_audio_mode("shuffle"):
+            features |= MediaPlayerEntityFeature.SHUFFLE_SET
+        if self._can_set_audio_mode("repeat"):
+            features |= MediaPlayerEntityFeature.REPEAT_SET
         return features
+
+
+    def _can_set_audio_mode(self, operation: str) -> bool:
+        """Only current native state/capabilities can enable a mode control."""
+        metadata = self._audio_metadata.get(self._audio_player_id) if self._audio_metadata is not None else None
+        return self._can_announce() and audio_mode_supported(metadata, operation)
+
+    async def async_set_shuffle(self, shuffle: bool) -> None:
+        """Set a literal mode; feedback, not this request, owns the HA indicator."""
+        if type(shuffle) is not bool:
+            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_unavailable")
+        await self._async_set_audio_mode("shuffle", shuffle)
+
+    async def async_set_repeat(self, repeat: RepeatMode) -> None:
+        """Map HA's standard Off/All/One to native 0/1/3 explicitly."""
+        modes = {RepeatMode.OFF: AudioRepeatMode.OFF, RepeatMode.ALL: AudioRepeatMode.ALL,
+                 RepeatMode.ONE: AudioRepeatMode.ONE}
+        if not isinstance(repeat, str) or repeat not in modes:
+            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_unavailable")
+        await self._async_set_audio_mode("repeat", modes[repeat])
+
+    async def _async_set_audio_mode(self, operation: str, value: bool | AudioRepeatMode) -> None:
+        """Share existing newest-action transport ownership, without playback."""
+        if not self._can_set_audio_mode(operation) or self._announcement_task is not None or self._audio_source_uncertain():
+            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_unavailable")
+        commands, metadata, player = self._audio_commands, self._audio_metadata, self._audio_player_id
+        original = metadata.get(player)
+        generation, owner = None, False
+        valid = True
+
+        def current() -> bool:
+            nonlocal valid
+            snapshot = metadata.get(player)
+            valid = bool(
+                valid and (generation is None or generation == self._source_generation)
+                and self._can_set_audio_mode(operation) and self._announcement_task is None
+                and not self._audio_source_uncertain() and snapshot is not None
+                and all(getattr(original, field) == getattr(snapshot, field)
+                        for field in ("audio_path", "source_name", "parent_id", "native_mode"))
+            )
+            return valid
+
+        # Observe original native validity even while the previous owner's socket
+        # drains. Ownership is checked once acquired; stable takeover is valid.
+        # A matching later frame must never revive a native-invalidated request.
+        remove = metadata.async_add_listener(player, current)
+        try:
+            generation, owner = await self._async_begin_source_action()
+            if operation == "shuffle":
+                await commands.async_set_shuffle(player, value, is_current=current)
+            else:
+                await commands.async_set_repeat(player, value, is_current=current)
+        except (AudioCommandError, ValueError, TimeoutError):
+            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_failed") from None
+        finally:
+            remove()
+            self._finish_source_action(owner)
 
     def _can_announce(self) -> bool:
         """Require opt-in control and exact-player event completion ownership."""
@@ -586,6 +662,10 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         if self._source_task is task:
             return self._source_generation, False
         previous = self._source_task
+        # Transfer an unresolved exact-return obligation before invalidating its
+        # owner or awaiting socket cleanup. The departed caller must not write
+        # this state later, nor may its wrong feedback become a native no-op.
+        self._retain_unconfirmed_source_return(self._source_target)
         self._source_generation += 1
         generation = self._source_generation
         self._source_task = task
@@ -616,13 +696,30 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
             raise
         return generation, True
 
+    def _retain_unconfirmed_source_return(self, target: RadioTarget | None) -> None:
+        """Carry an unresolved exact target, never authority to replay its write."""
+        if (
+            isinstance(target, CatalogueTarget) and target.return_session is not None
+            and self._audio_commands is not None and self._audio_metadata is not None
+            and self._audio_player_id is not None
+            and self._audio_player_id in self._audio_commands.source_fences
+        ):
+            saved = target.return_session
+            snapshot = self._audio_metadata.get(self._audio_player_id)
+            rejected = (
+                snapshot.audio_path
+                if snapshot is not None and snapshot.source == saved.source
+                and snapshot.source_name == saved.source_name and snapshot.audio_path else None
+            )
+            self._source_return_rejection = (saved, rejected)
+
     def _finish_source_action(self, owner: bool) -> None:
         """Obsolete and nested actions cannot clear a newer intent's ownership."""
         if owner and self._source_task is asyncio.current_task():
             self._source_task = None
             self._source_target = None
             if self._radio_catalogue is not None:
-                self._attr_source_list = list(self._radio_catalogue.source_descriptors) or None
+                self._attr_source_list = list(self._radio_catalogue.previous_source_labels) or None
 
     async def async_select_source(self, source: str) -> None:
         """Return to the exact room's last native provider selection or input."""
@@ -641,13 +738,9 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         def selected(target: RadioTarget) -> None:
             self._source_target = target
 
-        controller = self._spotify_return
-        controller_generation = controller.generation if controller is not None else None
-
         def native_available() -> bool:
             return (
-                self._source_generation == generation and self._spotify_return is controller
-                and (controller is None or controller.generation == controller_generation)
+                self._source_generation == generation
                 and self._can_announce() and self._announcement_task is None
                 and self._audio_player_id not in self._audio_commands.announcement_fences
             )
@@ -657,13 +750,22 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
                 self._audio_commands, self._audio_metadata, self._radio_catalogue, self._audio_player_id, source,
                 is_current=lambda: generation == self._source_generation,
                 ensure_snapshot=lambda: self._async_ensure_source_snapshot(generation),
-                resume_native=self._async_optional_spotify_resume, native_is_available=native_available,
+                native_is_available=native_available,
                 on_target=selected, environment=audio_sources.environment,
+                allow_native_noop=self._source_return_rejection is None,
             )
             if route.media_id is not None:
                 await self._async_play_radio(route.media_id, expected_native=route.original, source_return=True)
-        except audio_selection.SourceContentRequiredError as exc:
-            raise HomeAssistantError(str(exc)) from None
+        except audio_selection.SourceContentRequiredError:
+            descriptor = self._radio_catalogue.source_descriptors.get(source)
+            folder = {
+                "tunein": "Radio", "loxoneradio": "Loxone Radio",
+                "library": "Local Library", "spotify": "Spotify",
+            }.get(getattr(descriptor, "service", None), "Radio")
+            raise HomeAssistantError(
+                f"Choose and play content in Browse media > {folder}. "
+                "Then use Source to return to this room's selection."
+            ) from None
         except (AudioCommandError, ValueError, TimeoutError, ClientError):  # fmt: skip
             _LOGGER.warning("Audio source selection failed; no automatic retry was sent")
             raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_failed") from None
@@ -688,30 +790,6 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         )
 
 
-    async def _async_optional_spotify_resume(self, target: RadioTarget) -> audio_selection.NativeResumeOutcome:
-        """Supply only the existing linked bridge; portable routing owns fallback."""
-        controller = self._spotify_return
-        if controller is None or target.service != "spotify" or target.account != self._spotify_binding.account_id:
-            return audio_selection.NativeResumeOutcome.UNAVAILABLE
-        generation = self._source_generation
-        completed = await controller.async_resume_native(
-            self._audio_metadata,
-            lambda: self._can_announce() and self._announcement_task is None
-            and self._source_generation == generation,
-        )
-        return (
-            audio_selection.NativeResumeOutcome.COMPLETE if completed
-            else audio_selection.NativeResumeOutcome.UNAVAILABLE
-        )
-
-    def _create_spotify_return(self) -> None:
-        """Bind only an explicitly configured room to HA-owned Spotify auth."""
-        if self._spotify_binding is not None and self._can_announce():
-            self._spotify_return = SpotifySourceReturn(
-                self.hass, self._spotify_binding, self.unique_id, self._audio_player_id,
-                self._audio_commands, lambda: self._audio_metadata.get(self._audio_player_id),
-            )
-
 
     async def async_browse_media(
         self, media_content_type: str | None = None, media_content_id: str | None = None,
@@ -733,7 +811,7 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
                     )
                 if self._radio_catalogue.favourites is not None:
                     self._source_favourites = self._radio_catalogue.favourites
-                self._attr_source_list = list(self._radio_catalogue.source_descriptors) or None
+                self._attr_source_list = list(self._radio_catalogue.previous_source_labels) or None
                 self.async_write_ha_state()
                 self._proxy_browse_artwork([result])
         except (AudioCommandError, ValueError, TimeoutError):
@@ -803,7 +881,7 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         except ValueError:
             raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_failed") from None
         generation, owns_action = await self._async_begin_source_action()
-        completed = False
+
 
         try:
 
@@ -820,6 +898,10 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
                 # frame during preparation is not this visit's success.
                 if available():
                     self._radio_catalogue.remember_source(snapshot, intent=None if source_return else target)
+                    if self._source_return_rejection is not None:
+                        saved, _ = self._source_return_rejection
+                        if snapshot.source == saved.source and snapshot.source_name == saved.source_name:
+                            self._source_return_rejection = None
 
             await self._async_ensure_source_snapshot(generation)
             current = expected_native if expected_native is not None else metadata.get(player)
@@ -827,10 +909,6 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
                 msg = "Initial native source identity is missing; no command was sent"
                 raise AudioCommandError(msg)  # noqa: TRY301 - translated source-action boundary
 
-            if target.service == "spotify" and self._spotify_return is not None:
-                # A deliberate native content start supersedes the prior return
-                # bookmark, including its retained context-selection label.
-                self._spotify_return.invalidate()
 
             if target.kind == "favourite" and target.favourite is not None:
                 await audio_sources.async_select_favourite(
@@ -851,16 +929,13 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
             else:
                 raise ValueError  # noqa: TRY301 - share the translated unsupported-selection error
 
-            completed = True
+
         except (AudioCommandError, ValueError, TimeoutError, ClientError):
             _LOGGER.warning("Audio content selection failed; no automatic retry was sent")
             raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_failed") from None
         finally:
-            if not completed and generation == self._source_generation:
-                # An unsuccessful departure leaves no paused-return snapshot.
-                # invalidate does not clear provider or native uncertainty.
-                if self._spotify_return is not None:
-                    self._spotify_return.invalidate()
+            if source_return and available():
+                self._retain_unconfirmed_source_return(target)
             self._finish_source_action(owns_action)
 
     async def async_play_media(self, media_type: str, media_id: str, **kwargs: Any) -> None:
@@ -981,7 +1056,7 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         return bool(
             (not confirmed_library and (
                 spotify_room_uncertain(self.hass, self.unique_id, self._audio_player_id)
-                or (self._spotify_return is not None and self._spotify_return.uncertain)
+
             ))
             or (self._audio_commands is not None and (
                 self._audio_player_id in self._audio_commands.source_fences
@@ -1036,8 +1111,6 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
         """Cancel a pending source return, then pause without clearing uncertainty."""
         _generation, owner = await self._async_begin_source_action()
         try:
-            if self._spotify_return is not None:
-                self._spotify_return.invalidate()
             if not await self._async_audio_command("pause"):
                 self.hass.bus.async_fire(SENDDOMAIN, dict(uuid=self.uuidAction, value="pause"))
         finally:
@@ -1050,8 +1123,6 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
             raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_unavailable")
         _generation, owner = await self._async_begin_source_action()
         try:
-            if self._spotify_return is not None:
-                self._spotify_return.invalidate()
             self.hass.bus.async_fire(SENDDOMAIN, dict(uuid=self.uuidAction, value=audio_zone_stop_value()))
         finally:
             self._finish_source_action(owner)

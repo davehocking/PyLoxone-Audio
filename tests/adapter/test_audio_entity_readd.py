@@ -23,7 +23,7 @@ async def test_registry_rename_keeps_audio_capabilities_and_new_metadata(
         wire.AudioServerCommands,
         "async_recent_sources",
         AsyncMock(return_value={"items": [
-            {"audiopath": "tunein:station:synthetic", "title": "Synthetic radio", "type": 1}
+            {"audiopath": "tunein:station:synthetic", "title": "Synthetic radio", "type": 2}
         ], "ts": 1}),
     )
     await audio_setup.setup(playback=True)

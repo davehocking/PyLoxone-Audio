@@ -40,7 +40,52 @@ Official references:
 - https://docs.pypi.org/trusted-publishers/using-a-publisher/
 - https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
 
+## Current version and handoffs
+
+0.1.1 is the owner-authorised release after independent exact-track/native-mode
+review, common HAOS installation and accepted one-room same-track/near-saved-
+position returns on 28 October 2026. Whole-queue/all-room/persistence is not claimed.
+The existing release workflow and protected environment secret are reused: no
+new PyPI project, token rotation or authentication migration is required.
+Source push, GitHub release, PyPI upload and verified public installation are
+separate stages. Use the release's final verification manifest for the exact
+commit, workflow, distribution hashes and normal public-index installation proof.
+The [tester start-here](preview-build/README.md) and
+[maintainer guide](adapters/pyloxone/jo-review/README.md) apply to this pair.
+Keep published 0.1.0 assets immutable; upstream adoption/contact remains separate.
+
 ## Release procedure
+
+### Standing production gate — every library version
+
+A release is **FAILED/INCOMPLETE** until all three stages pass: tested wheel and
+sdist upload; actual public PyPI version/file hashes and downloaded bytes matching
+those tested distributions; and a fresh Python 3.14 normal public-index named-pin
+wheel AND sdist installations with dependencies/imports and identical accepted
+runtime bytes, using a separate fresh environment for each.
+Source pushes, tags, GitHub release creation and green uploader output alone do
+not meet this gate. Existing HA installations do not auto-update.
+
+The existing workflow enforces this with `verify-public` after `publish`, using
+the exact build artifact and `tools/verify_public_release.py`. It retains a
+`public-index-verification` artifact on success or failure. The verifier retries
+only public read/index propagation, at most six attempts with 15-second intervals;
+digest mismatches and dependency/import/runtime failures fail immediately.
+There is no local-wheel/cache substitute, upload retry, deletion/reupload or tag
+move. A failed upload prevents verification and keeps the workflow failed.
+Development/PR builds never publish, and the API token remains confined to the
+separate protected publishing job. Regression tests include wrong/missing public
+version/files/digests, local/direct/yanked installs, dependency/runtime/import
+mismatches, private dependency downloads, exercised wheel/sdist orchestration,
+retry exhaustion and retained non-success receipts.
+
+For an independent readback using downloaded TESTED workflow distributions:
+
+    python tools/verify_public_release.py --dist /path/to/tested-dist --version 0.1.1 --work-dir /path/to/new-public-check
+
+This tool reads public endpoints and creates only a new local isolated environment;
+it cannot upload or mutate a release. Keep its exact result and actual workflow
+conclusion with the final release verification manifest.
 
 1. Keep the runtime/API version, adapter compatibility, documentation and tests
    consistent. Preserve attribution, Apache-2.0 and NOTICE.md. Do not copy private
@@ -83,7 +128,8 @@ Home Assistant test environment as described in CONTRIBUTING-RELEASE.md.
 ```
 python -m unittest discover -s tests/release -v
 python tools/test_project.py library --work-dir /path/to/new-library-check
-python -m build
+umask 022
+SOURCE_DATE_EPOCH=1792886400 python -m build
 python -m twine check --strict dist/*
 ```
 

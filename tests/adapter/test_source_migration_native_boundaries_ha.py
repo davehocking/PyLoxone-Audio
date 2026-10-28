@@ -20,6 +20,7 @@ from custom_components.loxone import audio_sources
 @pytest.mark.parametrize('recover',[False,True])
 async def test_native_handoff_requires_exact_postsend_proof_without_automatic_replay(hass,monkeypatch,invalid,recover):
     entity,session,snapshots,commands=await _saved(hass)
+    snapshots[0] = replace(native(), native_mode='pause')
     session.calls.clear()  # Capture-helper fixture setup is not the native path.
     queue=deepcopy(session.queue)
     sent=[]
@@ -58,5 +59,5 @@ async def test_native_handoff_requires_exact_postsend_proof_without_automatic_re
     assert all(method=='GET' and not url.endswith('/queue') for method,url,_ in session.calls)
     assert session.queue==queue
     assert entity._source_task is None
-    assert not entity._spotify_return._account['lock'].locked()
+    assert not hasattr(entity, '_spotify_return')
     assert snapshots[0].audio_path==TRACK

@@ -94,7 +94,7 @@ async def test_unqualified_spotify_bookmark_does_not_veto_explicit_library_depar
     assert "/library/play/" in writes[-2]
     assert writes[-1] == "audio/7/position/45.0"
     assert entity._audio_metadata.get(7).source == "Local Library"
-    assert entity._spotify_return.bookmark is None
+    assert not hasattr(entity, '_spotify_return')
     assert entity._source_task is None
     assert not entity._audio_commands.source_fences
     assert session.calls == provider_calls
@@ -206,7 +206,7 @@ async def test_sent_old_source_closes_before_new_explicit_write_without_old_seek
 async def test_pending_library_a2_does_not_erase_a1_and_explicit_return_uses_a1(
     hass: Any, audio_setup: Any, monkeypatch: pytest.MonkeyPatch, late: bool,
 ) -> None:
-    entity, emit, writes = await install_sources(hass, audio_setup, monkeypatch, spotify=True)
+    entity, emit, writes = await install_sources(hass, audio_setup, monkeypatch, spotify=True, previous_spotify=True)
     await emit(library_row())
     a1 = entity._radio_catalogue.source_session("Local Library")
     assert a1 is not None and a1.position == 45
@@ -237,14 +237,11 @@ async def test_pending_library_a2_does_not_erase_a1_and_explicit_return_uses_a1(
             await emit(library_row(audiopath=target.audio_path, time=7))
         assert entity._radio_catalogue.source_session("Local Library") is a1, "Obsolete visit cannot overwrite A1"
         await hass.services.async_call("media_player", "select_source", {"entity_id": entity.entity_id, "source": "Local Library"}, blocking=True)
-        if late:
-            # Selecting the already-playing provider is a no-op, not an A1 replay.
-            assert len(writes) == 2
-            assert entity._audio_metadata.get(7).audio_path == target.audio_path
-        else:
-            assert "library%3Alocal%3Atrack%3Afive" in writes[-2]
-            assert writes[-1] == "audio/7/position/45.0"
-            assert entity._audio_metadata.get(7).audio_path == a1.audio_path
+        # A single obsolete A2 frame is not a newly qualified session. The next
+        # explicit return requests the retained A1, not a provider-only no-op.
+        assert "library%3Alocal%3Atrack%3Afive" in writes[-2]
+        assert writes[-1] == "audio/7/position/45.0"
+        assert entity._audio_metadata.get(7).audio_path == a1.audio_path
         assert entity._source_task is None
     finally:
         old.cancel()

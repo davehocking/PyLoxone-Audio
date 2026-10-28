@@ -161,6 +161,29 @@ class AudioCatalogue(RadioCatalogue):
         self._unavailable_source_sessions: set[ConfiguredSource] = set()
         self._session_labels: dict[str, ConfiguredSource] = {}
 
+    @property
+    def previous_source_labels(self) -> list[str]:
+        """Offer room-local playable selections, not configured Browse folders.
+
+        Exact configured Line-In targets need no media selection; keep their
+        existing direct-input behaviour and inventory's Line-In-last ordering.
+        Confirmed native playback can qualify a context, but a recent folder
+        alone cannot. This is a view of existing history, not a new store.
+        """
+        result = []
+        for label, descriptor in self.source_descriptors.items():
+            if descriptor in self._unavailable_source_sessions:
+                continue
+            target = self.source_choices.get(label)
+            if descriptor.service == "linein" or self.source_session(label) is not None or (
+                target is not None
+                and target.kind in ("station", "item", "input")
+                and not getattr(target, "is_context", False)
+                and bool(target.audio_path)
+            ):
+                result.append(label)
+        return result
+
     def source_session_known(self, source: str) -> bool:
         descriptor = self.source_descriptors.get(source)
         return descriptor in self.source_sessions or descriptor in self._unavailable_source_sessions
@@ -212,6 +235,10 @@ class AudioCatalogue(RadioCatalogue):
                 (item for item in inputs if item.audio_path == path.replace("linein/", "linein:", 1)), None
             )
         if path.startswith(("tunein:", "loxoneradio:")):
+            # A recent Browse folder can carry a radio path too. Only a native
+            # station row with usable content can seed a previous selection.
+            if type(row.get("type")) is not int or row["type"] != 2 or row.get("unplayable", False) is not False:
+                return None
             if not path.partition(":")[2].strip():
                 return None
             service = (
@@ -434,6 +461,12 @@ class AudioCatalogue(RadioCatalogue):
                         )
                     self.source_sessions[identity] = snapshot
                     self._unavailable_source_sessions.discard(identity)
+                    from .diagnostic_events import diagnostic_event, diagnostics_enabled
+                    observer = getattr(self.commands, "diagnostics", None)
+                    if diagnostics_enabled(observer):
+                        diagnostic_event(observer, "session_saved", transport="source", player=self.player_id,
+                                         source=identity.service, account=snapshot.source_name, content=snapshot.audio_path,
+                                         parent=snapshot.parent_id, saved_position=snapshot.position, saved_duration=snapshot.duration)
         if (
             snapshot is None
             or snapshot.player_id != self.player_id
@@ -525,10 +558,13 @@ class AudioCatalogue(RadioCatalogue):
         if self.source_descriptors.get(source) in self._unavailable_source_sessions:
             raise AudioCommandError("Latest exact-room source session is unavailable")
         if session is None:
-            return (
+            media_id = (
                 await self.async_source_selection(source)
                 if retained is None else await self.async_source_selection(source, retained=retained)
             )
+            if source not in self.previous_source_labels:
+                raise ValueError("Choose and play content in Browse before returning to this source")
+            return media_id
         advertised = self.source_descriptors.get(source)
         revision = self._source_inventory_revision
         generation = self._source_refresh_generation + 1

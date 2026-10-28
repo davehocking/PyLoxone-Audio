@@ -1,5 +1,6 @@
 {
   "entity": {
+    "switch": {"audio_diagnostics": {"name": "Diagnóstico de áudio"}},
     "climate": {
       "room_controller_v2": {
         "state_attributes": {
@@ -47,7 +48,6 @@
           "password": "Palavra-passe",
           "verify_ssl": "Verificar o certificado TLS do Miniserver",
           "audioserver_host": "Host do Audioserver (opcional; porta 7091)",
-          "audioserver_spotify_return": "Associações de divisões para regressar ao Spotify (avançado; opcional)",
           "audioserver_playback": "Usar reprodução/pausa do leitor Audio Server (experimental; desativado por omissão)",
           "generate_scenes": "gerar cenas",
           "generate_lightcontroller_subcontrols": "Ativar subcontroles LightControllerV2 por omissão",
@@ -66,14 +66,12 @@
     "error": {
       "invalid_credentials_encoding": "O utilizador e a palavra-passe devem ser compatíveis com latin-1.",
       "invalid_audioserver_host": "Introduza um nome de host ou endereço IP simples do Audioserver, sem porta, URL, caminho ou credenciais.",
-      "invalid_spotify_return": "Introduza associações únicas de divisão, conta e dispositivo e ative a reprodução do Audio Server.",
       "audioserver_playback_requires_host": "Defina o host do Audioserver antes de ativar reprodução/pausa do leitor."
     }
   },
   "options": {
     "error": {
       "invalid_audioserver_host": "Introduza um nome de host ou endereço IP simples do Audioserver, sem porta, URL, caminho ou credenciais.",
-      "invalid_spotify_return": "Introduza associações únicas de divisão, conta e dispositivo e ative a reprodução do Audio Server.",
       "audioserver_playback_requires_host": "Defina o host do Audioserver antes de ativar reprodução/pausa do leitor."
     },
     "step": {
@@ -85,7 +83,6 @@
           "password": "Palavra-passe",
           "verify_ssl": "Verificar o certificado TLS do Miniserver",
           "audioserver_host": "Host do Audioserver (opcional; porta 7091)",
-          "audioserver_spotify_return": "Associações de divisões para regressar ao Spotify (avançado; opcional)",
           "audioserver_playback": "Usar reprodução/pausa do leitor Audio Server (experimental; desativado por omissão)",
           "generate_scenes": "Gerar cenas",
           "generate_lightcontroller_subcontrols": "Ativar subcontroles LightControllerV2 por omissão",
@@ -175,8 +172,12 @@
     }
   },
   "exceptions": {
-    "audioserver_announcement_unavailable": {"message": "Os anúncios Audio Server estão indisponíveis ou um pedido anterior continua por resolver. Não foi enviado um novo anúncio."},
-    "audioserver_announcement_failed": {"message": "O anúncio Audio Server não terminou de forma fiável. Pode ter sido reproduzido. Não foi enviada nenhuma repetição automática."},
+    "audioserver_announcement_unavailable": {
+      "message": "Os anúncios Audio Server estão indisponíveis ou um pedido anterior continua por resolver. Não foi enviado um novo anúncio."
+    },
+    "audioserver_announcement_failed": {
+      "message": "O anúncio Audio Server não terminou de forma fiável. Pode ter sido reproduzido. Não foi enviada nenhuma repetição automática."
+    },
     "audioserver_seek_unavailable": {
       "message": "O avanço não está disponível para esta faixa ou posição."
     },

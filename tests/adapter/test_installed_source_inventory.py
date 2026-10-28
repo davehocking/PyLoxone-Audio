@@ -61,10 +61,10 @@ async def test_partial_inventory_is_not_ready_and_standard_browse_recovers(hass,
     commands.async_media_folder.side_effect = folder
     commands.async_radio_services.side_effect = radio
     await entity._async_refresh_native_sources()
-    assert set(entity.source_list) == ALL - {missing}
+    assert set(entity._radio_catalogue.source_descriptors) == ALL - {missing}
     assert not entity._audio_sources_ready
     assert (await entity.async_browse_media()).children
-    assert set(entity.source_list) == ALL
+    assert set(entity._radio_catalogue.source_descriptors) == ALL
     assert entity._audio_sources_ready
     reads = (commands.async_radio_services.await_count, commands.async_media_folder.await_count, commands.async_recent_sources.await_count)
     assert (await entity.async_browse_media()).children
@@ -79,7 +79,7 @@ async def test_confirmed_empty_catalogues_are_absent_despite_supported_search_an
     for name, value in vars(configured_commands()).items():
         setattr(commands, name, value)
     await entity._async_refresh_native_sources()
-    assert set(entity.source_list) == ALL
+    assert set(entity._radio_catalogue.source_descriptors) == ALL
     commands.async_radio_services.return_value = []
     commands.async_media_folder.side_effect = None
     commands.async_media_folder.return_value = [{'start': 0, 'totalitems': 0, 'items': []}]
@@ -87,7 +87,7 @@ async def test_confirmed_empty_catalogues_are_absent_despite_supported_search_an
         {'audiopath': 'tunein:station:old', 'title': 'Old'},
         {'audiopath': 'library:local:track:old', 'title': 'Old', 'type': 2}]}
     await entity._async_refresh_native_sources()
-    assert set(entity.source_list) == {'Line-In', 'Spotify'}
+    assert set(entity._radio_catalogue.source_descriptors) == {'Line-In', 'Spotify'}
     assert entity._audio_sources_ready
     commands.async_search_capabilities.assert_not_awaited()
     counts = commands.async_radio_services.await_count, commands.async_media_folder.await_count
@@ -104,7 +104,7 @@ async def test_malformed_radio_inventory_is_incomplete_not_confirmed_absence(has
     commands.async_radio_services.return_value = [{'cmd': 'world', 'root': 'root'}]
     await entity._async_refresh_native_sources()
     assert not entity._audio_sources_ready
-    assert 'TuneIn' not in entity.source_list
+    assert 'TuneIn' not in entity._radio_catalogue.source_descriptors
     commands.async_radio_services.return_value = [{'cmd': 'world', 'root': 'root', 'name': 'World'}]
     await entity.async_browse_media()
-    assert entity._audio_sources_ready and set(entity.source_list) == ALL
+    assert entity._audio_sources_ready and set(entity._radio_catalogue.source_descriptors) == ALL

@@ -25,13 +25,14 @@ async def test_browse_recovers_history_after_optional_startup_timeout(
         if player == 7 and attempts[player] == 1:
             raise TimeoutError
         return {"items": [{
-            "audiopath": "tunein:station:synthetic", "title": "Synthetic radio", "type": 1
+            "audiopath": "tunein:station:synthetic", "title": "Synthetic radio", "type": 2
         }], "ts": 1}
 
     monkeypatch.setattr(wire.AudioServerCommands, "async_recent_sources", AsyncMock(side_effect=recent))
     await audio_setup.setup(playback=True)
     entity = hass.data["media_player"].get_entity(zone_entity_id(hass, 7))
-    assert entity.source_list == ["TuneIn"]
+    assert entity.source_list is None
+    assert "TuneIn" in entity._radio_catalogue.source_descriptors
     assert entity.supported_features & MediaPlayerEntityFeature.SELECT_SOURCE
     assert not entity._radio_catalogue.source_choices
     assert entity.supported_features & MediaPlayerEntityFeature.BROWSE_MEDIA
@@ -59,7 +60,8 @@ async def test_persistent_history_failure_keeps_browse_and_retries_only_on_reque
     assert history.await_count == initial_reads + 1
     await hass.async_block_till_done()
     assert history.await_count == initial_reads + 1
-    assert entity.source_list == ["TuneIn"]
+    assert entity.source_list is None
+    assert "TuneIn" in entity._radio_catalogue.source_descriptors
     assert not entity._radio_catalogue.source_choices
     assert entity.supported_features & MediaPlayerEntityFeature.PLAY_MEDIA
     assert (await entity.async_browse_media()).children
@@ -79,7 +81,8 @@ async def test_genuinely_empty_history_does_not_trigger_repeated_discovery(
     for _ in range(3):
         assert (await entity.async_browse_media()).children
     assert history.await_count == initial_reads
-    assert entity.source_list == ["TuneIn"]
+    assert entity.source_list is None
+    assert "TuneIn" in entity._radio_catalogue.source_descriptors
     assert not entity._radio_catalogue.source_choices
     audio_setup.apis[0].send_websocket_command.assert_not_awaited()
 

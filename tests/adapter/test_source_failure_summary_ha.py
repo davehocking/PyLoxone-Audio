@@ -26,29 +26,6 @@ if TYPE_CHECKING:
 LOGGER = "custom_components.loxone.media_player"
 
 
-@pytest.mark.asyncio
-async def test_ordinary_failure_retains_cause_before_translation(
-    hass: HomeAssistant,
-    caplog: pytest.LogCaptureFixture,
-) -> None:
-    """A foreign owner prevents native writes and produces only a fixed warning."""
-    entity, session, _snapshots, commands = await _saved(hass)
-    session.current["device"]["id"] = "foreign-device-DO_NOT_LOG"
-    caplog.set_level(logging.INFO, logger=LOGGER)
-    handoffs_before = commands.async_spotify_handoff.await_count
-
-    with pytest.raises(HomeAssistantError):
-        await entity.async_select_source("Spotify")
-
-    records = [r for r in caplog.records if r.name == LOGGER]
-    assert len(records) == 1
-    message = records[0].getMessage()
-    assert message == "Audio source selection failed; no automatic retry was sent"
-    assert "DO_NOT_LOG" not in message
-    assert "audio_last_source_failure" not in entity.extra_state_attributes
-    assert all(method == "GET" for method, _url, _kwargs in session.calls)
-    commands.async_play_catalogue.assert_not_awaited()
-    assert commands.async_spotify_handoff.await_count == handoffs_before
 
 
 @pytest.mark.asyncio

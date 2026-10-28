@@ -1,4 +1,4 @@
-# Contributor instructions for the local 0.1.0 candidate
+# Contributor instructions for PyLoxone-Audio 0.1.1
 
 Preserve Apache-2.0 LICENSE, NOTICE.md and upstream authorship; disclose human/LLM
 provenance honestly. This is a separately versioned concrete library consumed by
@@ -6,13 +6,16 @@ one existing PyLoxone integration, not another entity/setup path or facade.
 
 API.md describes ownership and host obligations. A compatible internal library
 fix should not restructure the adapter. New capabilities/API breaks require an
-explicit version/adapter decision. Detailed development tracing is not part of
-0.1.0 and must not be reintroduced via no-op compatibility or another module.
+explicit version/adapter decision. The new default-off fixed-schema diagnostics
+feature is part of this 0.1.1 increment; see DIAGNOSTICS.md. Legacy unconditional
+private tracing/failure-summary APIs must not be reintroduced as compatibility.
 Keep fixed useful warnings; never log tokens, payloads or exception bodies.
 
 Build in a clean allowlisted source directory, with available setuptools:
     python -c 'import setuptools.build_meta as b; b.build_wheel("dist"); b.build_sdist("dist")'
-No build/twine or global installation is required. Do not build from an operational
+This direct backend command is an alternative artifact build, not the complete
+release gate: PUBLISHING.md also requires strict twine checks and public-index
+verification. No global installation is needed. Do not build from an operational
 evidence workspace or include capture, history, protected paths or credentials.
 For deterministic container bytes use SOURCE_DATE_EPOCH=1792886400, umask 022,
 0644 source files and normalised tar/gzip timestamps/owners/modes. The local
@@ -46,5 +49,5 @@ live in preview-build/; its material is excluded from BOTH Python wheel and sdis
 The repository archive includes it. The broad generic host compatibility tests,
 historical/private receipts, capture/history and operational deployment scripts
 are not this repository. The Jo review pack is adapters/pyloxone/jo-review/.
-Parent-supervised adoption is authorised separately, not performed by this worker.
+Further household adoption is a separate phase, not performed by these tests.
 No test result grants public publication or agent household-control permission.

@@ -14,7 +14,7 @@ async def test_native_source_switches_last_provider_selection_and_keeps_favourit
     commands=catalogue_commands()
     # Real catalogue availability, not search categories or recent history.
     commands.async_media_folder.side_effect=lambda service,*_: [{'start':0,'totalitems':1,'items':[{'type':2,'id':'library:local:track:one','name':'Song'}]}] if service=='library' else [{'start':0,'totalitems':0,'items':[]}]
-    commands.async_recent_sources=AsyncMock(return_value={'items':[{'type':2,'audiopath':'tunein:station:latest','title':'Latest station'},{'type':7,'audiopath':'spotify@owner:playlist:one','title':'Playlist'},{'type':2,'audiopath':'library:local:track:one','title':'Song'}],'ts':123})
+    commands.async_recent_sources=AsyncMock(return_value={'items':[{'type':2,'audiopath':'tunein:station:latest','title':'Latest station'},{'type':2,'audiopath':'spotify@owner:track:one','title':'Previously selected track'},{'type':2,'audiopath':'library:local:track:one','title':'Song'}],'ts':123})
     commands.async_room_favourites=AsyncMock(side_effect=lambda p:[{'id':p,'start':0,'totalitems':1,'items':[{'id':1,'name':'A saved favourite','type':'tunein','audiopath':'tunein:station:favourite'}]}])
     for name,value in vars(commands).items():monkeypatch.setattr(wire.AudioServerCommands,name,value)
     await audio_setup.setup(playback=True)

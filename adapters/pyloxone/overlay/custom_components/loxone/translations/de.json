@@ -1,5 +1,6 @@
 {
   "entity": {
+    "switch": {"audio_diagnostics": {"name": "Audiodiagnose"}},
     "climate": {
       "room_controller_v2": {
         "state_attributes": {
@@ -50,7 +51,6 @@
           "generate_lightcontroller_subcontrols": "LightControllerV2-Subcontrols standardmäßig aktivieren",
           "generate_scenes_delay": "Verzögerung beim erstellen der Scenen (wenn aktiviert)",
           "audioserver_host": "Audioserver-Host (optional; Port 7091)",
-          "audioserver_spotify_return": "Raumzuordnungen für die Rückkehr zu Spotify (erweitert; optional)",
           "audioserver_playback": "Play/Pause des Audio Server Players verwenden (experimentell; standardmäßig deaktiviert)"
         }
       },
@@ -66,7 +66,6 @@
     "error": {
       "invalid_credentials_encoding": "Benutzername und Passwort müssen latin-1-kompatibel sein.",
       "invalid_audioserver_host": "Geben Sie einen einfachen Audioserver-Hostnamen oder eine IP-Adresse ohne Port, URL, Pfad oder Zugangsdaten ein.",
-      "invalid_spotify_return": "Eindeutige Raum-, Konto- und Gerätezuordnungen eingeben und Audio-Server-Wiedergabe aktivieren.",
       "audioserver_playback_requires_host": "Legen Sie den Audioserver-Host fest, bevor Play/Pause des Players aktiviert wird."
     }
   },
@@ -83,7 +82,6 @@
           "generate_lightcontroller_subcontrols": "LightControllerV2-Subcontrols standardmäßig aktivieren",
           "generate_scenes_delay": "Verzögerung beim erstellen der Scenen (wenn aktiviert)",
           "audioserver_host": "Audioserver-Host (optional; Port 7091)",
-          "audioserver_spotify_return": "Raumzuordnungen für die Rückkehr zu Spotify (erweitert; optional)",
           "audioserver_playback": "Play/Pause des Audio Server Players verwenden (experimentell; standardmäßig deaktiviert)"
         },
         "description": "PyLoxone Einstellungen editieren:",
@@ -92,7 +90,6 @@
     },
     "error": {
       "invalid_audioserver_host": "Geben Sie einen einfachen Audioserver-Hostnamen oder eine IP-Adresse ohne Port, URL, Pfad oder Zugangsdaten ein.",
-      "invalid_spotify_return": "Eindeutige Raum-, Konto- und Gerätezuordnungen eingeben und Audio-Server-Wiedergabe aktivieren.",
       "audioserver_playback_requires_host": "Legen Sie den Audioserver-Host fest, bevor Play/Pause des Players aktiviert wird."
     }
   },
@@ -165,8 +162,12 @@
     }
   },
   "exceptions": {
-    "audioserver_announcement_unavailable": {"message": "Audio Server-Durchsagen sind nicht verfügbar oder eine frühere Anfrage ist noch ungeklärt. Es wurde keine neue Durchsage gesendet."},
-    "audioserver_announcement_failed": {"message": "Die Audio Server-Durchsage wurde nicht zuverlässig abgeschlossen. Eine Wiedergabe kann erfolgt sein. Es wurde nicht automatisch erneut versucht."},
+    "audioserver_announcement_unavailable": {
+      "message": "Audio Server-Durchsagen sind nicht verfügbar oder eine frühere Anfrage ist noch ungeklärt. Es wurde keine neue Durchsage gesendet."
+    },
+    "audioserver_announcement_failed": {
+      "message": "Die Audio Server-Durchsage wurde nicht zuverlässig abgeschlossen. Eine Wiedergabe kann erfolgt sein. Es wurde nicht automatisch erneut versucht."
+    },
     "audioserver_seek_unavailable": {
       "message": "Suchen ist für diesen Titel oder diese Position nicht verfügbar."
     },

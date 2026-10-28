@@ -1,5 +1,10 @@
 {
   "entity": {
+    "switch": {
+      "audio_diagnostics": {
+        "name": "Audio diagnostics"
+      }
+    },
     "climate": {
       "room_controller_v2": {
         "state_attributes": {
@@ -47,7 +52,6 @@
           "password": "Password",
           "verify_ssl": "Verify the Miniserver TLS certificate",
           "audioserver_host": "Audioserver host (optional; port 7091)",
-          "audioserver_spotify_return": "Spotify return room bindings (advanced; optional)",
           "audioserver_playback": "Use Audio Server player play/pause (experimental; off by default)",
           "generate_scenes": "generate scenes",
           "generate_lightcontroller_subcontrols": "Enable LightControllerV2 subcontrols by default",
@@ -66,14 +70,12 @@
     "error": {
       "invalid_credentials_encoding": "Username and password must be latin-1 compatible.",
       "invalid_audioserver_host": "Enter a bare Audioserver hostname or IP address without a port, URL, path or credentials.",
-      "invalid_spotify_return": "Enter unique room/account/device bindings and enable Audio Server playback.",
       "audioserver_playback_requires_host": "Set the Audioserver host before enabling player play/pause."
     }
   },
   "options": {
     "error": {
       "invalid_audioserver_host": "Enter a bare Audioserver hostname or IP address without a port, URL, path or credentials.",
-      "invalid_spotify_return": "Enter unique room/account/device bindings and enable Audio Server playback.",
       "audioserver_playback_requires_host": "Set the Audioserver host before enabling player play/pause."
     },
     "step": {
@@ -85,7 +87,6 @@
           "password": "Password",
           "verify_ssl": "Verify the Miniserver TLS certificate",
           "audioserver_host": "Audioserver host (optional; port 7091)",
-          "audioserver_spotify_return": "Spotify return room bindings (advanced; optional)",
           "audioserver_playback": "Use Audio Server player play/pause (experimental; off by default)",
           "generate_scenes": "Generate scenes",
           "generate_lightcontroller_subcontrols": "Enable LightControllerV2 subcontrols by default",
@@ -175,8 +176,12 @@
     }
   },
   "exceptions": {
-    "audioserver_announcement_unavailable": {"message": "Audio Server announcements are unavailable or a previous request is still unresolved. No new announcement was sent."},
-    "audioserver_announcement_failed": {"message": "The Audio Server announcement did not complete reliably. Playback may have occurred. No automatic retry was sent."},
+    "audioserver_announcement_unavailable": {
+      "message": "Audio Server announcements are unavailable or a previous request is still unresolved. No new announcement was sent."
+    },
+    "audioserver_announcement_failed": {
+      "message": "The Audio Server announcement did not complete reliably. Playback may have occurred. No automatic retry was sent."
+    },
     "audioserver_seek_unavailable": {
       "message": "Seeking is unavailable for this track or position."
     },

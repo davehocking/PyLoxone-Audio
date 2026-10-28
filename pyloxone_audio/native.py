@@ -17,12 +17,16 @@ import re
 from contextlib import suppress
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from enum import IntEnum
 from http import HTTPStatus
 from inspect import signature
 from ipaddress import IPv6Address, ip_address
 from math import isfinite
 from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
+from uuid import uuid4
+
+from .diagnostic_events import diagnostic_event, diagnostics_enabled
 
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.PublicKey import RSA
@@ -93,6 +97,44 @@ def audioserver_uri(host: str) -> str:
     return f"ws://{authority}:7091/"
 
 
+class AudioRepeatMode(IntEnum):
+    """Native queue repeat values (track is 3, not 2)."""
+
+    OFF = 0
+    ALL = 1
+    ONE = 3
+
+
+def _shuffle_switch(greeting: object) -> bool | None:
+    """Read only versions from the native greeting; never retain its token."""
+    if not isinstance(greeting, str) or len(greeting) > 4096:
+        return None
+    match = re.fullmatch(
+        r"LWSS V ([0-9]{1,5}(?:\.[0-9]{1,5}){3}) \| ~API:([0-9]{1,5}(?:\.[0-9]{1,5}){1,3})~ \| Session-Token: [^\r\n]+",
+        greeting,
+    )
+    if match is None:
+        return None
+    firmware, api = (tuple(int(part) for part in text.split(".")) for text in match.groups())
+    return firmware >= (16, 1, 9, 23) and api >= (1, 6)
+
+
+def _shuffle(value: object) -> bool | None:
+    """Decode only explicit native booleans/0/1, never string truthiness."""
+    if type(value) is bool:
+        return value
+    if type(value) is int and value in (0, 1):
+        return value == 1
+    if type(value) is str and value in ("0", "1"):
+        return value == "1"
+    return None
+
+
+def _repeat(value: object) -> AudioRepeatMode | None:
+    """Do not silently turn an unknown enum or a bool into a queue mode."""
+    return AudioRepeatMode(value) if type(value) is int and value in (0, 1, 3) else None
+
+
 @dataclass(frozen=True, slots=True)
 class AudioZoneMetadata:
     """Metadata for one exact Audioserver player, not a room display name."""
@@ -116,6 +158,32 @@ class AudioZoneMetadata:
     native_mode: str | None = None
     parent_id: str | None = None
     source_name: str | None = None
+    shuffle: bool | None = None
+    repeat: AudioRepeatMode | None = None
+    shuffle_switch_supported: bool | None = None
+
+
+def audio_mode_supported(
+    row: AudioZoneMetadata | None, operation: str, repeat: AudioRepeatMode | None = None,
+) -> bool:
+    """Use current native permissions and known state, not provider names.
+
+    HA cycles all three repeat modes. Without a per-mode feature contract its
+    button is advertised only when both ALL and ONE are available. The typed
+    native setter can still validate an explicitly requested partial mode.
+    """
+    if row is None or not row.event_idle or not row.audio_path or row.playback_restrictions is None:
+        return False
+    permissions = row.playback_restrictions
+    if operation == "shuffle":
+        return bool(row.shuffle_switch_supported is True and row.shuffle is not None
+                    and row.native_mode == "play" and permissions & 2048)
+    if operation == "repeat" and row.repeat is not None and row.native_mode in ("play", "pause"):
+        if repeat is None:
+            return permissions & (4096 | 8192) == (4096 | 8192)
+        return bool(permissions & {AudioRepeatMode.OFF: 4096 | 8192,
+                                   AudioRepeatMode.ALL: 4096, AudioRepeatMode.ONE: 8192}[repeat])
+    return False
 
 
 def _no_event(code: object) -> bool:
@@ -274,6 +342,8 @@ def parse_audio_events(payload: object) -> tuple[AudioZoneMetadata, ...]:
                 playback_mode=row["mode"] if timed_track else None,
                 received_at=received_at,
                 playback_restrictions=(row["pbr"] if type(row.get("pbr")) is int and row["pbr"] >= 0 else None),
+                shuffle=_shuffle(row.get("plshuffle")) if not is_event else None,
+                repeat=_repeat(row.get("plrepeat")) if not is_event else None,
             ),
         )
     return tuple(updates)
@@ -295,7 +365,7 @@ class AudioServerCommands:
     SDK's RSA-PKCS1v15/AES-CBC authentication, using existing dependencies only.
     """
 
-    def __init__(self, host: str, credentials: Callable[[], tuple[str, str]], *, timeout: float = 15.0) -> None:
+    def __init__(self, host: str, credentials: Callable[[], tuple[str, str]], *, timeout: float = 15.0, diagnostics: Any = None) -> None:
         """Create a lazy, serial command client without connecting or sending."""
         self._uri = audioserver_uri(host)
         self._credentials = credentials
@@ -303,6 +373,7 @@ class AudioServerCommands:
         self._lock = asyncio.Lock()
         self._closed = False
         self._socket: Any = None
+        self.diagnostics = diagnostics
         self.announcement_fences: dict[int, Callable[[], None]] = {}
         self.source_fences: dict[int, Callable[[], None]] = {}
         self.source_observations: dict[int, asyncio.Future[None]] = {}
@@ -323,6 +394,33 @@ class AudioServerCommands:
         if await self._async_request(command, reply_key, is_current=is_current) is not True:
             message = "Audio playback command was not acknowledged"
             raise AudioCommandError(message)
+
+    async def async_set_shuffle(
+        self, player_id: object, shuffle: bool, *, is_current: Callable[[], bool],
+    ) -> None:
+        """Send one explicit enable/disable; never use the legacy shuffle action."""
+        target = audio_player_id(player_id)
+        if target is None or type(shuffle) is not bool:
+            raise ValueError("Shuffle requires an exact player and boolean")
+        reply = await self._async_request(
+            f"audio/{target}/shuffle/{'enable' if shuffle else 'disable'}", "shuffle_result",
+            is_current=is_current, require_shuffle_switch=True,
+        )
+        if not isinstance(reply, dict) or type(reply.get("shuffle")) is not bool or reply["shuffle"] is not shuffle:
+            raise AudioCommandError("Shuffle was not acknowledged with the requested mode; no retry was sent")
+
+    async def async_set_repeat(
+        self, player_id: object, repeat: AudioRepeatMode, *, is_current: Callable[[], bool],
+    ) -> None:
+        """Send the reviewed 0/1/3 enum once; no silent 2-to-3 conversion."""
+        target = audio_player_id(player_id)
+        if target is None or not isinstance(repeat, AudioRepeatMode):
+            raise ValueError("Repeat requires an exact player and AudioRepeatMode")
+        reply = await self._async_request(
+            f"audio/{target}/repeat/{int(repeat)}", "repeat_result", is_current=is_current,
+        )
+        if not isinstance(reply, dict) or type(reply.get("repeat")) is not int or _repeat(reply["repeat"]) != repeat:
+            raise AudioCommandError("Repeat was not acknowledged with the requested mode; no retry was sent")
 
     async def async_upload_announcement(self, session: Any, filename: str, data: bytes) -> None:
         """Upload bounded, owned WAV bytes through the native temporary spool."""
@@ -549,6 +647,10 @@ class AudioServerCommands:
                 raise ValueError("Parent context requires an exact supported source cursor")
             parent = quote(self._catalogue_identifier(parent_path), safe="")
             route += f"/parentpath/{parent}/{parent_index}"
+        if service == "spotify" and re.match(r"spotify(?:@[^:]+)?:(?:track|episode):", item_id):
+            # Native playItem excludes individual items from shuffled starts;
+            # ServicePlayScheme places this per-start argument after the cursor.
+            route += "/noshuffle"
         await self._async_request(f"audio/{target}/{route}", None, is_current=is_current, on_send=on_send)
 
     async def async_global_search(
@@ -794,8 +896,13 @@ class AudioServerCommands:
         if isinstance(reply, list) and reply and isinstance(reply[0], dict):
             confirmed = _seconds(reply[0].get("position"))
             if confirmed is not None:
+                if diagnostics_enabled(self.diagnostics):
+                    diagnostic_event(self.diagnostics, "restore_echo", transport="audio_server", player=target,
+                                     position=position, echo_position=confirmed)
                 return confirmed
         message = "Audio seeking was not acknowledged with a valid position"
+        if diagnostics_enabled(self.diagnostics):
+            diagnostic_event(self.diagnostics, "error", transport="audio_server", player=target, reason="invalid_reply")
         raise AudioCommandError(message)
 
     async def _async_request(  # noqa: PLR0913 - shared native request/correlation ownership
@@ -807,9 +914,20 @@ class AudioServerCommands:
         on_send: Callable[[], None] | None = None,
         search_scopes: tuple[str, ...] | None = None,
         spotify_account: str | None = None,
+        require_shuffle_switch: bool = False,
     ) -> Any:
         """Share the existing single-send authentication and ownership boundary."""
         owned_socket = None
+        observer = self.diagnostics
+        diagnostic_id = uuid4().hex if diagnostics_enabled(observer) else None
+
+        def record(stage: str, **fields: Any) -> None:
+            if diagnostics_enabled(observer):
+                diagnostic_event(observer, stage, transport="audio_server", route=command,
+                                 request_id=diagnostic_id, **fields)
+
+        if diagnostics_enabled(observer):
+            record("request")
         try:
 
             async with asyncio.timeout(self._timeout), self._lock:
@@ -834,32 +952,56 @@ class AudioServerCommands:
                     if self._closed:
                         message = "Audio playback connection is closed"
                         raise AudioCommandError(message)
-                    await self._authenticate(socket, username, token)
+                    shuffle_switch = await self._authenticate(socket, username, token)
+                    if diagnostics_enabled(observer):
+                        record("authenticated")
 
                     if self._closed:
                         message = "Audio playback connection is closed"
                         raise AudioCommandError(message)
+                    if require_shuffle_switch and shuffle_switch is not True:
+                        raise AudioCommandError("Explicit shuffle requires Audio Server API1.6/firmware16.1.09.23")
                     if is_current is not None and not is_current():
                         message = "Audio seek is no longer applicable to the current track"
                         raise AudioCommandError(message)
                     if on_send is not None:
                         on_send()
+                    if diagnostics_enabled(observer):
+                        record("send_attempt")
                     await socket.send(command)
+                    if diagnostics_enabled(observer):
+                        record("send_completed")
 
                     if search_scopes is not None:
-                        return await self._global_search_reply(socket, search_scopes, spotify_account)
-                    if reply_key == "globalsearch_result" and not command.endswith("/describe"):
-                        return await self._radio_search_reply(socket)
-                    if reply_key is not None:
-                        return await self._reply(socket, reply_key)
+                        result = await self._global_search_reply(socket, search_scopes, spotify_account)
+                    elif reply_key == "globalsearch_result" and not command.endswith("/describe"):
+                        result = await self._radio_search_reply(socket)
+                    elif reply_key is not None:
+                        result = await self._reply(socket, reply_key)
+                    else:
+                        result = None
                     # Native source results are optional, not the BaseResponse
                     # command echo. Keep this socket until that exact echo, so
                     # an immediate close cannot discard an unresolved command.
-                    player = audio_player_id(command.split("/")[1])
-                    await self._command_echo(socket, command, self.source_observations.get(player))
-
-                    return None
-        except (OSError, WebSocketException, TimeoutError, ValueError, TypeError, KeyError, IndexError):  # fmt: skip
+                    if reply_key is None and search_scopes is None:
+                        player = audio_player_id(command.split("/")[1])
+                        proof = await self._command_echo(socket, command, self.source_observations.get(player))
+                        if diagnostics_enabled(observer):
+                            record("reply" if proof == "echo" else "source_confirmed")
+                    elif diagnostics_enabled(observer):
+                        record("reply")
+                    return result
+        except asyncio.CancelledError:
+            if diagnostics_enabled(observer):
+                record("cancelled")
+            raise
+        except AudioCommandError:
+            if diagnostics_enabled(observer):
+                record("error", reason="rejected")
+            raise
+        except (OSError, WebSocketException, TimeoutError, ValueError, TypeError, KeyError, IndexError) as err:  # fmt: skip
+            if diagnostics_enabled(observer):
+                record("timeout" if isinstance(err, TimeoutError) else "error", reason="transport_failed")
             # Neither native errors nor authentication envelopes may reach logs.
             message = "Audio playback failed; no fallback or automatic retry was sent"
             raise AudioCommandError(message) from None
@@ -867,7 +1009,7 @@ class AudioServerCommands:
             if self._socket is owned_socket:
                 self._socket = None
 
-    async def _authenticate(self, socket: Any, username: str, token: str) -> None:
+    async def _authenticate(self, socket: Any, username: str, token: str) -> bool | None:
         """Authenticate the owned socket without sending a player command."""
         # Native event broadcasts can arrive before this socket's greeting.
         # Skip only known unsolicited event envelopes, under _async_request's
@@ -920,11 +1062,12 @@ class AudioServerCommands:
         if await self._reply(socket, "authenticate_result") != "authentication successful":
             message = "Audio playback authentication was rejected"
             raise AudioCommandError(message)
+        return _shuffle_switch(greeting)
 
     @staticmethod
     async def _command_echo(
         socket: Any, command: str, observation: asyncio.Future[None] | None = None,
-    ) -> None:
+    ) -> str:
         """
         Settle by exact echo or independently qualified post-send source proof.
 
@@ -945,7 +1088,7 @@ class AudioServerCommands:
                     else:
                         observation.result()
 
-                        return
+                        return "source_proof"
                 finally:
                     if not receive.done():
                         receive.cancel()
@@ -961,14 +1104,14 @@ class AudioServerCommands:
                     message = "Audio source command was rejected; no fallback or retry was sent"
                     raise AudioCommandError(message)
 
-                return
+                return "echo"
             # A readable stream can win every wait alongside qualified proof.
             # Inspect the ready frame for an exact rejection first, then honour
             # that proof instead of starving it behind unrelated broadcasts.
             if observation is not None and observation.done():
                 observation.result()
 
-                return
+                return "source_proof"
 
     @staticmethod
     async def _reply(socket: Any, key: str) -> Any:
@@ -1009,6 +1152,7 @@ class AudioEventReceiver:
         self._end_timers: dict[int, asyncio.TimerHandle] = {}
         self._listening = False
         self._stream_generation = 0
+        self._shuffle_switch_supported: bool | None = None
 
     def get(self, player_id: int) -> AudioZoneMetadata | None:
         """Return the latest known snapshot, or unknown after loss of the stream."""
@@ -1021,6 +1165,7 @@ class AudioEventReceiver:
             timer.cancel()
         self._end_timers.clear()
         self._metadata.clear()
+        self._shuffle_switch_supported = None
         self._on_update(())
 
     async def async_ensure_snapshot(
@@ -1044,6 +1189,7 @@ class AudioEventReceiver:
 
     def _apply(self, row: AudioZoneMetadata) -> AudioZoneMetadata:
         """Publish metadata promptly, stabilising only known flapping event ends."""
+        row = replace(row, shuffle_switch_supported=self._shuffle_switch_supported)
         player_id = row.player_id
         old = self._metadata.get(player_id)
         if row.event_active is False and old is not None and old.event in _DEBOUNCED_EVENTS:
@@ -1075,6 +1221,9 @@ class AudioEventReceiver:
             self._reset()
             async for frame in messages:
                 if not isinstance(frame, str):
+                    continue
+                if frame.startswith("LWSS V "):
+                    self._shuffle_switch_supported = _shuffle_switch(frame)
                     continue
                 try:
                     payload = json.loads(frame)

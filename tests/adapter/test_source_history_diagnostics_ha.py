@@ -1,6 +1,6 @@
 """Real HA source actions with synthetic I/O; no household playback evidence.
 
-The valid recent fixture preserves a fresh read-only Snug reply's row shapes,
+The valid recent fixture preserves a supplied one-room read-only sample's row shapes,
 not the unrecorded failing request. Every invalid/outage case is fault injection.
 """
 # ruff: noqa: S101, SLF001, INP001, F811, F401, PLR2004
@@ -67,7 +67,7 @@ async def test_source_history_refusal_retains_original_fixed_reason_and_provider
             "entity_id": entity.entity_id, "source": "Loxone Radio",
         }, blocking=True)
     await hass.async_block_till_done()
-    assert str(error.value) == "Choose content explicitly in Browse before selecting this source"
+    assert str(error.value) == "Choose and play content in Browse media > Loxone Radio. Then use Source to return to this room's selection."
     assert "audio_last_source_failure" not in hass.states.get(entity.entity_id).attributes
     assert read.await_count == 1
     assert writes == []
@@ -91,7 +91,7 @@ async def test_unknown_history_error_stays_redacted_and_publication_cannot_repla
     monkeypatch.setattr(entity, "async_schedule_update_ha_state", no_publish)
     with pytest.raises(HomeAssistantError) as error:
         await entity.async_select_source("Loxone Radio")
-    assert str(error.value) == "Choose content explicitly in Browse before selecting this source"
+    assert str(error.value) == "Choose and play content in Browse media > Loxone Radio. Then use Source to return to this room's selection."
     assert "audio_last_source_failure" not in entity.extra_state_attributes
     assert "DO_NOT_LOG" not in caplog.text
     assert writes == [] and read.await_count == 1

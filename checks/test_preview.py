@@ -27,7 +27,7 @@ def test_real_build_repeatable_and_clean(bundle,tmp_path):
     with zipfile.ZipFile(bundle) as z:
         assert 'custom_components/loxone/text.py' in z.namelist()
         assert all('/tests/' not in n and '__pycache__' not in n for n in z.namelist())
-        assert json.loads(z.read('custom_components/loxone/manifest.json'))['requirements'][-1]=='PyLoxone-Audio==0.1.0'
+        assert json.loads(z.read('custom_components/loxone/manifest.json'))['requirements'][-1]=='PyLoxone-Audio==0.1.1'
 
 @pytest.mark.parametrize('dirty',['modified','extra','symlink'])
 def test_builder_rejects_dirty_base(dirty,tmp_path):

@@ -1,5 +1,6 @@
 {
   "entity": {
+    "switch": {"audio_diagnostics": {"name": "Audiodiagnostiek"}},
     "climate": {
       "room_controller_v2": {
         "state_attributes": {
@@ -47,7 +48,6 @@
           "password": "Wachtwoord",
           "verify_ssl": "TLS-certificaat van de Miniserver verifiëren",
           "audioserver_host": "Audioserver-host (optioneel; poort 7091)",
-          "audioserver_spotify_return": "Ruimtekoppelingen voor terugkeer naar Spotify (geavanceerd; optioneel)",
           "audioserver_playback": "Afspelen/pauzeren via Audio Server-speler gebruiken (experimenteel; standaard uit)",
           "generate_scenes": "Scènes genereren",
           "generate_lightcontroller_subcontrols": "LightControllerV2-subcontrols standaard inschakelen",
@@ -66,14 +66,12 @@
     "error": {
       "invalid_credentials_encoding": "Gebruikersnaam en wachtwoord moeten latin-1-compatibel zijn.",
       "invalid_audioserver_host": "Voer alleen een Audioserver-hostnaam of IP-adres in, zonder poort, URL, pad of inloggegevens.",
-      "invalid_spotify_return": "Voer unieke ruimte-, account- en apparaatkoppelingen in en schakel Audio Server-weergave in.",
       "audioserver_playback_requires_host": "Stel de Audioserver-host in voordat afspelen/pauzeren wordt ingeschakeld."
     }
   },
   "options": {
     "error": {
       "invalid_audioserver_host": "Voer alleen een Audioserver-hostnaam of IP-adres in, zonder poort, URL, pad of inloggegevens.",
-      "invalid_spotify_return": "Voer unieke ruimte-, account- en apparaatkoppelingen in en schakel Audio Server-weergave in.",
       "audioserver_playback_requires_host": "Stel de Audioserver-host in voordat afspelen/pauzeren wordt ingeschakeld."
     },
     "step": {
@@ -85,7 +83,6 @@
           "password": "Wachtwoord",
           "verify_ssl": "TLS-certificaat van de Miniserver verifiëren",
           "audioserver_host": "Audioserver-host (optioneel; poort 7091)",
-          "audioserver_spotify_return": "Ruimtekoppelingen voor terugkeer naar Spotify (geavanceerd; optioneel)",
           "audioserver_playback": "Afspelen/pauzeren via Audio Server-speler gebruiken (experimenteel; standaard uit)",
           "generate_scenes": "Scènes genereren",
           "generate_lightcontroller_subcontrols": "LightControllerV2-subcontrols standaard inschakelen",
@@ -175,8 +172,12 @@
     }
   },
   "exceptions": {
-    "audioserver_announcement_unavailable": {"message": "Audio Server-meldingen zijn niet beschikbaar of een eerdere aanvraag is nog onopgelost. Er is geen nieuwe melding verzonden."},
-    "audioserver_announcement_failed": {"message": "De Audio Server-melding is niet betrouwbaar voltooid. Het geluid kan zijn afgespeeld. Er is niet automatisch opnieuw geprobeerd."},
+    "audioserver_announcement_unavailable": {
+      "message": "Audio Server-meldingen zijn niet beschikbaar of een eerdere aanvraag is nog onopgelost. Er is geen nieuwe melding verzonden."
+    },
+    "audioserver_announcement_failed": {
+      "message": "De Audio Server-melding is niet betrouwbaar voltooid. Het geluid kan zijn afgespeeld. Er is niet automatisch opnieuw geprobeerd."
+    },
     "audioserver_seek_unavailable": {
       "message": "Zoeken is niet beschikbaar voor dit nummer of deze positie."
     },

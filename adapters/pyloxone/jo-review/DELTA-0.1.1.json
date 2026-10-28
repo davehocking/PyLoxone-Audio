@@ -1,0 +1,134 @@
+{
+  "baseline": "aa95ff6ff652b7c248508e78a256169ed9c852d2",
+  "candidate_version": "0.1.1",
+  "state": "unpublished; independent review pending",
+  "files": [
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/config_flow.py",
+      "baseline_sha256": "be45fb6abc4625e0bc167bcf474d5c5033867e0ff5e86fa6f1091ae5ef3600a9",
+      "candidate_sha256": "68100c9dfae0f1f0a66ba99a0f3f1f05770491ff347025019c04465aee77d58d",
+      "what_why": "Remove HA-Spotify binding schema/validation; preserve existing setup options",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/manifest.json",
+      "baseline_sha256": "13b63052c80b66f4e78d6405fa916015beab40010dcd509408ffb9b9d4622b40",
+      "candidate_sha256": "0839b691e6ea2b37e62a69bcd1092197a17ec33c5dbdff988df51aa0fcee699e",
+      "what_why": "Match candidate dependency/version; no second integration",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/media_player.py",
+      "baseline_sha256": "a223f0a161133225b99a577ce40daf7fdb0cc47554ef65b15c6e83bfa67f7cf4",
+      "candidate_sha256": "5ae3a287392dd8dca2ae446827feaa973e2dd599eff767899843ac2e3604c88f",
+      "what_why": "Room-usable previous-content eligibility and actual Browse root first-use guidance",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/spotify_continuity.py",
+      "baseline_sha256": "208a02edbcbd054ace7b3bff3910e419acd04b2d351e2a2745ca5c0aa196f282",
+      "candidate_sha256": "cecae469c6eddd58198008b8f9445315f8eecb3acb1210d6cb998fdccc0663ec",
+      "what_why": "Read-only bounded historical uncertain-write fence restoration; no provider controller",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/cs.json",
+      "baseline_sha256": "efff5dc47f8545b8d707616d8b757cd14b7b1f4295c71b2b0de6aa07de0b16e9",
+      "candidate_sha256": "a7cec4389073756f09ce7382b0372283fe834b19b94e973fc82a2f44fee129c3",
+      "what_why": "Remove retired binding/error labels; preserve native-language UI",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/de.json",
+      "baseline_sha256": "b1577ad15a44e9c4c1c044fec82aede30de6f665b648ab80eb0b2eb45efb45a8",
+      "candidate_sha256": "d27ddeb3b08ca183b69911a01eba2d8886017812d6d3577bf3d92d2b036d0064",
+      "what_why": "Remove retired binding/error labels; preserve native-language UI",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/en.json",
+      "baseline_sha256": "a8e2967b35608086e7f08cbc024cfc0b745256f36f4cd40c9e0c0490fe611cab",
+      "candidate_sha256": "1b131505ff08440e5b62c2f5d40512fe5950719ad5c688158e00a2204bff7725",
+      "what_why": "Remove retired binding/error labels; preserve native-language UI",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/es.json",
+      "baseline_sha256": "62561c3702e9f6a4e6b443bd11b23122b3b09e8a2762caed169fea40df8fc7e0",
+      "candidate_sha256": "2715aa1a3047589d0aa47ba98d76ae2d2629cd395dd7c5c4e17d24da662a1ef0",
+      "what_why": "Remove retired binding/error labels; preserve native-language UI",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/fr.json",
+      "baseline_sha256": "2026cfb40672c2d1c79c62298f0659ac0e9796102e8ed864738b95101be6418c",
+      "candidate_sha256": "98a42d1ed41578ea9927ecbe4d7548ac629f7128bc5fd115805b077ec91d5bb9",
+      "what_why": "Remove retired binding/error labels; preserve native-language UI",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/it.json",
+      "baseline_sha256": "d6e816539d7c043377ca8a956efe1bd9df848ac8bbb55f3bb59ab17c4a391015",
+      "candidate_sha256": "97fe301e84e52f7314e9ad8412dd31cde0d3c807923bb2f0136a37c897058397",
+      "what_why": "Remove retired binding/error labels; preserve native-language UI",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/nl.json",
+      "baseline_sha256": "d58f20970d81ee870b424636605dd7424de61ad1b62b8bf296426c7f1339b64e",
+      "candidate_sha256": "a83b688c700afaadae3520c325d02ac6675b7bcb6af912c3ef09124f0069ac29",
+      "what_why": "Remove retired binding/error labels; preserve native-language UI",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/pt-BR.json",
+      "baseline_sha256": "aef7aee2c8d6dc445a7b388b4c25f39e9aa77843356081af06ab4eaea4665488",
+      "candidate_sha256": "a32ac91e725532dfaa3591f89c146a1c2359a6f9f69ec24559aa7a6983e9b32c",
+      "what_why": "Remove retired binding/error labels; preserve native-language UI",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/pt-PT.json",
+      "baseline_sha256": "7b4c1dd52815f3b8ed732baa4f30d75eee4a5b09724a2cc7dd9c559a810b8d97",
+      "candidate_sha256": "60638ff3200fdeb7960303f11210b86cbd1392c30e32e02c91b3f37a1b861805",
+      "what_why": "Remove retired binding/error labels; preserve native-language UI",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/pt.json",
+      "baseline_sha256": "7b4c1dd52815f3b8ed732baa4f30d75eee4a5b09724a2cc7dd9c559a810b8d97",
+      "candidate_sha256": "60638ff3200fdeb7960303f11210b86cbd1392c30e32e02c91b3f37a1b861805",
+      "what_why": "Remove retired binding/error labels; preserve native-language UI",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "pyloxone_audio/__init__.py",
+      "baseline_sha256": "01f0a346eb0e521741d6b4014f2c09dc44e4271b40ac98a0c3609b292c05958c",
+      "candidate_sha256": "534440e8cc5a9852a6e6a4773aa384660988d76f63db8472fd672e2bf6616c44",
+      "what_why": "Match candidate dependency/version; no second integration",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "pyloxone_audio/catalogue.py",
+      "baseline_sha256": "69b5434f1598b89c4fb7bcef3e8f887635dc44b52fbc7d1618d4d9245deff148",
+      "candidate_sha256": "99b8b9e2ed710c4f7b39bc2226b0f56675509c194b7f6d9cdfa93e785eab34f3",
+      "what_why": "Room-usable previous-content eligibility and actual Browse root first-use guidance; radio recents must be usable native station type2, not folders/unplayable rows (R79-01)",
+      "tests": "test_previous_radio_usability_011_ha.py: both radio namespaces through actual HA select_source, valid station controls and preserved external sessions; TEST-DISPOSITIONS.json retains native/bridge accounting"
+    },
+    {
+      "file": "pyloxone_audio/selection.py",
+      "baseline_sha256": "85b63d3a83e024fc7a61606f8473813aba5ca127e830a52aeaec00ec1735999c",
+      "candidate_sha256": "55a332d6a21736a2f3d7a2e393e202f652234bb421303fc38a9b0251e77c2db6",
+      "what_why": "Native-only routing/API; remove provider session resume bridge",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    },
+    {
+      "file": "pyloxone_audio/spotify.py",
+      "baseline_sha256": "588c77c1fa4d685b66b96170710671414406f7fd3aae842ace54c35506581784",
+      "candidate_sha256": null,
+      "what_why": "Native-only routing/API; remove provider session resume bridge",
+      "tests": "See FILE-GUIDE.json and TEST-DISPOSITIONS.json for actual native/bridge outcome mapping"
+    }
+  ],
+  "release_phase_note": "Historical delta/status fields retain development provenance. Final0.1.1 independent complete-contract review and common private adoption are complete; owner same-track/near-saved-position returns accepted in one room on2026-10-28. Current runtime inventories in BASE/FILE-GUIDE/preview provenance; public availability requires the actual release production gate. No upstream approval, universal queue or restart persistence claim."
+}

@@ -47,7 +47,7 @@ async def test_unusable_optional_parent_does_not_prevent_exact_item_start(hass, 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('action', ['source', 'seek'])
 async def test_stop_is_ordered_after_dispatched_transport_cleanup(hass, audio_setup, monkeypatch, action):
-    entity, emit, writes = await install_sources(hass, audio_setup, monkeypatch, spotify=True)
+    entity, emit, writes = await install_sources(hass, audio_setup, monkeypatch, spotify=True, previous_spotify=True)
     await emit(library_row())
     entered, closing, release = asyncio.Event(), asyncio.Event(), asyncio.Event()
     bus = []
@@ -92,7 +92,7 @@ async def test_stop_is_ordered_after_dispatched_transport_cleanup(hass, audio_se
 
 @pytest.mark.asyncio
 async def test_new_source_supersedes_seek_without_seek_finally_clearing_new_owner(hass, audio_setup, monkeypatch):
-    entity, emit, writes = await install_sources(hass, audio_setup, monkeypatch, spotify=True)
+    entity, emit, writes = await install_sources(hass, audio_setup, monkeypatch, spotify=True, previous_spotify=True)
     await emit(library_row())
     entered, closing, release = asyncio.Event(), asyncio.Event(), asyncio.Event()
     original = wire.AudioServerCommands._async_request
@@ -133,14 +133,11 @@ async def test_paused_exact_native_spotify_resume_never_replaces_item_or_queue(h
     entity, emit, writes, session, spotify = await session_room(hass, audio_setup, monkeypatch)
     await emit({**spotify, 'mode': 'pause'})
     if optional == 'absent':
-        entity._spotify_return.close()
-        entity._spotify_return = None
-        entity._spotify_binding = None
+        assert not hasattr(entity, '_spotify_return')
     else:
-        from custom_components.loxone.spotify_continuity import SpotifyReturnUnavailable
         async def unavailable(*args, **kwargs):
-            raise SpotifyReturnUnavailable('Synthetic unavailable optional auth') if optional == 'unavailable' else ClientError('Synthetic provider read failure')
-        monkeypatch.setattr(entity._spotify_return, 'async_resume_native', unavailable)
+            raise ClientError('Unrelated HA Spotify must never be consulted')
+        monkeypatch.setattr(session, 'async_request', unavailable)
     async def request(client, command, key, *, is_current, on_send, **kwargs):
         assert is_current()
         on_send()
@@ -170,7 +167,16 @@ async def test_confirmed_newer_provider_session_is_last_good_before_immediate_de
         else:
             return await original(client, command, key, is_current=is_current, on_send=on_send, **kwargs)
     monkeypatch.setattr(wire.AudioServerCommands, '_async_request', request)
-    await hass.services.async_call('media_player', 'select_source', {'entity_id': entity.entity_id, 'source': 'Spotify'}, blocking=True)
+    previous = entity._radio_catalogue.source_session('Spotify')
+    with pytest.raises(HomeAssistantError):
+        await hass.services.async_call('media_player', 'select_source', {'entity_id': entity.entity_id, 'source': 'Spotify'}, blocking=True)
+    assert entity._radio_catalogue.source_session('Spotify') is previous
+    # A wrong return is not success; later independently corroborated playback
+    # of a different item remains eligible under the ordinary passive rule.
+    independent = {**spotify, 'audiopath': current + '-independent', 'parent': {'id': context}}
+    await emit(independent)
+    await emit({**independent, 'time': independent['time'] + 1})
+    current = independent['audiopath']
     assert entity._radio_catalogue.source_session('Spotify').audio_path == current
     await hass.services.async_call('media_player', 'select_source', {'entity_id': entity.entity_id, 'source': 'Local Library'}, blocking=True)
     session.current = None

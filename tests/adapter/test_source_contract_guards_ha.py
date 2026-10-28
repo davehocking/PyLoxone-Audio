@@ -37,9 +37,9 @@ async def test_active_owned_spotify_repeated_selection_never_restarts_or_seeks(h
     session.current['is_playing']=False  # Paused provider view cannot restart native playing.
     if optional=='missing-entry':
         get=hass.config_entries.async_get_entry
-        monkeypatch.setattr(hass.config_entries,'async_get_entry',lambda key: None if key==entity._spotify_binding.entry_id else get(key))
+        monkeypatch.setattr(hass.config_entries,'async_get_entry',lambda key: None if key=='synthetic-entry' else get(key))
     elif optional in ('disabled','unloaded','missing-session'):
-        entry=hass.config_entries.async_get_entry(entity._spotify_binding.entry_id)
+        entry=hass.config_entries.async_get_entry('synthetic-entry')
         if optional=='disabled': entry.disabled_by='user'
         elif optional=='unloaded': entry.state=ConfigEntryState.NOT_LOADED
         else: entry.runtime_data.session=None
@@ -48,7 +48,7 @@ async def test_active_owned_spotify_repeated_selection_never_restarts_or_seeks(h
         elif optional=='malformed-device': session.current['device']=None
         else: session.current['item']=None
     elif optional=='native-only':
-        entity._spotify_return.close(); entity._spotify_return=None; entity._spotify_binding=None
+        assert not hasattr(entity, '_spotify_return')
     await emit(row)
     history=AsyncMock(side_effect=AssertionError('Active playback must not consult history'))
     monkeypatch.setattr(wire.AudioServerCommands,'async_recent_sources',history)
@@ -71,7 +71,7 @@ async def test_retained_success_remains_visible_and_exact_fallback_dispatches_wi
     elif missing=='item': session.current['item']=None
     elif missing=='response': session.current=None
     else:
-        entity._spotify_return.close(); entity._spotify_return=None; entity._spotify_binding=None
+        assert not hasattr(entity, '_spotify_return')
     monkeypatch.setattr(wire.AudioServerCommands,'async_recent_sources',AsyncMock(return_value={'items':[],'ts':2}))
     await entity._async_refresh_native_sources()
     assert 'Spotify' in entity.source_list
@@ -79,12 +79,8 @@ async def test_retained_success_remains_visible_and_exact_fallback_dispatches_wi
         assert is_current(); on_send(); writes.append(command)
         bits=command.split('/')
         assert bits[2:4]==['serviceplay','spotify']
-        if missing == "item":
-            # Provider track is optional; the matched room session uses empty-path handoff.
-            assert bits[5] == ""
-        else:
-            assert bits[5], "Missing session still requires remembered content"
-            assert TRACK.replace(":", "%3A") in bits[5]
+        assert bits[5], "Native return requires the room's remembered content"
+        assert TRACK.replace(":", "%3A") in bits[5]
         audio_setup.queues[0].put_nowait(json.dumps({'audio_event':[{**row,'time':0,'pbr':0}]}))
     monkeypatch.setattr(wire.AudioServerCommands,'_async_request',request)
     await select(hass,entity)
@@ -92,55 +88,8 @@ async def test_retained_success_remains_visible_and_exact_fallback_dispatches_wi
     assert all(m=='GET' and not u.endswith('/queue') for m,u,_ in session.calls)
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize('conflict', ['foreign-device','foreign-without-item','foreign-restricted','foreign-episode'])
-async def test_positive_foreign_current_receiver_precedes_optional_fields(hass,audio_setup,monkeypatch,conflict):
-    entity,_emit,writes,session,_row=await session_room(hass,audio_setup,monkeypatch)
-    session.current['device']['id']='e'*40
-    if conflict=='foreign-without-item': session.current['item']=None
-    if conflict=='foreign-restricted': session.current['device']['is_restricted']=True
-    if conflict=='foreign-episode': session.current['item']['uri']='spotify:episode:'+'X'*22
-    with pytest.raises(HomeAssistantError): await select(hass,entity)
-    assert writes==[]
-    assert all(m=='GET' for m,_,_ in session.calls)
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize('new_intent', ['Local Library','stop','pause'])
-@pytest.mark.parametrize('read_result', ['failure','malformed'])
-async def test_optional_read_cannot_revive_obsolete_action_after_new_intent(hass,audio_setup,monkeypatch,new_intent,read_result):
-    entity,_emit,writes,session,_row=await session_room(hass,audio_setup,monkeypatch)
-    entered,release=asyncio.Event(),asyncio.Event()
-    request=session.async_request
-    async def delayed(method,url,**kwargs):
-        if url.endswith('/me/player'):
-            entered.set()
-            try: await release.wait()
-            except asyncio.CancelledError:
-                if read_result=='failure': raise ClientError('Synthetic late failure') from None
-                return SimpleNamespace(status=200,json=AsyncMock(return_value={'device':None}),release=lambda:None)
-        return await request(method,url,**kwargs)
-    monkeypatch.setattr(session,'async_request',delayed)
-    native=wire.AudioServerCommands._async_request
-    async def controls(client,command,key,**kwargs):
-        if command.endswith(('/pause','/stop')):
-            if kwargs.get('is_current'): assert kwargs['is_current']()
-            if kwargs.get('on_send'): kwargs['on_send']()
-            writes.append(command); return True
-        return await native(client,command,key,**kwargs)
-    monkeypatch.setattr(wire.AudioServerCommands,'_async_request',controls)
-    old=asyncio.create_task(select(hass,entity))
-    try:
-        await asyncio.wait_for(entered.wait(),1)
-        if new_intent=='Local Library': await select(hass,entity,new_intent)
-        else: await hass.services.async_call('media_player','media_'+new_intent,{'entity_id':entity.entity_id},blocking=True)
-        release.set(); await asyncio.gather(old,return_exceptions=True)
-        assert not any('/serviceplay/spotify/' in c for c in writes)
-        assert entity._source_task is None
-        assert not entity._spotify_return._account['lock'].locked()
-        assert not entity._audio_commands.source_observations
-    finally:
-        release.set(); old.cancel(); await asyncio.gather(old,return_exceptions=True)
 
 
 @pytest.mark.asyncio
@@ -185,7 +134,7 @@ async def test_explicit_spotify_browse_overrides_resumable_session_without_early
     try:
         await asyncio.wait_for(received.wait(),1)
         assert entity._radio_catalogue.source_session('Spotify') is previous
-        assert writes[0].endswith(target_path.replace(':','%3A').replace('@','%40'))
+        assert writes[0].endswith(target_path.replace(':','%3A').replace('@','%40') + ('/noshuffle' if kind == 'track' else ''))
         assert session.calls==[], 'Explicit content must not consult/resume a different session'
         release.set(); await asyncio.wait_for(action,2)
         assert entity._radio_catalogue.source_session('Spotify').audio_path=='spotify:track:'+'N'*22
@@ -232,7 +181,7 @@ async def test_overlapping_two_players_do_not_share_intent_cleanup_or_success(ha
         zone.update(uuidAction=f'synthetic-zone-{pid}',details={'playerid':pid},states={'volume':f'volume-{pid}','playState':f'play-{pid}'})
         structure['controls'][zone['uuidAction']]=zone
     monkeypatch.setattr(fixtures,'STRUCTURE',structure)
-    entity,emit,writes=await install_sources(hass,audio_setup,monkeypatch,spotify=True)
+    entity,emit,writes=await install_sources(hass,audio_setup,monkeypatch,spotify=True, previous_spotify=True)
     peer=hass.data['media_player'].get_entity(zone_entity_id(hass,8))
     for pid in (7,8):
         await emit(library_row(playerid=pid))

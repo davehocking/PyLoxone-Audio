@@ -107,7 +107,8 @@ async def test_larger_favourites_list_and_radio_search_remain_opt_in(hass, audio
     monkeypatch.setattr(audioserver.AudioServerCommands, "async_room_favourites", AsyncMock(side_effect=configured))
     await audio_setup.setup(playback=True)
     entity = hass.data["media_player"].get_entity(zone_entity_id(hass, 7))
-    assert entity.source_list == ["TuneIn"]  # Saved content still belongs in Browse.
+    assert entity.source_list is None
+    assert "TuneIn" in entity._radio_catalogue.source_descriptors  # Saved content still belongs in Browse.
     root = await entity.async_browse_media("pyloxone_radio", "pyloxone-radio:favourites")
     assert len(root.children) == 40 and all(child.can_play for child in root.children)
 

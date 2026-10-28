@@ -35,44 +35,17 @@ async def test_native_session_return_preserves_foreign_identity_rejection(hass, 
         async def accounts():
             return [{'cmd': 'spotify', 'id': 'synthetic-account', 'user': 'different-native-user', 'configerror': True}]
         monkeypatch.setattr(entity._audio_commands, 'async_service_accounts', accounts)
-    with pytest.raises(HomeAssistantError):
+    if conflict == 'native-account':
+        with pytest.raises(HomeAssistantError):
+            await hass.services.async_call('media_player', 'select_source', {'entity_id': entity.entity_id, 'source': 'Spotify'}, blocking=True)
+        assert writes == []
+    else:
         await hass.services.async_call('media_player', 'select_source', {'entity_id': entity.entity_id, 'source': 'Spotify'}, blocking=True)
-    assert writes == []
+        assert writes and _row['audiopath'].replace(':', '%3A') in writes[0]
+    assert session.calls == [], 'Unrelated HA receiver/profile is not native room authority'
     assert all(method == 'GET' for method, _, _ in session.calls)
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize('ending', ['new-selection', 'stop', 'unload'])
-async def test_new_intent_stop_and_unload_cancel_account_wait_without_old_followup(hass, audio_setup, monkeypatch, ending):
-    entity, _emit, writes, session, _row = await session_room(hass, audio_setup, monkeypatch)
-    lock = entity._spotify_return._account['lock']
-    await lock.acquire()
-    old = asyncio.create_task(hass.services.async_call('media_player', 'select_source', {'entity_id': entity.entity_id, 'source': 'Spotify'}, blocking=True))
-    try:
-        for _ in range(30):
-            await asyncio.sleep(0)
-            if entity._source_task is not None:
-                break
-        assert entity._source_task is not None and not old.done()
-        if ending == 'new-selection':
-            await hass.services.async_call('media_player', 'select_source', {'entity_id': entity.entity_id, 'source': 'Local Library'}, blocking=True)
-        elif ending == 'stop':
-            await hass.services.async_call('media_player', 'media_stop', {'entity_id': entity.entity_id}, blocking=True)
-        else:
-            await hass.config_entries.async_unload(hass.config_entries.async_entries('loxone')[0].entry_id)
-        lock.release()
-        result = await asyncio.gather(old, return_exceptions=True)
-        assert isinstance(result[0], asyncio.CancelledError)
-        assert all('/serviceplay/spotify/' not in command for command in writes)
-        assert session.calls == []
-        assert entity._source_task is None
-        assert not lock.locked()
-        assert not entity._audio_commands.source_observations
-    finally:
-        if lock.locked():
-            lock.release()
-        old.cancel()
-        await asyncio.gather(old, return_exceptions=True)
 
 
 @pytest.mark.asyncio
@@ -92,7 +65,7 @@ async def test_ambiguous_native_resume_is_not_replayed_and_new_other_source_can_
     monkeypatch.setattr(wire.AudioServerCommands, '_async_request', request)
     with pytest.raises((HomeAssistantError, asyncio.CancelledError)):
         await hass.services.async_call('media_player', 'select_source', {'entity_id': entity.entity_id, 'source': 'Spotify'}, blocking=True)
-    assert writes == ['audio/7/serviceplay/spotify/synthetic-account/']
+    assert writes == ['audio/7/serviceplay/spotify/synthetic-account/' + _row['audiopath'].replace(':', '%3A') + '/noshuffle']
     assert 7 in entity._audio_commands.source_fences
     assert entity._source_task is None
     await hass.services.async_call('media_player', 'select_source', {'entity_id': entity.entity_id, 'source': 'Local Library'}, blocking=True)
@@ -115,8 +88,8 @@ async def test_repeated_native_spotify_returns_leave_queue_and_position_to_spoti
         writes.append(command)
         bits = command.split('/')
         if bits[2:4] == ['serviceplay', 'spotify']:
-            assert bits[5] == '', 'No track/context replacement on a resumable session'
-            row = {**spotify, 'time': session.current['progress_ms'] / 1000}
+            assert unquote(bits[5]) == spotify['audiopath'], 'Return exact room content, never unrelated HA Spotify content'
+            row = {**spotify, 'time': 0}
             session.current['is_playing'] = True
         elif bits[2:4] == ['serviceplay', 'radio']:
             row = {'playerid': 7, 'mode': 'play', 'eventype': 0, 'audiopath': RADIO}
@@ -127,7 +100,8 @@ async def test_repeated_native_spotify_returns_leave_queue_and_position_to_spoti
             row = library_row(audiopath=selected if ":track:" in selected else LIBRARY, time=0)
             session.current['is_playing'] = False
         elif bits[2] == 'position':
-            row = library_row(time=float(bits[3]))
+            snapshot = entity._audio_metadata.get(7)
+            row = library_row(audiopath=snapshot.audio_path, parent={'id': snapshot.parent_id}, sourceName=snapshot.source_name, time=float(bits[3]))
         else:
             raise AssertionError(command)
         asyncio.get_running_loop().call_soon(audio_setup.queues[0].put_nowait, json.dumps({'audio_event': [row]}))
@@ -142,4 +116,4 @@ async def test_repeated_native_spotify_returns_leave_queue_and_position_to_spoti
     assert all(method == 'GET' and not url.endswith('/queue') for method, url, _ in session.calls)
     assert entity._source_task is None
     assert not entity._audio_commands.source_fences
-    assert not entity._spotify_return._account['lock'].locked()
+    assert not hasattr(entity, '_spotify_return')

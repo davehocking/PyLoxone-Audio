@@ -14,7 +14,7 @@ from homeassistant.const import (CONF_HOST, CONF_PASSWORD, CONF_PORT,
 from homeassistant.helpers.schema_config_entry_flow import (
     SchemaCommonFlowHandler, SchemaConfigFlowHandler, SchemaFlowError,
     SchemaFlowFormStep)
-from homeassistant.helpers.selector import (BooleanSelector, ObjectSelector, NumberSelector,
+from homeassistant.helpers.selector import (BooleanSelector, NumberSelector,
                                             NumberSelectorConfig,
                                             NumberSelectorMode, TextSelector,
                                             TextSelectorConfig,
@@ -26,7 +26,7 @@ from .const import (CONF_AUDIOSERVER_HOST, CONF_AUDIOSERVER_PLAYBACK,
                     DEFAULT_DELAY_SCENE, DEFAULT_IP, DEFAULT_PORT,
                     DEFAULT_VERIFY_SSL, DOMAIN)
 from .pyloxone_api.audioserver import audioserver_uri
-from .spotify_continuity import CONF_SPOTIFY_RETURN, validate_bindings
+
 
 
 async def validate_loxone_setup(
@@ -67,15 +67,6 @@ async def validate_loxone_setup(
         message = "audioserver_playback_requires_host"
         raise SchemaFlowError(message)
 
-    if CONF_SPOTIFY_RETURN in user_input:
-        try:
-            bindings = validate_bindings(user_input[CONF_SPOTIFY_RETURN])
-            if bindings and not user_input.get(CONF_AUDIOSERVER_PLAYBACK):
-                message = "Spotify return requires audio playback"
-                raise ValueError(message)  # noqa: TRY301 - shared translated binding error
-        except ValueError as err:
-            message = "invalid_spotify_return"
-            raise SchemaFlowError(message) from err
 
     return user_input
 
@@ -99,7 +90,6 @@ DATA_SCHEMA_SETUP = vol.Schema(
             TextSelectorConfig(type=TextSelectorType.TEXT)
         ),
         vol.Optional(CONF_AUDIOSERVER_PLAYBACK, default=False): BooleanSelector(),
-        vol.Optional(CONF_SPOTIFY_RETURN, default={}): ObjectSelector(),
         vol.Required(CONF_SCENE_GEN, default=True): BooleanSelector(),
         vol.Optional(CONF_SCENE_GEN_DELAY, default=DEFAULT_DELAY_SCENE): NumberSelector(
             NumberSelectorConfig(mode=NumberSelectorMode.BOX, min=3)
@@ -129,7 +119,6 @@ DATA_SCHEMA_OPTIONS = vol.Schema(
             TextSelectorConfig(type=TextSelectorType.TEXT)
         ),
         vol.Optional(CONF_AUDIOSERVER_PLAYBACK, default=False): BooleanSelector(),
-        vol.Optional(CONF_SPOTIFY_RETURN, default={}): ObjectSelector(),
         vol.Required(CONF_SCENE_GEN, default=True): BooleanSelector(),
         vol.Optional(CONF_SCENE_GEN_DELAY, default=DEFAULT_DELAY_SCENE): NumberSelector(
             NumberSelectorConfig(mode=NumberSelectorMode.BOX, min=3)

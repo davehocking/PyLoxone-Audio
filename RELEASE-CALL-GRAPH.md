@@ -1,4 +1,25 @@
+# 0.1.1 current call graph
+
+**Current 0.1.1.** The current source path is HA media-player selection →
+`selection.async_source_route` → native no-op/resume or `catalogue.async_source_return`
+→ `sources.async_select_catalogue` → authenticated native command → fresh qualified
+source feedback → at most one optional native seek. Qualified native room
+observations can seed retained previous content without an HA play request.
+Neither provider session/OAuth bridge nor HA Spotify receiver arbitration remains.
+`spotify_continuity.py` retains only read-only historical-uncertainty restoration;
+its shared fences are not permission for provider calls. Read SPOTIFY.md for the
+function-by-function active map and POSITION-RESTORE.md for exact limitations.
+
+The following 0.1.0 call-graph narrative is HISTORICAL. Its optional bridge path
+is intentionally retired by 0.1.1; native account/transport/guard ownership remains.
+
 # 0.1.0 release ownership and diagnostic-removal delta
+
+Historical record below: the new default-off0.1.1 diagnostics increment narrowly
+supersedes the old blanket module exclusion. `diagnostic_events.py` observes actual
+native sends/source guards; `audio_diagnostics.py` owns entry storage/retention,
+the native switch and the existing admin download. See DIAGNOSTICS.md. No old
+unconditional tracing/failure-summary API or private watcher is restored.
 
 This is the release-cutoff mapping, not a new architecture. Historical extraction
 maps remain evidence outside the release assets. The exact file/hash mapping is

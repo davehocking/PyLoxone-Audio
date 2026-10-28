@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 from . import clock as dt_util
 
 from .native import AudioCommandError
+from .diagnostic_events import diagnostic_event, diagnostics_enabled
 
 
 if TYPE_CHECKING:
@@ -28,6 +29,7 @@ _MAX_NAME_LENGTH = 256
 _MAX_PATH_LENGTH = 2048
 _CONTROL_BOUNDARY = 32
 _PAUSED_POSITION_TOLERANCE = 3.0
+_RESTORE_READINESS_TIMEOUT = 2.0
 
 
 @dataclass(frozen=True)
@@ -237,6 +239,7 @@ def source_matches(
 async def _source_matcher(
     commands: AudioServerCommands, path: str, *, is_context: bool = False,
     expected_account: str | None = None, source_return: bool = False,
+    exact_return: bool = False,
 ) -> Callable[[AudioZoneMetadata], bool]:
     account_user = None
     match = re.fullmatch(r"spotify@([A-Za-z0-9_.@+-]{1,128}):(.+)", path)
@@ -259,7 +262,7 @@ async def _source_matcher(
         ):
             msg = "Native Spotify account is not positively matched"
             raise AudioCommandError(msg)
-    if source_return:
+    if source_return and not exact_return:
         native_path = "spotify:" + match[2] if match else path
         provider = next((
             (prefix, label) for prefix, label in (
@@ -308,7 +311,10 @@ async def async_select_catalogue(  # noqa: PLR0913 - pin the pre-preparation nat
     # one discovery snapshot, rather than issuing the same native read twice.
     matches = await _source_matcher(
         commands, observed_path, is_context=target.is_context,
-        expected_account=target.account if target.service == "spotify" else None, source_return=source_return,
+        expected_account=target.account if target.service == "spotify" else None,
+        # A saved exact item is a requested selection, not provider-only resume.
+        # Unknown/context-only returns retain their existing provider contract.
+        source_return=source_return, exact_return=target.return_session is not None,
     )
     content_matches = matches
     if not source_return and target.parent_path is not None:
@@ -328,41 +334,130 @@ async def async_select_catalogue(  # noqa: PLR0913 - pin the pre-preparation nat
         is_available=is_available, expected_native=expected_native,
         on_confirmed=None if source_return else on_confirmed,
     )
+    observer = getattr(commands, "diagnostics", None)
+    if observed is not None and diagnostics_enabled(observer):
+        diagnostic_event(observer, "source_confirmed", transport="source", player=player_id,
+                         source=target.service, account=observed.source_name, content=observed.audio_path,
+                         parent=observed.parent_id, position=observed.position, duration=observed.duration)
     if source_return and on_confirmed is not None and is_available():
         on_confirmed(observed or metadata.get(player_id))
     saved = target.return_session
     if not source_return or saved is None or observed is None:
+        if diagnostics_enabled(observer):
+            diagnostic_event(observer, "restore_decision", transport="source", player=player_id,
+                             source=target.service, phase="initial", saved_session=saved is not None,
+                             reason="not_return" if not source_return else "missing_session" if saved is None else "no_confirmation")
         return
 
-    def can_restore() -> bool:
+    phase = "initial"
+    decision = ""
+    invalidated = False
+
+    def can_restore(*, require_capability: bool = True) -> bool:
         snapshot = metadata.get(player_id)
-        return bool(
-            is_available() and snapshot is not None
-            and snapshot.player_id == player_id
-            and snapshot.event_idle and snapshot.event_active is False
-            and snapshot.native_mode == "play" and matches(snapshot)
-            and snapshot.audio_path == saved.audio_path
-            and snapshot.source_name == saved.source_name
-            and snapshot.duration is not None and saved.position is not None
-            and 0 < saved.position < snapshot.duration - 1
-            and snapshot.playback_restrictions is not None and snapshot.playback_restrictions & 32
-            and player_id not in commands.announcement_fences
-            and player_id not in commands.source_fences
-        )
 
-    if can_restore():
-        # An ordinary bounded native request, with a last current-target check
-        # after authentication. Its echo is not observed playback progress.
-        # Optional failure cannot undo already confirmed source playback.
+        def decided(reason: str) -> bool:
+            nonlocal decision
+            decision = reason
+            if diagnostics_enabled(observer):
+                diagnostic_event(observer, "restore_decision", transport="source", player=player_id,
+                                 source=target.service, account=target.account, content=saved.audio_path,
+                                 saved_session=True, saved_position=saved.position, saved_duration=saved.duration,
+                                 position=snapshot.position if snapshot is not None else None,
+                                 duration=snapshot.duration if snapshot is not None else None,
+                                 phase=phase, reason=reason)
+            return reason == "eligible" or (not require_capability and reason == "seek_unsupported")
 
-        try:
-            await commands.async_seek(
-                player_id, saved.position, is_current=can_restore,
-            )
-        except (AudioCommandError, ValueError, TimeoutError):
-            _LOGGER.warning("Optional audio position restore failed; confirmed source playback is retained")
-        if can_restore() and on_confirmed is not None:
-            on_confirmed(metadata.get(player_id))
+        # Preserve the original ordered short circuit: the reason is the first
+        # evaluated refusal, never a claim that later predicates were tested.
+        if invalidated:
+            return decided("superseded")
+        if not is_available():
+            return decided("unavailable")
+        if snapshot is None:
+            return decided("missing_snapshot")
+        if snapshot.player_id != player_id:
+            return decided("player_mismatch")
+        if not snapshot.event_idle or snapshot.event_active is not False:
+            return decided("event_active")
+        if snapshot.native_mode != "play":
+            return decided("not_playing")
+        # Exact-item confirmation and optional-restore diagnostics are separate:
+        # retain the first failed source/track/account predicate after auth.
+        if snapshot.source != saved.source:
+            return decided("source_mismatch")
+        if snapshot.audio_path != saved.audio_path:
+            return decided("track_mismatch")
+        if snapshot.source_name != saved.source_name:
+            return decided("account_mismatch")
+        if snapshot.duration is None:
+            return decided("duration_missing")
+        if saved.position is None:
+            return decided("position_missing")
+        if not 0 < saved.position < snapshot.duration - 1:
+            return decided("position_invalid")
+        supported = snapshot.playback_restrictions is not None and bool(snapshot.playback_restrictions & 32)
+        if require_capability and not supported:
+            return decided("seek_unsupported")
+        if player_id in commands.announcement_fences:
+            return decided("announcement_fence")
+        if player_id in commands.source_fences:
+            return decided("source_fence")
+        return decided("eligible" if supported else "seek_unsupported")
+
+    remove = None
+    try:
+        ready = can_restore()
+        if ready or (decision == "seek_unsupported" and can_restore(require_capability=False)):
+            # Source confirmation does not promise that native seek capability
+            # is ready. Never retry a seek or reuse the previous track's mask.
+            # Already-ready visits resolve immediately but must still observe
+            # target revocation while the native request authenticates.
+            loop = asyncio.get_running_loop()
+            deadline = loop.time() + _RESTORE_READINESS_TIMEOUT
+            readiness = loop.create_future()
+
+            def updated() -> None:
+                nonlocal invalidated
+                # Keep observing through authentication. A changed target must
+                # not revive this visit merely by changing back before SEND.
+                if not can_restore(require_capability=False):
+                    invalidated = True
+                    if not readiness.done():
+                        readiness.set_result(False)
+                elif not readiness.done() and can_restore():
+                    readiness.set_result(loop.time() < deadline)
+
+            remove = metadata.async_add_listener(player_id, updated)
+            updated()
+            try:
+                async with asyncio.timeout_at(deadline):
+                    ready = await readiness
+            except TimeoutError:
+                ready = False
+                if diagnostics_enabled(observer):
+                    diagnostic_event(observer, "timeout", transport="source", player=player_id, source=target.service,
+                                     reason="seek_unsupported")
+
+        if ready and can_restore():
+            # One ordinary native request retains its post-auth current-target
+            # check. Its echo is not observed progress; optional failure cannot
+            # undo already confirmed source playback.
+            try:
+                phase = "post_auth"
+                await commands.async_seek(
+                    player_id, saved.position, is_current=can_restore,
+                )
+            except (AudioCommandError, ValueError, TimeoutError):
+                if diagnostics_enabled(observer):
+                    diagnostic_event(observer, "restore_failed", transport="source", player=player_id, source=target.service)
+                _LOGGER.warning("Optional audio position restore failed; confirmed source playback is retained")
+            phase = "after_restore"
+            if can_restore() and on_confirmed is not None:
+                on_confirmed(metadata.get(player_id))
+    finally:
+        if remove is not None:
+            remove()
 
 
 async def async_select_favourite(

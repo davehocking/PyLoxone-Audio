@@ -89,6 +89,7 @@ async def test_all_supported_room_favourites_remain_in_browse_not_source_dropdow
     await audio_setup.setup(playback=True)
     entity = hass.data["media_player"].get_entity(zone_entity_id(hass, 7))
     # Provider presence is independent of saved favourites and history.
-    assert entity.source_list == ["TuneIn"]
+    assert entity.source_list is None
+    assert "TuneIn" in entity._radio_catalogue.source_descriptors
     browsed = await entity.async_browse_media("pyloxone_radio", "pyloxone-radio:favourites")
     assert [child.title for child in browsed.children] == [i["name"] for i in items]

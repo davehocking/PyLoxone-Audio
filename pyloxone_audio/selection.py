@@ -2,14 +2,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+
 from typing import TYPE_CHECKING
-from aiohttp import ClientError
+
 from .native import AudioCommandError
 from .catalogue import CatalogueTarget
 
 from .sources import SourceEnvironment, async_native_catalogue_noop, native_selection_unchanged
-from .spotify import NativeSessionUnavailableError
+
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -19,42 +19,6 @@ if TYPE_CHECKING:
     from .radio import RadioTarget
     from .native import AudioZoneMetadata
 
-
-class NativeResumeOutcome(Enum):
-    """Explicit result of the host's existing linked-session bridge."""
-
-    UNAVAILABLE = "unavailable"
-    COMPLETE = "complete"
-
-
-async def async_optional_native_resume(
-    commands: AudioServerCommands, metadata: AudioMetadataCoordinator, player_id: int,
-    target: RadioTarget, attempt: Callable[[RadioTarget], Awaitable[NativeResumeOutcome]],
-    *, is_current: Callable[[], bool],
-) -> NativeResumeOutcome:
-    """Own optional-attempt pinning and the no-retained-fallback safety decision."""
-    original = metadata.get(player_id)
-
-    def retained_allowed() -> bool:
-        return bool(
-            is_current() and native_selection_unchanged(original, metadata.get(player_id))
-            and player_id not in commands.source_fences and player_id not in commands.announcement_fences
-        )
-
-    try:
-        outcome = await attempt(target)
-    except (NativeSessionUnavailableError, TimeoutError, ClientError):
-        if not retained_allowed():
-            raise
-        return NativeResumeOutcome.UNAVAILABLE
-    if outcome is NativeResumeOutcome.UNAVAILABLE:
-        if not retained_allowed():
-            message = "Source return was superseded before native dispatch"
-            raise AudioCommandError(message)
-    elif outcome is not NativeResumeOutcome.COMPLETE:
-        message = "Native session bridge returned an invalid outcome"
-        raise AudioCommandError(message)
-    return outcome
 
 
 def manual_seek_supported(snapshot: AudioZoneMetadata | None) -> bool:
@@ -135,9 +99,10 @@ async def async_source_route(
     commands: AudioServerCommands, metadata: AudioMetadataCoordinator, catalogue: AudioCatalogue,
     player_id: int, source: str, *, is_current: Callable[[], bool],
     ensure_snapshot: Callable[[], Awaitable[None]],
-    resume_native: Callable[[RadioTarget], Awaitable[NativeResumeOutcome]],
+
     native_is_available: Callable[[], bool], on_target: Callable[[RadioTarget], None],
     environment: SourceEnvironment | None = None,
+    allow_native_noop: bool = True,
 ) -> SourceRoute:
     """Resolve native-session versus retained content without owning HA tasks."""
     original = metadata.get(player_id)
@@ -171,11 +136,8 @@ async def async_source_route(
         target = CatalogueTarget("item", source, descriptor.service, account=descriptor.account)
 
     on_target(target)
-    outcome = await async_optional_native_resume(
-        commands, metadata, player_id, target, resume_native, is_current=is_current,
-    )
-    native_done = outcome is NativeResumeOutcome.COMPLETE
-    if not native_done and isinstance(target, CatalogueTarget) and target.service == "spotify":
+    native_done = False
+    if allow_native_noop and isinstance(target, CatalogueTarget) and target.service == "spotify":
         native_done = await async_native_catalogue_noop(
             commands, metadata, player_id, target, is_available=native_is_available, resume_paused=True,
             environment=environment,

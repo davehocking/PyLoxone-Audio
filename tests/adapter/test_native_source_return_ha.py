@@ -22,7 +22,7 @@ def library_row(**changes):
             "pbr": 32, **changes}
 
 
-async def install_sources(hass, audio_setup, monkeypatch, *, spotify=False, player=7):
+async def install_sources(hass, audio_setup, monkeypatch, *, spotify=False, player=7, previous_spotify=False):
     async def folder(_self, service, account, path, offset):
         if service == "library":
             paths = (["library:local:track:" + str(n) for n in range(4)] + [TRACK]) if path == PARENT else [TRACK]
@@ -43,7 +43,9 @@ async def install_sources(hass, audio_setup, monkeypatch, *, spotify=False, play
         }]))
     monkeypatch.setattr(wire.AudioServerCommands, "async_recent_sources", AsyncMock(return_value={
         "items": [{"type": 7, "audiopath": PARENT, "title": "Synthetic album"}] + ([{
-            "type": 7, "audiopath": "spotify@synthetic-account:playlist:original", "title": "Synthetic playlist",
+            "type": 2 if previous_spotify else 7,
+            "audiopath": "spotify@synthetic-account:track:original" if previous_spotify else "spotify@synthetic-account:playlist:original",
+            "title": "Synthetic previously selected track" if previous_spotify else "Synthetic playlist",
         }] if spotify else []), "ts": 1,
     }))
     await audio_setup.setup(playback=True)
@@ -73,7 +75,7 @@ async def install_sources(hass, audio_setup, monkeypatch, *, spotify=False, play
             return None
         if bits[2:4] == ["serviceplay", "spotify"]:
             path = unquote(bits[5]).replace("spotify@synthetic-account:", "spotify:")
-            row = library_row(playerid=target_player, audiopath="spotify:track:original", parent={"id": "spotify:playlist:original"}, sourceName="Synthetic owner", time=0)
+            row = library_row(playerid=target_player, audiopath=path if path.startswith(("spotify:track:", "spotify:episode:")) else "spotify:track:original", parent={"id": "spotify:playlist:original"}, sourceName="Synthetic owner", time=0)
             asyncio.get_running_loop().call_soon(audio_setup.queues[0].put_nowait, json.dumps({"audio_event": [row]}))
             return None
         if bits[2] == "position":
@@ -134,7 +136,7 @@ async def test_native_spotify_return_keeps_prior_track_not_playlist_restart(hass
     await hass.services.async_call("media_player", "select_source", {
         "entity_id": entity.entity_id, "source": "Spotify",
     }, blocking=True)
-    assert calls[0] == "audio/7/serviceplay/spotify/synthetic-account/spotify%3Atrack%3Aoriginal/parentpath/spotify%3Aplaylist%3Aoriginal/0"
+    assert calls[0] == "audio/7/serviceplay/spotify/synthetic-account/spotify%3Atrack%3Aoriginal/parentpath/spotify%3Aplaylist%3Aoriginal/0/noshuffle"
 
 
 @pytest.mark.asyncio

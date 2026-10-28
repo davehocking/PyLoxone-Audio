@@ -1,3 +1,31 @@
+# 0.1.1 release scope
+
+The current release retires the optional HA-Spotify provider/session/binding
+bridge; preserves native Spotify/account/control/Browse/manual seek and shared
+fences; lists usable room-native previous content rather than folders; and adds
+the corrections and controls described below. Line-In last and standard Source
+UI remain. Volume lag is unresolved. See SPOTIFY.md for current ownership,
+POSITION-RESTORE.md for limits and TEST-DISPOSITIONS.json for case provenance.
+No Core/frontend patch or second integration is introduced. Upstream contact and
+further household changes are not authorised by this release guide.
+The library, adapter, Jo patch and complete preview must be used as one pinned
+versioned release pair. Old 0.1.0 artifacts remain immutable.
+
+Current 0.1.1 also includes native Shuffle/Repeat, exact per-item Spotify start,
+same-track saved return/last-good protection and bounded seek readiness. All rooms
+share the implementation with independent RAM-only bookmarks. Independent review,
+common private HAOS adoption and one-room owner return confirmation are complete.
+Public publication/installation is governed by PUBLISHING.md; upstream adoption,
+universal queue/acoustic behaviour and restart persistence are not claimed.
+
+## Historical 0.1.0 extraction record (superseded where noted above)
+
+The new approved 0.1.1 increment additionally supplies default-off bounded rolling
+audio diagnostics through the existing entry, not private capture tooling. Its
+schema/switch/download, privacy and evidence limits are in DIAGNOSTICS.md. This
+supersedes the historical blanket instrumentation exclusion only for that feature;
+it does not diagnose past Spotify sends, repair position or authorise installation.
+
 # Version 0.1.0 scope
 
 Version0.1.0 freezes the owner-agreed native Audio Server feature set described

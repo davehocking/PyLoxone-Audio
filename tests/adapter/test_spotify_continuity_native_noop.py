@@ -23,6 +23,8 @@ async def test_active_native_target_wins_over_different_recent_history_without_b
     await entity.async_select_source("Spotify")
     assert all(method=='GET' for method,_,_ in session.calls)
     session.calls.clear()
+    commands.async_play_catalogue.reset_mock()
+    commands.async_recent_sources.reset_mock()
     current_parent = "spotify:playlist:" + ("C" if active_context == "advertised" else "D") * 22
     snapshots[0] = replace(native(), audio_path=NEXT, parent_id=current_parent)
     before = snapshots[0]
@@ -96,8 +98,8 @@ async def test_presentation_only_update_retains_playback_bookmark(hass, presenta
     assert entity._radio_catalogue.source_session('Spotify') is saved
     await entity.async_select_source("Spotify")
     assert all(method=='GET' for method,_,_ in session.calls)
-    commands.async_spotify_handoff.assert_awaited_once()
-    commands.async_play_catalogue.assert_not_awaited()
+    commands.async_spotify_handoff.assert_not_awaited()
+    commands.async_play_catalogue.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -106,6 +108,8 @@ async def test_bookmark_free_native_noop_rechecks_its_original_guards_after_inve
     entity, session, snapshots, commands = await _saved(hass)
     await entity.async_select_source("Spotify")
     session.calls.clear()
+    commands.async_play_catalogue.reset_mock()
+    commands.async_recent_sources.reset_mock()
     hass.config_entries.async_get_entry("synthetic-entry").state = ConfigEntryState.NOT_LOADED
 
     async def changed() -> list:

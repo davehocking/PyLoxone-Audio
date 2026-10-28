@@ -57,6 +57,7 @@ class LoxoneCoordinator(DataUpdateCoordinator):
 
         self.api: LoxoneConnection | None = None
         self.audio_commands = None
+        self.audio_diagnostics = None
         self.miniserver: MiniServer | None = None
         self.listeners = []
         self.audio_metadata: AudioMetadataCoordinator | None = None
@@ -214,6 +215,9 @@ class LoxoneCoordinator(DataUpdateCoordinator):
                 _LOGGER.warning("Audioserver metadata cleanup failed (%s)", type(err).__name__)
             finally:
                 self.audio_metadata = None
+        if diagnostics := getattr(self, "audio_diagnostics", None):
+            await diagnostics.async_close()
+            self.audio_diagnostics = None
         # Close API connection.
         if hasattr(self, "api") and self.api is not None:
             if kill_token:

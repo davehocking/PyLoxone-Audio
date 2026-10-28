@@ -17,6 +17,7 @@ from custom_components.loxone.pyloxone_api import audioserver as wire
 async def test_native_session_ha_auth_wire_waits_for_actual_playing_not_early_echo(hass, audio_setup, monkeypatch, rsa_key, order):
     actual_request = wire.AudioServerCommands._async_request
     entity, _emit, shortcut_writes, session, spotify = await session_room(hass,audio_setup,monkeypatch)
+    await _emit({**spotify, 'mode': 'pause'})
     monkeypatch.setattr(wire.AudioServerCommands,'_async_request',actual_request)
     entity._audio_commands._credentials = lambda: ('synthetic-user','synthetic-active-token')
     entity._audio_commands._timeout = 1

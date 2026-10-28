@@ -205,7 +205,7 @@ def preview_inventory():
     return {n:h for n,h in provenance()['shipping_files'].items() if n.startswith(COMPONENT)}
 
 def pinned_archive_sha():
-    name='PyLoxone-0.10.2-audio-0.1.0-preview.zip'
+    name='PyLoxone-0.10.2-audio-0.1.1-preview.zip'
     rows=[line.split() for line in (HERE/'SHA256SUMS').read_text().splitlines() if line.strip()]
     matches=[row[0] for row in rows if len(row)==2 and row[1]==name]
     if len(matches)!=1 or len(matches[0])!=64:
@@ -218,11 +218,13 @@ def validate_receipt(receipt, config):
         raise ValueError('Unsupported backup receipt format')
     if receipt['config']!=str(config) or receipt['archive_sha256']!=pinned_archive_sha():
         raise ValueError('Wrong config or incompatible preview receipt')
-    if receipt['after']!=preview_inventory() or receipt['before'] not in [{},expected_stock(),preview_inventory()]:
+    if receipt['after']!=preview_inventory() or receipt['before'] not in [
+        {},expected_stock(),preview_inventory(),provenance()['predecessor_component_files'],
+    ]:
         raise ValueError('Unrecognised backup inventories')
 
 def install(archive, config, backup, expected_sha):
-    """Install/update exactly absent, stock 0.10.2 or this exact preview only."""
+    """Install only absent, stock, exact pinned predecessor or this preview."""
     config=safe_path(config);backup=safe_path(backup)
     if not config.is_dir() or backup.exists() or backup.is_relative_to(config) or config.is_relative_to(backup):
         raise ValueError('Use an existing config and a new backup outside it')
@@ -232,7 +234,7 @@ def install(archive, config, backup, expected_sha):
         raise ValueError('Archive is not the pinned preview build')
     before=files(config,component_only=True)
     after={n:hashlib.sha256(v).hexdigest() for n,v in bodies.items()}
-    if before not in [{},expected_stock(),after]:
+    if before not in [{},expected_stock(),after,provenance()['predecessor_component_files']]:
         raise ValueError('Unrecognised/dirty existing component; preserve it and reconcile manually')
     backup.mkdir(parents=True)
     # Copy only the validated inventory, never recurse into newly added entries.

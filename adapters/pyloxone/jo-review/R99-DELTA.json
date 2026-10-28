@@ -1,0 +1,37 @@
+{
+  "base_commit": "952210a5c0a16dd238a4dc12db6e9981279993de",
+  "review": "fresh independent review pending",
+  "runtime": [
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/media_player.py",
+      "before_sha256": "0d8170e311dcec6a7f19c74d3f7b881deefd9f22ed3b7e35fc4a4120cb111c01",
+      "after_sha256": "310dc1c458bb8e85e1d78e4c66e428dfaa0ecf252ac7afb2d5b1f0c3844f76df",
+      "symbols": [
+        {
+          "name": "_async_begin_source_action",
+          "first": 659,
+          "last": 697
+        },
+        {
+          "name": "_retain_unconfirmed_source_return",
+          "first": 699,
+          "last": 714
+        },
+        {
+          "name": "_async_play_radio",
+          "first": 866,
+          "last": 939
+        }
+      ]
+    }
+  ],
+  "new_test": {
+    "file": "tests/adapter/test_exact_return_takeover_ha.py",
+    "sha256": "266a2c2b8e8a04868a7d0edbddc5c951ca75c8ef981f878e06f9088d1517f1c9"
+  },
+  "inherited_tests_byte_identical": true,
+  "library_package_inputs_unchanged": true,
+  "reused_wheel_sha256": "55f505ff5731d956b9a6e1105c57c5d57495de4a54c7de71652a35198bde229a",
+  "no_live_public_or_persistence": true,
+  "release_phase_note": "Historical delta/status fields retain development provenance. Final0.1.1 independent complete-contract review and common private adoption are complete; owner same-track/near-saved-position returns accepted in one room on2026-10-28. Current runtime inventories in BASE/FILE-GUIDE/preview provenance; public availability requires the actual release production gate. No upstream approval, universal queue or restart persistence claim."
+}

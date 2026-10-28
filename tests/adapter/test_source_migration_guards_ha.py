@@ -18,7 +18,7 @@ from custom_components.loxone.pyloxone_api import audioserver as wire
 async def test_foreign_native_account_cannot_authorize_bound_account_fallback(hass,audio_setup,monkeypatch,mode,optional):
     entity,emit,writes,session,row=await session_room(hass,audio_setup,monkeypatch)
     await emit({**row,'mode':mode,'sourceName':'Foreign native user'})
-    entry=hass.config_entries.async_get_entry(entity._spotify_binding.entry_id)
+    entry=hass.config_entries.async_get_entry('synthetic-entry')
     if optional=='unloaded': entry.state=ConfigEntryState.NOT_LOADED
     elif optional=='disabled': entry.disabled_by='user'
     elif optional=='missing-session': entry.runtime_data.session=None
