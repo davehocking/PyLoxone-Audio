@@ -1,5 +1,6 @@
 {
   "entity": {
+    "switch": {"audio_diagnostics": {"name": "Diagnostica audio"}},
     "climate": {
       "room_controller_v2": {
         "state_attributes": {
@@ -47,7 +48,6 @@
           "password": "Password",
           "verify_ssl": "Verifica il certificato TLS del Miniserver",
           "audioserver_host": "Host Audioserver (facoltativo; porta 7091)",
-          "audioserver_spotify_return": "Associazioni delle stanze per tornare a Spotify (avanzato; facoltativo)",
           "audioserver_playback": "Usa riproduzione/pausa del lettore Audio Server (sperimentale; disattivato per impostazione predefinita)",
           "generate_scenes": "genera scene",
           "generate_lightcontroller_subcontrols": "Attiva i subcontrolli LightControllerV2 per impostazione predefinita",
@@ -66,14 +66,12 @@
     "error": {
       "invalid_credentials_encoding": "Nome utente e password devono essere compatibili con latin-1.",
       "invalid_audioserver_host": "Inserisci un nome host o un indirizzo IP Audioserver senza porta, URL, percorso o credenziali.",
-      "invalid_spotify_return": "Inserisci associazioni univoche di stanza, account e dispositivo e abilita la riproduzione Audio Server.",
       "audioserver_playback_requires_host": "Imposta l'host Audioserver prima di attivare riproduzione/pausa del lettore."
     }
   },
   "options": {
     "error": {
       "invalid_audioserver_host": "Inserisci un nome host o un indirizzo IP Audioserver senza porta, URL, percorso o credenziali.",
-      "invalid_spotify_return": "Inserisci associazioni univoche di stanza, account e dispositivo e abilita la riproduzione Audio Server.",
       "audioserver_playback_requires_host": "Imposta l'host Audioserver prima di attivare riproduzione/pausa del lettore."
     },
     "step": {
@@ -85,7 +83,6 @@
           "password": "Password",
           "verify_ssl": "Verifica il certificato TLS del Miniserver",
           "audioserver_host": "Host Audioserver (facoltativo; porta 7091)",
-          "audioserver_spotify_return": "Associazioni delle stanze per tornare a Spotify (avanzato; facoltativo)",
           "audioserver_playback": "Usa riproduzione/pausa del lettore Audio Server (sperimentale; disattivato per impostazione predefinita)",
           "generate_scenes": "Genera scene",
           "generate_lightcontroller_subcontrols": "Attiva i subcontrolli LightControllerV2 per impostazione predefinita",
@@ -175,8 +172,12 @@
     }
   },
   "exceptions": {
-    "audioserver_announcement_unavailable": {"message": "Gli annunci Audio Server non sono disponibili o una richiesta precedente è ancora irrisolta. Non è stato inviato un nuovo annuncio."},
-    "audioserver_announcement_failed": {"message": "L’annuncio Audio Server non è terminato in modo affidabile. Potrebbe essere stato riprodotto. Non è stato inviato alcun tentativo automatico."},
+    "audioserver_announcement_unavailable": {
+      "message": "Gli annunci Audio Server non sono disponibili o una richiesta precedente è ancora irrisolta. Non è stato inviato un nuovo annuncio."
+    },
+    "audioserver_announcement_failed": {
+      "message": "L’annuncio Audio Server non è terminato in modo affidabile. Potrebbe essere stato riprodotto. Non è stato inviato alcun tentativo automatico."
+    },
     "audioserver_seek_unavailable": {
       "message": "La ricerca non è disponibile per questa traccia o posizione."
     },

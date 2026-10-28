@@ -175,15 +175,15 @@ async def test_combined_play_placeholders_cannot_clear_confirmed_clock(hass,audi
     assert writes[-1]=='audio/7/position/80.0'
 
 
-# Owner message1563614353373134921 accepts qualified reported playback even
+# The accepted source-return contract permits qualified reported playback even
 # when its causal origin cannot distinguish a cancelled visit from a new
-# external selection of the same item. Original stricter test and failed
-# receipts are preserved in parent-continuation300/owner-reported-playback01.
+# external selection of the same item. Historical stricter expectations and
+# their failed receipts are retained separately from these public fixtures.
 @pytest.mark.asyncio
 @pytest.mark.parametrize('late_count',[2,3])
 @pytest.mark.parametrize('external',[False,True])
 async def test_repeated_post_supersession_playback_uses_reported_item(hass,audio_setup,monkeypatch,late_count,external):
-    entity,emit,writes=await install_sources(hass,audio_setup,monkeypatch,spotify=True)
+    entity,emit,writes=await install_sources(hass,audio_setup,monkeypatch,spotify=True, previous_spotify=True)
     await emit(library_row())
     saved=entity._radio_catalogue.source_session('Local Library')
     target=CatalogueTarget('item','Pending A2','library','library:local:track:a2',audio_path='library:local:track:a2')

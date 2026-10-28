@@ -1,0 +1,119 @@
+{
+  "base_commit": "46a3c0290610224d1913f3d7dad8fc0bee14ddaf",
+  "state": "Offline-only; independent review pending; not installed/published",
+  "owner_clarification": "Owner-approved native exact-player controls, not Spotify API commands",
+  "policy": "Common native state/capability/firmware-qualified modes for all rooms/capable sources",
+  "source_start_policy_unchanged": true,
+  "setup_gate_label_default_unchanged": true,
+  "full_upstream_patch_regenerated": true,
+  "historical_maps": "Earlier DELTA/DIAGNOSTICS-DELTA/SEEK-READINESS-DELTA retain historical hashes; this map supersedes overlapping current hashes",
+  "files": [
+    {
+      "file": "pyloxone_audio/__init__.py",
+      "base_sha256": "534440e8cc5a9852a6e6a4773aa384660988d76f63db8472fd672e2bf6616c44",
+      "candidate_sha256": "c430039ae8c98d2a3fdc1cbcb6bf7c6fa09da65a570dcdac376c7e7de51254ce",
+      "what": "Typed native modes, strict explicit setter and qualified feedback",
+      "why": "Real native player modes; no provider API or optimistic state",
+      "tests": [
+        "tests/adapter/test_audio_modes_ha.py",
+        "tests/library/test_audio_modes.py"
+      ]
+    },
+    {
+      "file": "pyloxone_audio/native.py",
+      "base_sha256": "737bb8c83b210ee4d1a240169bd72c7772add322665ac7d8fb55dd96d97a66ce",
+      "candidate_sha256": "eb54df57f21b33f5f6aa809bbb1dfa98206fc2c686bd25c8d02275ff1d033b61",
+      "what": "Typed native modes, strict explicit setter and qualified feedback",
+      "why": "Real native player modes; no provider API or optimistic state",
+      "tests": [
+        "tests/adapter/test_audio_modes_ha.py",
+        "tests/library/test_audio_modes.py"
+      ]
+    },
+    {
+      "file": "pyloxone_audio/metadata.py",
+      "base_sha256": "f96bd3e19f0cc11cba3c04a386e1e97034f4c14114b5b46d28b8a7ff1df76980",
+      "candidate_sha256": "31608a5f01b91adf30dc95d35c66be23dee1f719534136b0d4ab6cb770c71208",
+      "what": "Typed native modes, strict explicit setter and qualified feedback",
+      "why": "Real native player modes; no provider API or optimistic state",
+      "tests": [
+        "tests/adapter/test_audio_modes_ha.py",
+        "tests/library/test_audio_modes.py"
+      ]
+    },
+    {
+      "file": "pyloxone_audio/diagnostic_events.py",
+      "base_sha256": "fe0bb3799669318285fffcb535ddf7cda110fb23e5b5a6cfd04d0e1a3f8b69d9",
+      "candidate_sha256": "377939b930726c050760f79ce7e04f6af4b0f1b65c8fd94be1cb25b415af04eb",
+      "what": "Typed native modes, strict explicit setter and qualified feedback",
+      "why": "Real native player modes; no provider API or optimistic state",
+      "tests": [
+        "tests/adapter/test_audio_modes_ha.py",
+        "tests/library/test_audio_modes.py"
+      ]
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/media_player.py",
+      "base_sha256": "5ae3a287392dd8dca2ae446827feaa973e2dd599eff767899843ac2e3604c88f",
+      "candidate_sha256": "dfd58357af41b14d2e9281b44168b464d6121f5aba0998846a6815db7ad61e2d",
+      "what": "Standard HA modes/feedback or strict optional diagnostics",
+      "why": "Real native player modes; no provider API or optimistic state",
+      "tests": [
+        "tests/adapter/test_audio_modes_ha.py",
+        "tests/library/test_audio_modes.py"
+      ]
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/audio_diagnostics.py",
+      "base_sha256": "98974af4065844338f0dcb3b8fa827c0770347aaa35fdf84b87f8bb8d939bc08",
+      "candidate_sha256": "153771e5e26a6c9661d9237e1e3d7951add2b147f5da78f23522d0c56193c5ff",
+      "what": "Standard HA modes/feedback or strict optional diagnostics",
+      "why": "Real native player modes; no provider API or optimistic state",
+      "tests": [
+        "tests/adapter/test_audio_modes_ha.py",
+        "tests/library/test_audio_modes.py"
+      ]
+    },
+    {
+      "file": "tests/adapter/test_audio_modes_ha.py",
+      "base_sha256": null,
+      "candidate_sha256": "77f8ecf2924e450dcd96595b1a34deca26ec4f870ff6b897f86520c51d2ec2e5",
+      "what": "Synthetic parser/Unix-wire or all-room owning HA native service coverage",
+      "why": "Real native player modes; no provider API or optimistic state",
+      "tests": [
+        "tests/adapter/test_audio_modes_ha.py",
+        "tests/library/test_audio_modes.py"
+      ]
+    },
+    {
+      "file": "tests/library/test_audio_modes.py",
+      "base_sha256": null,
+      "candidate_sha256": "b652ed65a408fe33ce6e27c67c34d7256ff6e501f0e056b6fdb39004d03c05af",
+      "what": "Synthetic parser/Unix-wire or all-room owning HA native service coverage",
+      "why": "Real native player modes; no provider API or optimistic state",
+      "tests": [
+        "tests/adapter/test_audio_modes_ha.py",
+        "tests/library/test_audio_modes.py"
+      ]
+    }
+  ],
+  "limits": [
+    "Synthetic, not physical firmware/UI proof",
+    "No live/public actions",
+    "Historical source-return policy was handled in a separately reviewed correction; see release_phase_note"
+  ],
+  "correction_R94_01": {
+    "original_commit": "3dd02f5d554f34bb905644a9915c61e1eb229c08",
+    "production_symbol": "LoxoneAudioZoneV2._async_set_audio_mode",
+    "library_unchanged": true,
+    "what": "Latch original exact-player native validity before first awaited takeover; remove listener on takeover failure/cancellation; defer ownership comparison until acquired",
+    "tests": {
+      "tests/adapter/test_audio_modes_lifecycle.py": "b2ba3e3c9d18714af6d92348711e389a193864e1b5efe66f37b656908c3ebb9a",
+      "tests/adapter/test_audio_modes_takeover.py": "00aea1fa44a5e977a3db89cf1306f38d10d02aaf3323655298bcfbb55e15abcc"
+    },
+    "map": "R94-CORRECTION.md",
+    "source_start_policy_unchanged": true,
+    "independent_review": "pending"
+  },
+  "release_phase_note": "Historical delta/status fields retain development provenance. Final0.1.1 independent complete-contract review and common private adoption are complete; owner same-track/near-saved-position returns accepted in one room on2026-10-28. Current runtime inventories in BASE/FILE-GUIDE/preview provenance; public availability requires the actual release production gate. No upstream approval, universal queue or restart persistence claim."
+}

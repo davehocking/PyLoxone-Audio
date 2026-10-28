@@ -18,7 +18,7 @@ async def test_ackless_spotify_uses_fresh_exact_room_account_playing_evidence(mo
     async def receive():await asyncio.Future()
     socket.recv.side_effect=receive
     async def send(command):
-        assert command=='audio/7/serviceplay/spotify/owner/spotify%40owner%3Atrack%3Aone'
+        assert command=='audio/7/serviceplay/spotify/owner/spotify%40owner%3Atrack%3Aone/noshuffle'
         asyncio.get_running_loop().call_soon(metadata.set,{'mode':'play','audiopath':'spotify:track:one','sourceName':'Canonical user'})
     socket.send.side_effect=send
     monkeypatch.setattr(wire,'connect',MagicMock(return_value=socket))

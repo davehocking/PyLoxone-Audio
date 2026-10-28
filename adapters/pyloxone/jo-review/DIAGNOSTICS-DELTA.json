@@ -1,0 +1,161 @@
+{
+  "base_commit": "827626d8d90a7b1b081d7db68f6939589e94f236",
+  "state": "implementation candidate; independent review pending; no deployment",
+  "files": [
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/__init__.py",
+      "before_sha256": "4c76af77d0a7e86cbc793b294ace2268fd5125bbc9eb8c7e5bde4a01bf580099",
+      "after_sha256": "b4f4a151320138d66db54f35c2032ad08e59f82974cdb6682d14d973dda7257f",
+      "what_why": "Attach one entry-owned diagnostics observer and audio feedback callback",
+      "tests": "test_audio_diagnostics_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/audio_diagnostics.py",
+      "before_sha256": null,
+      "after_sha256": "98974af4065844338f0dcb3b8fa827c0770347aaa35fdf84b87f8bb8d939bc08",
+      "what_why": "Persistent opt-in, bounded serial journal; total JSON recovery, abandoned temporary cleanup and verified preference retry",
+      "tests": "test_audio_diagnostics_storage_ha.py; test_audio_diagnostics_ha.py; test_audio_diagnostics_recovery_run86.py; test_audio_diagnostics_temporary_run86.py; test_audio_diagnostics_preference_run86.py; test_audio_diagnostics_timer_run86.py; test_audio_diagnostics_lifecycle_run86.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/coordinator.py",
+      "before_sha256": "b5d3e90fd2c0cf75258c47ba86f343bfcf3c33fd5933c44b34ca348c7bbd78d5",
+      "after_sha256": "7cc19a15bf75e92be5e9af19455f22de1e0b44660b811652de91b4b75e775a84",
+      "what_why": "Own and await diagnostic cleanup with existing transports",
+      "tests": "test_audio_diagnostics_ha.py; test_host_0102_lifecycle_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/diagnostics.py",
+      "before_sha256": "d24a1a868e94acf161e3ea72bd4906166ed5ea8eff72f90eb1ffae7cbd2b6997",
+      "after_sha256": "f280b356a6998cac040675dd327aa4828a0ca233543fe53854678d7df6858f76",
+      "what_why": "Sanitised existing admin download instead of raw house structure",
+      "tests": "test_audio_diagnostics_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/media_player.py",
+      "before_sha256": "61ad4b7ef1aef0c4fc58a9b1bc161458f8e1893e785269ab46b930b85d646ca2",
+      "after_sha256": "5ae3a287392dd8dca2ae446827feaa973e2dd599eff767899843ac2e3604c88f",
+      "what_why": "Attach existing metadata/command observers without another setup or socket",
+      "tests": "test_audio_diagnostics_journey_ha.py; test_audio_diagnostics_seek_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/pyloxone_api/connection.py",
+      "before_sha256": "23112868c04cbca9f146ccb003e816c930b0646f8da32e293ddeb38f04f3b6fd",
+      "after_sha256": "ed3cbd5141792fefa0a5be01b8a85b496ff7bb32157c2a56377a13164d8e07ff",
+      "what_why": "Observe actual existing audio-only send attempt/completion without altering encryption",
+      "tests": "test_audio_diagnostics_miniserver_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/switch.py",
+      "before_sha256": "1c2f3344739686adb92151a9e960d518920ff96b956f767fda97ba1f61b70d0a",
+      "after_sha256": "8ab6374a8d329b2da5b6b4ff26b014fa23917901c8edbf88cd869be7cecb0099",
+      "what_why": "One default-off diagnostic switch; additive pending preference and restart-risk health attributes",
+      "tests": "test_audio_diagnostics_ha.py; test_audio_diagnostics_preference_run86.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/cs.json",
+      "before_sha256": "64b36447fffb8716e1cedb599da5b277cf3f5845e7e2ba439547b8f41c702218",
+      "after_sha256": "a7cec4389073756f09ce7382b0372283fe834b19b94e973fc82a2f44fee129c3",
+      "what_why": "Native translated Audio diagnostics entity label; preserve all existing UI text",
+      "tests": "test_audio_languages.py; test_audio_diagnostics_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/de.json",
+      "before_sha256": "93a529a3dc3f789942c0ccbee92e4c4fbf0e68d4cdb1a8289023e70afb4b09ad",
+      "after_sha256": "d27ddeb3b08ca183b69911a01eba2d8886017812d6d3577bf3d92d2b036d0064",
+      "what_why": "Native translated Audio diagnostics entity label; preserve all existing UI text",
+      "tests": "test_audio_languages.py; test_audio_diagnostics_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/en.json",
+      "before_sha256": "40d887969f358760108f11ada15ac1f47f4c413dd800ef953103b720c969a923",
+      "after_sha256": "1b131505ff08440e5b62c2f5d40512fe5950719ad5c688158e00a2204bff7725",
+      "what_why": "Native translated Audio diagnostics entity label; preserve all existing UI text",
+      "tests": "test_audio_languages.py; test_audio_diagnostics_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/es.json",
+      "before_sha256": "b3b1dfdea29dc5bad8f96a7c7b8172eaa51470d2a9ac3927526f1de6baf6d204",
+      "after_sha256": "2715aa1a3047589d0aa47ba98d76ae2d2629cd395dd7c5c4e17d24da662a1ef0",
+      "what_why": "Native translated Audio diagnostics entity label; preserve all existing UI text",
+      "tests": "test_audio_languages.py; test_audio_diagnostics_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/fr.json",
+      "before_sha256": "c43a550138c80f9acd1d540981615778d4efe43080d40056dd8692a218243c9b",
+      "after_sha256": "98a42d1ed41578ea9927ecbe4d7548ac629f7128bc5fd115805b077ec91d5bb9",
+      "what_why": "Native translated Audio diagnostics entity label; preserve all existing UI text",
+      "tests": "test_audio_languages.py; test_audio_diagnostics_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/it.json",
+      "before_sha256": "77c78b1b8408efbf9da9ba9373eaedffd27ca4eb5b9f1a65b2caed4217d2a3d1",
+      "after_sha256": "97fe301e84e52f7314e9ad8412dd31cde0d3c807923bb2f0136a37c897058397",
+      "what_why": "Native translated Audio diagnostics entity label; preserve all existing UI text",
+      "tests": "test_audio_languages.py; test_audio_diagnostics_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/nl.json",
+      "before_sha256": "3cb6e4252ff0d9c88a01dd6d3597be246ed8e7f399b8c4d1328967dda1ffe018",
+      "after_sha256": "a83b688c700afaadae3520c325d02ac6675b7bcb6af912c3ef09124f0069ac29",
+      "what_why": "Native translated Audio diagnostics entity label; preserve all existing UI text",
+      "tests": "test_audio_languages.py; test_audio_diagnostics_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/pt-BR.json",
+      "before_sha256": "af35b26cebb55dac082775316a06ef685c4e0d1f8cd6335bf9275562e30175cf",
+      "after_sha256": "a32ac91e725532dfaa3591f89c146a1c2359a6f9f69ec24559aa7a6983e9b32c",
+      "what_why": "Native translated Audio diagnostics entity label; preserve all existing UI text",
+      "tests": "test_audio_languages.py; test_audio_diagnostics_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/pt-PT.json",
+      "before_sha256": "9242e613804098afc952bef528d239604f1490ed849c4bec273ff412b7017863",
+      "after_sha256": "60638ff3200fdeb7960303f11210b86cbd1392c30e32e02c91b3f37a1b861805",
+      "what_why": "Native translated Audio diagnostics entity label; preserve all existing UI text",
+      "tests": "test_audio_languages.py; test_audio_diagnostics_ha.py"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/translations/pt.json",
+      "before_sha256": "9242e613804098afc952bef528d239604f1490ed849c4bec273ff412b7017863",
+      "after_sha256": "60638ff3200fdeb7960303f11210b86cbd1392c30e32e02c91b3f37a1b861805",
+      "what_why": "Native translated Audio diagnostics entity label; preserve all existing UI text",
+      "tests": "test_audio_languages.py; test_audio_diagnostics_ha.py"
+    },
+    {
+      "file": "pyloxone_audio/catalogue.py",
+      "before_sha256": "52b140cdc9923c629a08d8e43b6a8345572150410187b33331a24795ea875035",
+      "after_sha256": "99b8b9e2ed710c4f7b39bc2226b0f56675509c194b7f6d9cdfa93e785eab34f3",
+      "what_why": "Structured diagnostic event observation; unchanged source/playback policy",
+      "tests": "test_diagnostic_events.py; test_diagnostic_wire.py; test_audio_diagnostics_journey_ha.py"
+    },
+    {
+      "file": "pyloxone_audio/diagnostic_events.py",
+      "before_sha256": null,
+      "after_sha256": "fe0bb3799669318285fffcb535ddf7cda110fb23e5b5a6cfd04d0e1a3f8b69d9",
+      "what_why": "Structured diagnostic event observation; unchanged source/playback policy",
+      "tests": "test_diagnostic_events.py; test_diagnostic_wire.py; test_audio_diagnostics_journey_ha.py"
+    },
+    {
+      "file": "pyloxone_audio/metadata.py",
+      "before_sha256": "f0074a3eaccf9044fce8ebf6fd2073085b1e3b755c6136b5c9bd13f42f8ddc2a",
+      "after_sha256": "f96bd3e19f0cc11cba3c04a386e1e97034f4c14114b5b46d28b8a7ff1df76980",
+      "what_why": "Structured diagnostic event observation; unchanged source/playback policy",
+      "tests": "test_diagnostic_events.py; test_diagnostic_wire.py; test_audio_diagnostics_journey_ha.py"
+    },
+    {
+      "file": "pyloxone_audio/native.py",
+      "before_sha256": "e92860524d2e10391454f9d6af20fcfb48dd60dc7fc2c543f96e9dd7a9d620a3",
+      "after_sha256": "737bb8c83b210ee4d1a240169bd72c7772add322665ac7d8fb55dd96d97a66ce",
+      "what_why": "Structured diagnostic event observation; unchanged source/playback policy",
+      "tests": "test_diagnostic_events.py; test_diagnostic_wire.py; test_audio_diagnostics_journey_ha.py"
+    },
+    {
+      "file": "pyloxone_audio/sources.py",
+      "before_sha256": "dbd4002d7f4cb75ed067063df2821a19bde46d5796debc6692eeafeb99cecf0d",
+      "after_sha256": "9f8b9e1a1a74293367ffd111d6bcc3d8be40310a9036b268246659c0a31047ac",
+      "what_why": "Structured diagnostic event observation; unchanged source/playback policy",
+      "tests": "test_diagnostic_events.py; test_diagnostic_wire.py; test_audio_diagnostics_journey_ha.py"
+    }
+  ],
+  "release_phase_note": "Historical delta/status fields retain development provenance. Final0.1.1 independent complete-contract review and common private adoption are complete; owner same-track/near-saved-position returns accepted in one room on2026-10-28. Current runtime inventories in BASE/FILE-GUIDE/preview provenance; public availability requires the actual release production gate. No upstream approval, universal queue or restart persistence claim."
+}

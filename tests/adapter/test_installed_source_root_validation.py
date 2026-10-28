@@ -46,11 +46,11 @@ async def test_malformed_or_unusable_root_is_incomplete_and_browse_recovers(hass
 
     commands.async_media_folder.side_effect = folder
     await entity._async_refresh_native_sources()
-    assert set(entity.source_list) == EXPECTED - {missing}
+    assert set(entity._radio_catalogue.source_descriptors) == EXPECTED - {missing}
     assert not entity._audio_sources_ready
     broken = False
     await entity.async_browse_media()
-    assert entity._audio_sources_ready and set(entity.source_list) == EXPECTED
+    assert entity._audio_sources_ready and set(entity._radio_catalogue.source_descriptors) == EXPECTED
     commands.async_play_catalogue.assert_not_awaited()
     commands.async_play_radio_station.assert_not_awaited()
 

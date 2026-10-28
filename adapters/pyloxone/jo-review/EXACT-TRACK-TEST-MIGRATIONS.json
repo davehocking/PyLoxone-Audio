@@ -1,0 +1,342 @@
+{
+  "base_commit": "6c32c2643205cdc35575a7c776881da1dbe11384",
+  "status": "Versioned exact-return contract/wire expectations for independent disposition; not physical evidence",
+  "original_failed_receipts": [
+    "source-original-wire",
+    "source-corrected-guards",
+    "source-final-return"
+  ],
+  "files": [
+    {
+      "file": "tests/adapter/test_audio_diagnostics_journey_ha.py",
+      "before_sha256": "57b79e92a348ae17d667a723d57d3347d78f448453a25bc04a466253f3bb95df",
+      "after_sha256": "652508f84dfc3150560f3960e132e8cd5b568ebfa4652e9e4be1cba14a87b7cb",
+      "reason": "Only official native per-item wire expectation gains noshuffle; all guards retained",
+      "inherited_functions": 2,
+      "no_functions_removed": true,
+      "decorators_identical": true,
+      "assertion_AST_equal": false,
+      "changed_assertions": [
+        {
+          "function": "test_full_native_source_and_seek_journey_is_unchanged",
+          "before_assertions": [
+            "assert commands == ['audio/7/serviceplay/spotify/synthetic-account/spotify%3Atrack%3Aoriginal/parentpath/spotify%3Aplaylist%3Aoriginal/0' if spotify else 'audio/7/library/play/library%3Alocal%3Atrack%3Afive/parentpath/library%3Alocal%3Afolder%3Aalbum/4', 'audio/7/position/45.0']",
+            "assert all((s.closed for s in sockets))",
+            "assert entity._source_task is None",
+            "assert rows == []",
+            "assert len([r for r in rows if r['stage'] == 'send_attempt']) == 2",
+            "assert len([r for r in rows if r['stage'] == 'send_completed']) == 2",
+            "assert any((r['stage'] == 'source_confirmed' and r['transport'] == 'source' for r in rows))",
+            "assert any((r['stage'] == 'restore_decision' and r['phase'] == 'post_auth' and (r['reason'] == 'eligible') for r in rows))",
+            "assert any((r['stage'] == 'restore_echo' and r['echo_position'] == 45 for r in rows))",
+            "assert all(('route' in r for r in rows if r['stage'] == 'send_attempt'))",
+            "assert 'synthetic-active-token' not in json.dumps(report)",
+            "assert 'Synthetic owner' not in json.dumps(report)"
+          ],
+          "after_assertions": [
+            "assert commands == ['audio/7/serviceplay/spotify/synthetic-account/spotify%3Atrack%3Aoriginal/parentpath/spotify%3Aplaylist%3Aoriginal/0/noshuffle' if spotify else 'audio/7/library/play/library%3Alocal%3Atrack%3Afive/parentpath/library%3Alocal%3Afolder%3Aalbum/4', 'audio/7/position/45.0']",
+            "assert all((s.closed for s in sockets))",
+            "assert entity._source_task is None",
+            "assert rows == []",
+            "assert len([r for r in rows if r['stage'] == 'send_attempt']) == 2",
+            "assert len([r for r in rows if r['stage'] == 'send_completed']) == 2",
+            "assert any((r['stage'] == 'source_confirmed' and r['transport'] == 'source' for r in rows))",
+            "assert any((r['stage'] == 'restore_decision' and r['phase'] == 'post_auth' and (r['reason'] == 'eligible') for r in rows))",
+            "assert any((r['stage'] == 'restore_echo' and r['echo_position'] == 45 for r in rows))",
+            "assert all(('route' in r for r in rows if r['stage'] == 'send_attempt'))",
+            "assert 'synthetic-active-token' not in json.dumps(report)",
+            "assert 'Synthetic owner' not in json.dumps(report)"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "tests/adapter/test_audio_owner_feedback.py",
+      "before_sha256": "7b38e2d0361e62d32d6b5cdf53472975315e24589edb4652d435a4786c8d2a33",
+      "after_sha256": "ebe8d8922425491626d0c3dda1c7aa14095c377ffdcdb787297dcc5318331a73",
+      "reason": "Only official native per-item wire expectation gains noshuffle; all guards retained",
+      "inherited_functions": 8,
+      "no_functions_removed": true,
+      "decorators_identical": true,
+      "assertion_AST_equal": false,
+      "changed_assertions": [
+        {
+          "function": "test_ackless_spotify_uses_fresh_exact_room_account_playing_evidence",
+          "before_assertions": [
+            "assert not commands.source_fences and (not metadata.listeners) and (commands._socket is None)",
+            "assert command == 'audio/7/serviceplay/spotify/owner/spotify%40owner%3Atrack%3Aone'"
+          ],
+          "after_assertions": [
+            "assert not commands.source_fences and (not metadata.listeners) and (commands._socket is None)",
+            "assert command == 'audio/7/serviceplay/spotify/owner/spotify%40owner%3Atrack%3Aone/noshuffle'"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "tests/adapter/test_native_source_return_ha.py",
+      "before_sha256": "9879fa8d89132273490a1e8c4ca94a8e0a39112e5b0175ef34139cb98c11c779",
+      "after_sha256": "b43e638a1754f7d640d1923e728295a7d206d314d9146b6ab9ccbe8363af1fba",
+      "reason": "Shared exact-request success fixture; explicit wrong-original counterfactual retained separately",
+      "inherited_functions": 8,
+      "no_functions_removed": true,
+      "decorators_identical": true,
+      "assertion_AST_equal": false,
+      "changed_assertions": [
+        {
+          "function": "test_native_spotify_return_keeps_prior_track_not_playlist_restart",
+          "before_assertions": [
+            "assert calls[0] == 'audio/7/serviceplay/spotify/synthetic-account/spotify%3Atrack%3Aoriginal/parentpath/spotify%3Aplaylist%3Aoriginal/0'"
+          ],
+          "after_assertions": [
+            "assert calls[0] == 'audio/7/serviceplay/spotify/synthetic-account/spotify%3Atrack%3Aoriginal/parentpath/spotify%3Aplaylist%3Aoriginal/0/noshuffle'"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "tests/adapter/test_source_contract_guards_ha.py",
+      "before_sha256": "7e065ab3c9b03f7e3bb2ce66b3c43d22014eb8e56743ba15cfb0ca9289cde3da",
+      "after_sha256": "1220b5d3f5b40055a75293dbbdcee0f13aa82d6fc44cfac85a14abd3a28a64d6",
+      "reason": "Only official native per-item wire expectation gains noshuffle; all guards retained",
+      "inherited_functions": 7,
+      "no_functions_removed": true,
+      "decorators_identical": true,
+      "assertion_AST_equal": false,
+      "changed_assertions": [
+        {
+          "function": "test_explicit_spotify_browse_overrides_resumable_session_without_early_success",
+          "before_assertions": [
+            "assert is_current()",
+            "assert entity._radio_catalogue.source_session('Spotify') is previous",
+            "assert writes[0].endswith(target_path.replace(':', '%3A').replace('@', '%40'))",
+            "assert session.calls == [], 'Explicit content must not consult/resume a different session'",
+            "assert entity._radio_catalogue.source_session('Spotify').audio_path == 'spotify:track:' + 'N' * 22"
+          ],
+          "after_assertions": [
+            "assert is_current()",
+            "assert entity._radio_catalogue.source_session('Spotify') is previous",
+            "assert writes[0].endswith(target_path.replace(':', '%3A').replace('@', '%40') + ('/noshuffle' if kind == 'track' else ''))",
+            "assert session.calls == [], 'Explicit content must not consult/resume a different session'",
+            "assert entity._radio_catalogue.source_session('Spotify').audio_path == 'spotify:track:' + 'N' * 22"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "tests/adapter/test_source_latest_intent_ha.py",
+      "before_sha256": "297b00bc558e7f711865cb343936f104584f74b09e682e1327dd84e8691d8fdc",
+      "after_sha256": "347ce1ffe353e1e7b4e5a12dd4584be79628cef1576285f0e65c34267c93eae9",
+      "reason": "Exact saved-item return now rejects wrong-track provider-only feedback; retains truthful metadata/last-good/no-seek, permits later qualified owner choice",
+      "inherited_functions": 4,
+      "no_functions_removed": true,
+      "decorators_identical": true,
+      "assertion_AST_equal": false,
+      "changed_assertions": [
+        {
+          "function": "test_pending_library_a2_does_not_erase_a1_and_explicit_return_uses_a1",
+          "before_assertions": [
+            "assert a1 is not None and a1.position == 45",
+            "assert isinstance(result[0], asyncio.CancelledError)",
+            "assert entity._radio_catalogue.source_session('Local Library') is a1",
+            "assert entity._radio_catalogue.source_session('Local Library') is a1, 'Obsolete visit cannot overwrite A1'",
+            "assert entity._source_task is None",
+            "assert kwargs['is_current']()",
+            "assert len(writes) == 2",
+            "assert entity._audio_metadata.get(7).audio_path == target.audio_path",
+            "assert 'library%3Alocal%3Atrack%3Afive' in writes[-2]",
+            "assert writes[-1] == 'audio/7/position/45.0'",
+            "assert entity._audio_metadata.get(7).audio_path == a1.audio_path"
+          ],
+          "after_assertions": [
+            "assert a1 is not None and a1.position == 45",
+            "assert isinstance(result[0], asyncio.CancelledError)",
+            "assert entity._radio_catalogue.source_session('Local Library') is a1",
+            "assert entity._radio_catalogue.source_session('Local Library') is a1, 'Obsolete visit cannot overwrite A1'",
+            "assert 'library%3Alocal%3Atrack%3Afive' in writes[-2]",
+            "assert writes[-1] == 'audio/7/position/45.0'",
+            "assert entity._audio_metadata.get(7).audio_path == a1.audio_path",
+            "assert entity._source_task is None",
+            "assert kwargs['is_current']()"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "tests/adapter/test_source_proof_fairness_ha.py",
+      "before_sha256": "b9642b9df25139d4d300f6d61bc9de058866be41eb5d2dd247ca8ec8de8fd7a8",
+      "after_sha256": "2beea0fd88ab99fb52b3e2f8193df836ff8f7020281e7102d2fafb5e508d06c7",
+      "reason": "Exact saved-item return now rejects wrong-track provider-only feedback; retains truthful metadata/last-good/no-seek, permits later qualified owner choice",
+      "inherited_functions": 5,
+      "no_functions_removed": true,
+      "decorators_identical": true,
+      "assertion_AST_equal": false,
+      "changed_assertions": [
+        {
+          "function": "test_ready_frames_never_substitute_for_missing_exact_source_proof",
+          "before_assertions": [
+            "assert reads",
+            "assert len(sent) == 1",
+            "assert '/position/' not in sent[0]",
+            "assert not hasattr(entity, '_audio_last_source_failure')",
+            "assert 7 in entity._audio_commands.source_fences",
+            "assert sent == [message for socket in sockets for message in socket.sent if message.startswith('audio/7/')]",
+            "assert all((socket.closed for socket in sockets))",
+            "assert len(sent) == (2 if conflict == 'parent' else 1)",
+            "assert not entity._audio_commands.source_fences",
+            "assert all((socket.closed for socket in sockets))"
+          ],
+          "after_assertions": [
+            "assert reads",
+            "assert len(sent) == 1",
+            "assert '/position/' not in sent[0]",
+            "assert not hasattr(entity, '_audio_last_source_failure')",
+            "assert 7 in entity._audio_commands.source_fences",
+            "assert sent == [message for socket in sockets for message in socket.sent if message.startswith('audio/7/')]",
+            "assert all((socket.closed for socket in sockets))",
+            "assert len(sent) == 2",
+            "assert not entity._audio_commands.source_fences",
+            "assert all((socket.closed for socket in sockets))"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "tests/adapter/test_source_return_review02_ha.py",
+      "before_sha256": "e350d952da9bbb6c0855eb6e9081c88c537cf28e68a121d1b9d49575e44da919",
+      "after_sha256": "d659f86401247050b0804472ba2fa80183a878157142e618a58ae409ced0e489",
+      "reason": "Exact saved-item return now rejects wrong-track provider-only feedback; retains truthful metadata/last-good/no-seek, permits later qualified owner choice",
+      "inherited_functions": 8,
+      "no_functions_removed": true,
+      "decorators_identical": true,
+      "assertion_AST_equal": false,
+      "changed_assertions": [
+        {
+          "function": "test_newer_unqualified_spotify_state_cannot_replay_old_sampled_track",
+          "before_assertions": [
+            "assert all(('/parentpath/' not in command for command in calls)) if loss != 'account_user' else True",
+            "assert 'spotify%3Atrack%3Aoriginal' in calls[0]",
+            "assert len(calls) == 1 and calls[0].endswith('spotify%3Atrack%3Anewer')"
+          ],
+          "after_assertions": [
+            "assert all(('/parentpath/' not in command for command in calls)) if loss != 'account_user' else True",
+            "assert 'spotify%3Atrack%3Aoriginal' in calls[0]",
+            "assert len(calls) == 1 and calls[0].endswith('spotify%3Atrack%3Anewer/noshuffle')",
+            "assert entity._radio_catalogue.source_session('Spotify') is before",
+            "assert is_current()"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "tests/adapter/test_source_return_simplification_ha.py",
+      "before_sha256": "e99aa1dd3319fc1c6ff89e772e48e2f354f7772f159fc50bc750d0c5cdf712e3",
+      "after_sha256": "588fa1191e564277d816ac68b6d2b1419b7d09f7f6eb0204c8246f9bd21f9d7a",
+      "reason": "Exact saved-item return now rejects wrong-track provider-only feedback; retains truthful metadata/last-good/no-seek, permits later qualified owner choice",
+      "inherited_functions": 10,
+      "no_functions_removed": true,
+      "decorators_identical": true,
+      "assertion_AST_equal": false,
+      "changed_assertions": [
+        {
+          "function": "test_source_return_accepts_provider_current_track_without_seeking_old_track",
+          "before_assertions": [
+            "assert len(sent_commands(sockets)) == 1",
+            "assert saved.audio_path == prefix + 'track:next'",
+            "assert saved.position == observed_position",
+            "assert all((socket.closed for socket in sockets))"
+          ],
+          "after_assertions": [
+            "assert len(sent_commands(sockets)) == 1",
+            "assert saved is previous",
+            "assert entity._audio_metadata.get(7).audio_path == prefix + 'track:next'",
+            "assert entity._audio_metadata.get(7).position == observed_position",
+            "assert all((socket.closed for socket in sockets))"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "tests/adapter/test_source_review75_ha.py",
+      "before_sha256": "c542e209bbe70c05a9f6d4552a1b689f8944a3c9a0e66268b4d3971e92fa2cab",
+      "after_sha256": "28c6384c9ad5055d6350441e9cc4201a311f173110c37662bae8c49f3d1f90d8",
+      "reason": "Exact saved-item return now rejects wrong-track provider-only feedback; retains truthful metadata/last-good/no-seek, permits later qualified owner choice",
+      "inherited_functions": 7,
+      "no_functions_removed": true,
+      "decorators_identical": true,
+      "assertion_AST_equal": false,
+      "changed_assertions": [
+        {
+          "function": "test_confirmed_newer_provider_session_is_last_good_before_immediate_departure",
+          "before_assertions": [
+            "assert entity._radio_catalogue.source_session('Spotify').audio_path == current",
+            "assert target.audio_path == current",
+            "assert is_current()"
+          ],
+          "after_assertions": [
+            "assert entity._radio_catalogue.source_session('Spotify') is previous",
+            "assert entity._radio_catalogue.source_session('Spotify').audio_path == current",
+            "assert target.audio_path == current",
+            "assert is_current()"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "tests/adapter/test_source_simple_boundaries_ha.py",
+      "before_sha256": "72a78eb27835584718534b4699b50aab2ffc5f7b63dadcb933ca0a9fe8ccbea4",
+      "after_sha256": "fd31ec61d0ba507f943e24396d318a24e9e7ea2bea746b32eaca4d66524982bc",
+      "reason": "Only official native per-item wire expectation gains noshuffle; all guards retained",
+      "inherited_functions": 3,
+      "no_functions_removed": true,
+      "decorators_identical": true,
+      "assertion_AST_equal": false,
+      "changed_assertions": [
+        {
+          "function": "test_ambiguous_native_resume_is_not_replayed_and_new_other_source_can_proceed",
+          "before_assertions": [
+            "assert writes == ['audio/7/serviceplay/spotify/synthetic-account/' + _row['audiopath'].replace(':', '%3A')]",
+            "assert 7 in entity._audio_commands.source_fences",
+            "assert entity._source_task is None",
+            "assert len([command for command in writes if '/serviceplay/spotify/' in command]) == 1",
+            "assert entity._audio_metadata.get(7).source == 'Local Library'",
+            "assert not entity._audio_commands.source_fences",
+            "assert is_current()"
+          ],
+          "after_assertions": [
+            "assert writes == ['audio/7/serviceplay/spotify/synthetic-account/' + _row['audiopath'].replace(':', '%3A') + '/noshuffle']",
+            "assert 7 in entity._audio_commands.source_fences",
+            "assert entity._source_task is None",
+            "assert len([command for command in writes if '/serviceplay/spotify/' in command]) == 1",
+            "assert entity._audio_metadata.get(7).source == 'Local Library'",
+            "assert not entity._audio_commands.source_fences",
+            "assert is_current()"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "tests/adapter/test_spotify_repeated_observations_ha.py",
+      "before_sha256": "50cdc45204058afc9de6fd3ff0cc1a9912f2a5f380d231a0ea8567c1954f2d8b",
+      "after_sha256": "25a325d0287c3d9b0832405484ce61f54e5ee0b928cd6623cfe5d50f888e5f74",
+      "reason": "Only official native per-item wire expectation gains noshuffle; all guards retained",
+      "inherited_functions": 1,
+      "no_functions_removed": true,
+      "decorators_identical": true,
+      "assertion_AST_equal": true,
+      "changed_assertions": []
+    },
+    {
+      "file": "tests/library/test_diagnostic_events.py",
+      "before_sha256": "dd246367eaac3299a373665927b77136fe851404b577a69f20787129af2b2b5c",
+      "after_sha256": "def3631c15235495153d34e3ff13dcb1b03b8f8f85baf88c02d76f1407bca14a",
+      "reason": "New strict fixed-flag diagnostic route tests; earlier assertions unchanged",
+      "inherited_functions": 6,
+      "no_functions_removed": true,
+      "decorators_identical": true,
+      "assertion_AST_equal": true,
+      "changed_assertions": []
+    }
+  ],
+  "extra_fixture_note": "review75 independent later feedback advances time45->46 to satisfy unchanged passive-history rule; stationary repeated frame never qualified. Original failure retained."
+}

@@ -22,6 +22,11 @@ async def test_line_inputs_follow_other_sources_without_changing_targets(
             "cmd": "linein/ABCDEF123456#1000002", "name": "Second input",
             "valid": True, "power": "on",
         })
+    commands.async_recent_sources.return_value = {'items': [
+        {'type': 2, 'audiopath': path, 'title': 'Prior room content'}
+        for path in ('library:local:track:one', 'loxoneradio:station:one',
+                     'spotify@owner:track:one', 'tunein:station:one')
+    ]}
     if history_unavailable:
         commands.async_recent_sources.side_effect = TimeoutError("Synthetic history outage")
     for name, value in vars(commands).items():
@@ -40,9 +45,10 @@ async def test_line_inputs_follow_other_sources_without_changing_targets(
              "Line-In · Second input · ABCDEF123456#1000002"]
             if multiple_inputs else ["Line-In"]
         )
-        assert entity.source_list == [
+        assert list(descriptors) == [
             "Local Library", "Loxone Radio", "Spotify", "TuneIn", *expected_inputs
         ]
+        assert entity.source_list == (expected_inputs if history_unavailable else list(descriptors))
         for label, expected_id in zip(expected_inputs, [
             "ABCDEF123456#1000001", "ABCDEF123456#1000002"
         ], strict=False):
@@ -53,9 +59,10 @@ async def test_line_inputs_follow_other_sources_without_changing_targets(
 
         # Refresh via the actual entity path must not restore alphabetical-first inputs.
         await entity._async_refresh_native_sources()
-        assert entity.source_list == [
+        assert list(descriptors) == [
             "Local Library", "Loxone Radio", "Spotify", "TuneIn", *expected_inputs
         ]
+        assert entity.source_list == (expected_inputs if history_unavailable else list(descriptors))
     play_catalogue.assert_not_awaited()
     play_radio_station.assert_not_awaited()
     audio_setup.apis[0].send_websocket_command.assert_not_awaited()

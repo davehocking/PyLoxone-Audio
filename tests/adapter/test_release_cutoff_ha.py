@@ -36,5 +36,11 @@ async def test_source_failure_preserves_error_without_development_trace_state(
     assert not hasattr(entity, "_audio_last_source_failure")
     assert "audio_last_source_failure" not in entity.extra_state_attributes
     assert "pyloxone_audio.diagnostics" not in sys.modules
-    assert "custom_components.loxone.audio_diagnostics" not in sys.modules
+    # Approved0.1.1 opt-in diagnostics supersedes ONLY the blanket module ban.
+    # A default-off entry must still collect no events after this real failure.
+    collectors = [getattr(value, "audio_diagnostics", None)
+                  for value in hass.data["loxone"].values()]
+    assert any(collector is not None for collector in collectors)
+    assert all(not collector.enabled and collector.queue.empty()
+               for collector in collectors if collector is not None)
     assert entity._source_task is None

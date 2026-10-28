@@ -65,7 +65,8 @@ async def test_malformed_optional_json_is_quiet_and_unchanged_native_can_continu
     assert len(writes) == {"playing": 0, "paused": 1, "radio": 2}[native]
     if native=='radio': assert row['audiopath'].replace(':','%3A') in writes[0]
     if native=='paused': assert writes[0].endswith('/synthetic-account/')
-    assert response.release.called
+    assert not response.release.called
+    assert session.calls == [], 'Retired provider path is never entered'
 
 
 @pytest.mark.asyncio
@@ -99,32 +100,6 @@ async def test_confirmed_library_controls_ignore_only_historical_provider_marker
     finally: entity.hass.data[continuity._ROOM_FENCES].discard(marker)
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize('external',['pause','item'])
-async def test_malformed_optional_json_cannot_hide_intervening_native_action(hass,audio_setup,monkeypatch,external):
-    entity,emit,writes,session,row=await session_room(hass,audio_setup,monkeypatch)
-    await emit(row)
-    entered,release=asyncio.Event(),asyncio.Event()
-    async def decode():
-        entered.set(); await release.wait()
-        raise ValueError('Synthetic malformed JSON after external action')
-    response=SimpleNamespace(status=200,json=decode,release=Mock())
-    original=session.async_request
-    async def malformed(method,url,**kwargs):
-        if url.endswith('/me/player'): return response
-        return await original(method,url,**kwargs)
-    monkeypatch.setattr(session,'async_request',malformed)
-    action=asyncio.create_task(select(hass,entity,'Spotify'))
-    try:
-        await asyncio.wait_for(entered.wait(),1)
-        await emit({**row,**({'mode':'pause'} if external=='pause' else {'audiopath':'spotify:track:'+'N'*22})})
-        release.set()
-        result=await asyncio.gather(action,return_exceptions=True)
-        assert isinstance(result[0],HomeAssistantError)
-        assert writes==[] and response.release.called
-        assert entity._source_task is None
-    finally:
-        release.set(); action.cancel(); await asyncio.gather(action,return_exceptions=True)
 
 
 @pytest.mark.asyncio

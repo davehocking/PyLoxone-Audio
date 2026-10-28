@@ -1,0 +1,59 @@
+{
+  "base_commit": "6c32c2643205cdc35575a7c776881da1dbe11384",
+  "state": "Offline-only, fresh independent OpenAI review pending; not installed/published/physically accepted",
+  "setup_label_default_manifest_pin_unchanged": true,
+  "mode_setters_unchanged": true,
+  "persistence_not_implemented": true,
+  "files": [
+    {
+      "file": "pyloxone_audio/native.py",
+      "base_sha256": "eb54df57f21b33f5f6aa809bbb1dfa98206fc2c686bd25c8d02275ff1d033b61",
+      "candidate_sha256": "89d104c3d1a466b516247aae7b9d0f7f6013ca11fe61ee7b12d627f44d66dfb0"
+    },
+    {
+      "file": "pyloxone_audio/sources.py",
+      "base_sha256": "00c414d3a0c318d5f54e871a60e9b9a844ba6504b023ead4a719c96ed89b2ba3",
+      "candidate_sha256": "1d48498ebc23b29a7ca302bd65f06466df2e681d3ef6d12b36b7d82631ba7262"
+    },
+    {
+      "file": "pyloxone_audio/selection.py",
+      "base_sha256": "55a332d6a21736a2f3d7a2e393e202f652234bb421303fc38a9b0251e77c2db6",
+      "candidate_sha256": "8ab9eb87d365604240f3b12e66128b511bf30b9e1a9f5f3384207d27f4f2ebe9"
+    },
+    {
+      "file": "pyloxone_audio/diagnostic_events.py",
+      "base_sha256": "377939b930726c050760f79ce7e04f6af4b0f1b65c8fd94be1cb25b415af04eb",
+      "candidate_sha256": "4fe61344145eebba3d1e92254f792a0a06931e88fafdb891a5f5908b2b79738f"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/media_player.py",
+      "base_sha256": "dfd58357af41b14d2e9281b44168b464d6121f5aba0998846a6815db7ad61e2d",
+      "candidate_sha256": "310dc1c458bb8e85e1d78e4c66e428dfaa0ecf252ac7afb2d5b1f0c3844f76df"
+    },
+    {
+      "file": "adapters/pyloxone/overlay/custom_components/loxone/audio_diagnostics.py",
+      "base_sha256": "153771e5e26a6c9661d9237e1e3d7951add2b147f5da78f23522d0c56193c5ff",
+      "candidate_sha256": "ceab5d78ad16bc5df7600a57e5fb993454bf791aa68a4cb75715e7b0e5e5eed2"
+    },
+    {
+      "file": "tests/library/test_exact_track_start.py",
+      "base_sha256": null,
+      "candidate_sha256": "25c54555fc4f32c9cf3aead014ddc2886fc2331e778430b379adab6775b29770"
+    },
+    {
+      "file": "tests/adapter/test_exact_track_return_ha.py",
+      "base_sha256": null,
+      "candidate_sha256": "518c2b2d78f004a6ac221dc15fc52e52180f282e5249e0aaf50db43937032d53"
+    }
+  ],
+  "function_map": "EXACT-TRACK-RETURN.md",
+  "test_migrations": "EXACT-TRACK-TEST-MIGRATIONS.json",
+  "historical_maps": "Older mode/R94/seek maps retain historical hashes; this exact-track map supersedes overlapping current identities",
+  "limits": [
+    "Wire parity not physical firmware cause",
+    "Per-item flag not persistent shuffle/queue preservation",
+    "No live/public actions; publisher held"
+  ],
+  "r99_successor": "R99-DELTA.json and R99-TAKEOVER.md; original wire migrations unchanged",
+  "release_phase_note": "Historical delta/status fields retain development provenance. Final0.1.1 independent complete-contract review and common private adoption are complete; owner same-track/near-saved-position returns accepted in one room on2026-10-28. Current runtime inventories in BASE/FILE-GUIDE/preview provenance; public availability requires the actual release production gate. No upstream approval, universal queue or restart persistence claim."
+}

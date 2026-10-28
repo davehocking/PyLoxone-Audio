@@ -11,30 +11,9 @@ from test_audioserver_playback import SyntheticAudioSocket
 from test_spotify_continuity import native
 from test_spotify_continuity_review import entity_boundary
 from custom_components.loxone.pyloxone_api import audioserver as wire
-from custom_components.loxone.spotify_continuity import SpotifySourceReturn, SpotifyReturnUnavailable
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("action", ["async_media_play", "async_media_next_track", "async_media_previous_track"])
-async def test_rebinding_uncertain_device_cannot_bypass_transport_guards(hass, monkeypatch, action):
-    first, _, _, _, _, _ = entity_boundary(hass)
-    first._spotify_return.uncertain = True
-    second, _, snapshots, commands, _, _ = entity_boundary(hass)
-    commands.async_execute = AsyncMock()
-    second.unique_id = "synthetic-replacement-room"
-    second._audio_player_id = 8
-    snapshots[0] = replace(native(), player_id=8)
-    second._spotify_return = SpotifySourceReturn(
-        hass, second._spotify_binding, second.unique_id, 8, commands, lambda: snapshots[0]
-    )
-    assert second._spotify_return.uncertain
-    assert second._audio_player_id in commands.source_fences
-    fire = MagicMock()
-    monkeypatch.setattr(type(hass.bus), "async_fire", fire)
-    with pytest.raises(HomeAssistantError):
-        await getattr(second, action)()
-    commands.async_execute.assert_not_awaited()
-    fire.assert_not_called()
+
 
 
 @pytest.mark.asyncio
@@ -78,13 +57,3 @@ async def test_native_play_prepared_before_newer_action_cannot_dispatch(hass, mo
     assert isinstance(result, (HomeAssistantError, asyncio.CancelledError))
     assert "audio/7/play" not in socket.sent
     assert socket.closed
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("accounts", [None, 42, "not-an-account-list"])
-async def test_malformed_optional_account_read_is_classified_not_type_error(hass, accounts):
-    entity, session, _, commands, _, _ = entity_boundary(hass)
-    commands.async_service_accounts = AsyncMock(return_value=accounts)
-    with pytest.raises(SpotifyReturnUnavailable):
-        await entity._spotify_return.async_capture(lambda: True)
-    assert not session.calls

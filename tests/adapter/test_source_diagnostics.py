@@ -14,21 +14,6 @@ from custom_components.loxone.pyloxone_api.audioserver import AudioCommandError
 from custom_components.loxone.pyloxone_api import audioserver as wire
 
 
-@pytest.mark.asyncio
-async def test_actual_source_entity_reports_positive_foreign_ownership_before_any_send(hass, caplog):
-    entity, session, _, commands = await _saved(hass)
-    session.current['device']['id'] = 'foreign-device'
-    caplog.set_level(logging.DEBUG, logger='custom_components.loxone.media_player')
-    handoffs_before = commands.async_spotify_handoff.await_count
-    with pytest.raises(HomeAssistantError):
-        await entity.async_select_source('Spotify')
-    messages = [r.getMessage() for r in caplog.records if r.name == 'custom_components.loxone.media_player']
-    assert not hasattr(entity, '_audio_last_source_failure')
-    assert any('Audio source selection failed' in m for m in messages)
-    assert all(method == 'GET' for method, _, _ in session.calls)
-    commands.async_play_catalogue.assert_not_awaited()
-    assert commands.async_spotify_handoff.await_count == handoffs_before
-    assert 'foreign-device' not in '\n'.join(messages)
 
 
 @pytest.mark.asyncio
@@ -64,7 +49,7 @@ async def test_debug_disabled_does_not_emit_source_trace(hass, caplog):
     await entity.async_select_source('Spotify')
     assert not [r for r in caplog.records if r.name.endswith('audio_diagnostics')]
     assert sum(method == 'PUT' for method, _, _ in session.calls) == 0
-    entity._audio_commands.async_spotify_handoff.assert_awaited_once()
+    entity._audio_commands.async_play_catalogue.assert_awaited_once()
 
 
 @pytest.mark.asyncio

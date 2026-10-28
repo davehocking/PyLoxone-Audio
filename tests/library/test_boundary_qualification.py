@@ -46,54 +46,8 @@ def test_manual_seek_rechecks_actual_snapshot_not_only_cached_host_identity():
     assert not proof.is_current(changed, identity=identity, revision=1, duration=original.duration, enabled=True)
 
 
-@pytest.mark.asyncio
-async def test_optional_native_error_after_identity_change_never_permits_retained_fallback():
-    original = snapshot()
-    metadata = SimpleNamespace(value=original)
-    metadata.get = lambda player: metadata.value
-    commands = SimpleNamespace(source_fences={}, announcement_fences={})
-    failure = selection.NativeSessionUnavailableError('Synthetic optional absence')
-
-    async def attempt(target):
-        metadata.value = replace(original, source_name='Different account')
-        raise failure
-
-    with pytest.raises(selection.NativeSessionUnavailableError) as caught:
-        await selection.async_optional_native_resume(commands, metadata, 7, None, attempt, is_current=lambda: True)
-    assert caught.value is failure
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize('outcome', ['prewrite-absence', 'uncertain-write', 'cancelled', 'changed-unavailable'])
-async def test_optional_native_outcomes_pin_state_and_never_hide_cancellation(outcome):
-    original = snapshot()
-    metadata = SimpleNamespace(value=original)
-    metadata.get = lambda player: metadata.value
-    commands = SimpleNamespace(source_fences={}, announcement_fences={})
-    failure = selection.NativeSessionUnavailableError('Synthetic optional absence')
-    cancellation = asyncio.CancelledError()
-
-    async def attempt(target):
-        if outcome == 'cancelled':
-            raise cancellation
-        if outcome == 'changed-unavailable':
-            metadata.value = replace(original, audio_path='spotify:track:external')
-            return selection.NativeResumeOutcome.UNAVAILABLE
-        if outcome == 'uncertain-write':
-            commands.source_fences[7] = object()
-        raise failure
-
-    operation = selection.async_optional_native_resume(commands, metadata, 7, None, attempt, is_current=lambda: True)
-    if outcome == 'prewrite-absence':
-        assert await operation is selection.NativeResumeOutcome.UNAVAILABLE
-    else:
-        expected = asyncio.CancelledError if outcome == 'cancelled' else selection.AudioCommandError
-        with pytest.raises(expected) as caught:
-            await operation
-        if outcome == 'cancelled':
-            assert caught.value is cancellation
-        elif outcome == 'uncertain-write':
-            assert caught.value is failure
 
 
 @pytest.mark.asyncio
@@ -113,7 +67,7 @@ async def test_native_session_route_avoids_unavailable_optional_history():
     route = await selection.async_source_route(
         commands, SimpleNamespace(get=lambda _: original), catalogue, 7, 'Spotify',
         is_current=lambda: True, ensure_snapshot=AsyncMock(),
-        resume_native=AsyncMock(return_value=selection.NativeResumeOutcome.UNAVAILABLE),
+
         native_is_available=lambda: True, on_target=targets.append,
     )
     assert route.media_id is None and route.original is original

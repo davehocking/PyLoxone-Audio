@@ -1,39 +1,50 @@
-# Versioned PyLoxone adapter: library 0.1.0 / host 0.10.2
+> **0.1.1 matching reference adapter.** Independent review and private common
+> adoption are complete; public availability requires the release production gate.
+> No upstream approval or automatic installation is implied. Start with the
+> [tester guide](../../preview-build/README.md) or the
+> [Jo inspect/reproduce/test/rebase/adopt/release guide](jo-review/README.md).
+> The optional HA-Spotify bridge is removed; normal native Loxone Spotify remains.
+> POSITION-RESTORE.md records bounded readiness and one-room owner confirmation.
 
-This is a reviewed reference delta for the exact public JoDehli/PyLoxone release
+# Versioned PyLoxone adapter: library 0.1.1 / host 0.10.2
+
+This is a candidate reference delta awaiting independent review for the exact public JoDehli/PyLoxone release
 0.10.2 commit `3db77b81f69c77cc814675d191061533b464df5e`, not unreleased master
 and not an evergreen whole-file updater. Jo's later merged upstream files are
 authoritative. Rebase/review the audio delta when the host changes; never copy
 old full files over unrelated upstream fixes.
 
-`BASE.json` records every exact upstream component file, 25 audio overlay files,
+`BASE.json` records every exact upstream component file, the scoped audio overlay,
 and the complete expected assembly. Only `const.py` and `manifest.json` overlap
 the 0.10.1 -> 0.10.2 component changes: the assembly keeps `Platform.TEXT`, host
-version 0.10.2 and all original requirements, adding `PyLoxone-Audio==0.1.0`.
-The other 14 upstream-changed generic files are byte-identical to 0.10.2,
-including its owning entrypoint, TextInput, WebSocket and entity fixes.
+version 0.10.2 and all original requirements, adding `PyLoxone-Audio==0.1.1`.
+The new diagnostics increment adds small owning-entrypoint/switch/download and
+audio-only existing Miniserver send hooks, preserving the0.10.2 fixes. BASE.json
+and Jo's file guide identify exact changed/unchanged bytes, not a whole-file copy
+from an older release. TextInput and unrelated entity functionality remain.
 
 There remains ONE `loxone` integration/setup/native room entity set. Host options,
 room/player mapping, services, callbacks and provider auth ownership stay in the
 adapter; native transport, metadata/source policy and neutral catalogue models
 belong to the portable library. Existing API tokens are supplied on demand by
-the owning coordinator. HA's Spotify integration is **optional**, not an adapter
-setup dependency. Native Loxone Spotify playback, metadata, controls and native
-Browse/Search do not require it. An explicitly configured room binding can reuse
-HA Spotify's existing OAuth session to read the user identity (`GET /v1/me`) and
-current receiver (`GET /v1/me/player`), then resume through the native Loxone
-`serviceplay/spotify` command. This live-session return does not seek to a saved
-position; Spotify determines where its session resumes. The active selector does not write Spotify API
-playback state, capture its queue, restore an exact position through Spotify, or
-transfer another receiver's playback. No separate credential store is added.
-Missing optional capability preserves a valid native path quietly; a positively
-observed account/receiver conflict is not downgraded to optional absence.
-See [the full capability/function map](../../SPOTIFY.md), including the explicit
-binding fields and retained capture/restore helpers that are not called by the
-current source selector. The optional listener
+the owning coordinator. HA's separate Spotify integration is neither required
+nor consulted. 0.1.1 removes its optional room-binding/session/OAuth/provider API
+bridge. Legacy options are ignored without changing that independent entry.
+Native Loxone Spotify playback, metadata, controls, Browse/Search, account checks,
+qualified room-native return and supported manual seek remain. A source can be
+retained from actual same-room native observations, not only HA play requests;
+a label/title/folder/phone-only event is not a usable target. The standard Source
+selector includes only usable previous content, with configured Line-In last.
+There is no new history database or custom frontend. One optional native seek
+remains conditional/nonblocking, with one-room owner confirmation rather than a
+universal position guarantee. Bookmarks remain RAM-only across restart. See [the active function map](../../SPOTIFY.md) and
+[bounded position findings](../../POSITION-RESTORE.md). The optional listener
 and command connections close with that entry; failures do not disable unrelated
 Miniserver controls. Normal warning/error translation remains, development
-tracing does not ship. See the call graph and API documents.
+private tracing does not ship. New supported default-off structured diagnostics
+is explicitly included: one entry switch, local24h age retention with fixed bounds,
+no reload/control on toggle, and sanitised admin download replacing raw-house
+diagnostics. See [workflow/privacy/limits](../../DIAGNOSTICS.md).
 
 From the library repository root:
 

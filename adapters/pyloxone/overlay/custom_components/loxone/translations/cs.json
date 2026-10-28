@@ -1,5 +1,6 @@
 {
   "entity": {
+    "switch": {"audio_diagnostics": {"name": "Diagnostika zvuku"}},
     "climate": {
       "room_controller_v2": {
         "state_attributes": {
@@ -34,14 +35,12 @@
       "user": {
         "data": {
           "audioserver_host": "Hostitel Audioserveru (volitelné; port 7091)",
-          "audioserver_spotify_return": "Přiřazení místností pro návrat do Spotify (pokročilé; volitelné)",
           "audioserver_playback": "Použít play/pause přehrávače Audio Server (experimentální; ve výchozím nastavení vypnuto)"
         }
       }
     },
     "error": {
       "invalid_audioserver_host": "Zadejte název hostitele nebo IP adresu Audioserveru bez portu, URL, cesty nebo přihlašovacích údajů.",
-      "invalid_spotify_return": "Zadejte jedinečná přiřazení místnosti, účtu a zařízení a povolte přehrávání Audio Serveru.",
       "audioserver_playback_requires_host": "Před povolením play/pause přehrávače nastavte hostitele Audioserveru."
     }
   },
@@ -50,20 +49,22 @@
       "init": {
         "data": {
           "audioserver_host": "Hostitel Audioserveru (volitelné; port 7091)",
-          "audioserver_spotify_return": "Přiřazení místností pro návrat do Spotify (pokročilé; volitelné)",
           "audioserver_playback": "Použít play/pause přehrávače Audio Server (experimentální; ve výchozím nastavení vypnuto)"
         }
       }
     },
     "error": {
       "invalid_audioserver_host": "Zadejte název hostitele nebo IP adresu Audioserveru bez portu, URL, cesty nebo přihlašovacích údajů.",
-      "invalid_spotify_return": "Zadejte jedinečná přiřazení místnosti, účtu a zařízení a povolte přehrávání Audio Serveru.",
       "audioserver_playback_requires_host": "Před povolením play/pause přehrávače nastavte hostitele Audioserveru."
     }
   },
   "exceptions": {
-    "audioserver_announcement_unavailable": {"message": "Hlášení Audio Server nejsou dostupná nebo předchozí požadavek není vyřešen. Nové hlášení nebylo odesláno."},
-    "audioserver_announcement_failed": {"message": "Hlášení Audio Server nebylo spolehlivě dokončeno. Zvuk mohl být přehrán. Automatické opakování nebylo odesláno."},
+    "audioserver_announcement_unavailable": {
+      "message": "Hlášení Audio Server nejsou dostupná nebo předchozí požadavek není vyřešen. Nové hlášení nebylo odesláno."
+    },
+    "audioserver_announcement_failed": {
+      "message": "Hlášení Audio Server nebylo spolehlivě dokončeno. Zvuk mohl být přehrán. Automatické opakování nebylo odesláno."
+    },
     "audioserver_seek_unavailable": {
       "message": "Posun není pro tuto stopu nebo pozici dostupný."
     },

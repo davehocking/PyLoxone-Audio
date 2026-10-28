@@ -62,7 +62,7 @@ async def test_new_source_and_stop_wait_for_ordinary_play_transport_cleanup(hass
 @pytest.mark.asyncio
 @pytest.mark.parametrize('spotify',[False,True])
 async def test_external_success_without_optional_clock_is_remembered_after_ha_completion(hass,audio_setup,monkeypatch,spotify):
-    entity,emit,writes=await install_sources(hass,audio_setup,monkeypatch,spotify=True)
+    entity,emit,writes=await install_sources(hass,audio_setup,monkeypatch,spotify=True, previous_spotify=True)
     await emit(library_row())
     await select(hass,entity,'Spotify')
     source='Spotify' if spotify else 'Local Library'

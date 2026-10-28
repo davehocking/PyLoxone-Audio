@@ -1,0 +1,49 @@
+{
+  "base_commit": "fe1f226e10a02793eb167cc718cecab3cab2c553",
+  "state": "Offline-only; fresh independent review pending; not installed or published",
+  "policy": "One event-driven monotonic 2s readiness ceiling for all players/providers; at most one optional seek",
+  "host_overlay_and_patch_unchanged": true,
+  "setup_gate_label_default_unchanged": true,
+  "files": [
+    {
+      "file": "pyloxone_audio/sources.py",
+      "base_sha256": "9f8b9e1a1a74293367ffd111d6bcc3d8be40310a9036b268246659c0a31047ac",
+      "candidate_sha256": "00c414d3a0c318d5f54e871a60e9b9a844ba6504b023ead4a719c96ed89b2ba3",
+      "what": "Separate confirmation from capability readiness; sticky invalidation through native auth; cleanup in finally",
+      "why": "Do not discard a valid bookmark before current-target native seek support arrives",
+      "tests": [
+        "tests/adapter/test_seek_readiness_ha.py",
+        "tests/library/test_restore_readiness.py"
+      ]
+    },
+    {
+      "file": "tests/adapter/test_seek_readiness_ha.py",
+      "base_sha256": null,
+      "candidate_sha256": "525c86cdc75cce8a24a3efae46ba490084b9e484a4d9c17060bffbd09bc3dad5",
+      "what": "Synthetic shared-policy regression and boundary coverage",
+      "why": "Do not discard a valid bookmark before current-target native seek support arrives",
+      "tests": [
+        "tests/adapter/test_seek_readiness_ha.py",
+        "tests/library/test_restore_readiness.py"
+      ]
+    },
+    {
+      "file": "tests/library/test_restore_readiness.py",
+      "base_sha256": null,
+      "candidate_sha256": "4e32c64a273a3c547034592ab7649df2777e6c8f509d97b03ea14b7aa0b365e8",
+      "what": "Synthetic shared-policy regression and boundary coverage",
+      "why": "Do not discard a valid bookmark before current-target native seek support arrives",
+      "tests": [
+        "tests/adapter/test_seek_readiness_ha.py",
+        "tests/library/test_restore_readiness.py"
+      ]
+    }
+  ],
+  "evidence": "Frozen engineering handoff retains baseline/candidate regression, full source/wheel imports, cases, warnings and artifacts",
+  "limits": [
+    "Synthetic I/O is not firmware acceptance",
+    "Historical raw native capability mask is unproved",
+    "Public pin remains 0.1.0"
+  ],
+  "release_phase_note": "Historical delta/status fields retain development provenance. Final0.1.1 independent complete-contract review and common private adoption are complete; owner same-track/near-saved-position returns accepted in one room on2026-10-28. Current runtime inventories in BASE/FILE-GUIDE/preview provenance; public availability requires the actual release production gate. No upstream approval, universal queue or restart persistence claim."
+}

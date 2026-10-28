@@ -57,7 +57,8 @@ async def test_actual_ha_cold_spotify_uses_configured_native_account(hass, audio
     commands = catalogue_commands()
     for name, value in vars(commands).items():
         monkeypatch.setattr(wire.AudioServerCommands, name, value)
-    monkeypatch.setattr(wire.AudioServerCommands, "async_recent_sources", AsyncMock(return_value={"items": [{"type": 7, "title": "Synthetic playlist", "audiopath": "spotify@owner:playlist:one"}], "ts": 0}))
+    selected = "spotify@owner:track:before" if kind == "select_source" else "spotify@owner:playlist:one"
+    monkeypatch.setattr(wire.AudioServerCommands, "async_recent_sources", AsyncMock(return_value={"items": [{"type": 2 if kind == "select_source" else 7, "title": "Synthetic selection", "audiopath": selected}], "ts": 0}))
     old = {"playerid": 7, "mode": "stop", "audiopath": "spotify:track:before", "sourceName": "Synthetic owner", "parent": {"id": "spotify:playlist:one"}}
     read = AsyncMock(return_value=wire.parse_audio_events({"audio_event": [old]})[0])
     monkeypatch.setattr(wire.AudioServerCommands, "async_player_status", read)
@@ -67,7 +68,7 @@ async def test_actual_ha_cold_spotify_uses_configured_native_account(hass, audio
     sent = AsyncMock()
 
     async def play(self, player, service, account, item, *, is_current, on_send):
-        assert (player, service, account, item) == (7, "spotify", "owner", "spotify@owner:playlist:one")
+        assert (player, service, account, item) == (7, "spotify", "owner", selected)
         assert is_current()
         on_send()
         await sent(player, service, account, item)

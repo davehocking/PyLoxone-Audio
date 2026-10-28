@@ -38,6 +38,7 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: '1792886400'
         run: |
+          umask 022
           python -m build
           python -m twine check --strict dist/*
       - name: Test the built wheel, without source shadowing
@@ -71,3 +72,37 @@ jobs:
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
           attestations: false
+
+  verify-public:
+    if: github.event_name == 'release'
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.release.tag_name }}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Retrieve the exact tested distributions
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
+        with:
+          name: python-distributions
+          path: dist/
+      - name: Production gate - verify PyPI and fresh normal-index installation
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          python tools/verify_public_release.py --dist dist --version "${RELEASE_TAG#v}" --work-dir "${RUNNER_TEMP}/public-index-gate"
+      - name: Retain public-index gate receipts, including failures
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        with:
+          name: public-index-verification
+          path: ${{ runner.temp }}/public-index-gate/
+          if-no-files-found: error
+

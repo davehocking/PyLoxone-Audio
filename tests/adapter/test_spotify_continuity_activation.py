@@ -66,17 +66,3 @@ async def detached_boundary(hass, tmp_path):
     snapshots[0] = native("tunein:station:synthetic", mode="play")
     session.current = None
     return controller, session, snapshots, commands, entry
-
-
-@pytest.mark.asyncio
-async def test_detached_session_is_activated_matched_then_resumed_once(hass, tmp_path):
-    controller, session, snapshots, commands, _ = await detached_boundary(hass, tmp_path)
-    saved = controller.bookmark
-    await controller.async_resume(lambda: True)
-    writes = [c for c in session.calls if c[0] == "PUT"]
-    assert [c[1].rsplit("/", 1)[-1] for c in writes] == ["player", "play"]
-    assert session.transfer_count == 1
-    assert saved.queue == tuple(row["uri"] for row in session.queue["queue"])
-    assert snapshots[0].native_mode == "play"
-    assert controller.bookmark is None and not controller.uncertain and not commands.source_fences
-    assert len(list(session.journal.glob("*.json"))) == 2

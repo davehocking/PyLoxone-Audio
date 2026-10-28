@@ -171,11 +171,11 @@ async def test_ready_frames_never_substitute_for_missing_exact_source_proof(
     )
     reads = install_ready_frames(monkeypatch, sockets, "event")
     service = {"entity_id": entity.entity_id, "source": "Spotify" if spotify else "Local Library"}
-    if conflict in {"parent", "track"}:
-        # Same-provider playback confirms a source return, independent of saved content.
+    if conflict == "parent":
+        # Matching exact content confirms; optional original context is enrichment.
         await hass.services.async_call("media_player", "select_source", service, blocking=True)
         sent = [message for socket in sockets for message in socket.sent if message.startswith("audio/7/")]
-        assert len(sent) == (2 if conflict == "parent" else 1)
+        assert len(sent) == 2
         assert not entity._audio_commands.source_fences
         assert all(socket.closed for socket in sockets)
         return

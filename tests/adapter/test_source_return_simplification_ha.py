@@ -161,18 +161,21 @@ async def test_optional_restore_is_one_ordinary_attempt_and_never_invents_progre
 async def test_source_return_accepts_provider_current_track_without_seeking_old_track(
     hass: Any, audio_setup: Any, monkeypatch: Any, rsa_key: Any, *, spotify: bool,
 ) -> None:
-    """Fresh requested-provider playback may legitimately advance its queue."""
+    """Exact saved return is stricter than an unknown provider-session resume."""
     entity, controls, sockets, _emit = await simplified_harness(
         hass, audio_setup, monkeypatch, rsa_key, spotify=spotify,
     )
     prefix = "spotify:" if spotify else "library:local:"
     observed_position = 3
     controls["source_frame"] = {**controls["target"], "audiopath": prefix + "track:next", "time": observed_position}
-    await select(hass, entity, spotify=spotify)
+    previous = entity._radio_catalogue.source_session("Spotify" if spotify else "Local Library")
+    with pytest.raises(HomeAssistantError):
+        await select(hass, entity, spotify=spotify)
     assert len(sent_commands(sockets)) == 1
     saved = entity._radio_catalogue.source_session("Spotify" if spotify else "Local Library")
-    assert saved.audio_path == prefix + "track:next"
-    assert saved.position == observed_position
+    assert saved is previous
+    assert entity._audio_metadata.get(7).audio_path == prefix + "track:next"
+    assert entity._audio_metadata.get(7).position == observed_position
     assert all(socket.closed for socket in sockets)
 
 
@@ -293,37 +296,6 @@ async def test_newest_ha_request_and_unload_cancel_optional_restore(
         await asyncio.gather(pending, return_exceptions=True)
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("provider_item", ["changed", "missing"])
-async def test_bound_spotify_session_does_not_pin_provider_track_read(
-    hass: Any, audio_setup: Any, monkeypatch: Any, provider_item: str,
-) -> None:
-    """The bound session may advance after the optional provider read."""
-    entity, _emit, writes, session, spotify = await session_room(hass, audio_setup, monkeypatch)
-    if provider_item == "missing":
-        session.current["item"] = None
-    actual = {**spotify, "audiopath": "spotify:track:" + "Z" * 22, "time": 5}
-
-    async def request(
-        _client: Any, command: str, _key: Any, *, is_current: Any, on_send: Any, **_kwargs: Any,
-    ) -> None:
-        assert is_current()
-        on_send()
-        writes.append(command)
-        await audio_setup.queues[0].put(json.dumps({"audio_event": [actual]}))
-
-    monkeypatch.setattr(wire.AudioServerCommands, "_async_request", request)
-    observed = audio_sources._async_observed_change
-
-    async def bounded(*args: Any, **kwargs: Any) -> Any:
-        kwargs["timeout"] = 0.2
-        return await observed(*args, **kwargs)
-
-    monkeypatch.setattr(audio_sources, "_async_observed_change", bounded)
-    await select(hass, entity, spotify=True)
-    assert writes == ["audio/7/serviceplay/spotify/synthetic-account/"]
-    assert entity._radio_catalogue.source_session("Spotify").audio_path == actual["audiopath"]
-    assert all(method == "GET" for method, _url, _data in session.calls)
 
 
 @pytest.mark.asyncio

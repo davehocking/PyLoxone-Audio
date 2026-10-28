@@ -37,25 +37,3 @@ async def test_unreadable_uncertainty_journal_is_not_optional_absence(hass, tmp_
     (directory / ("fence-" + "a" * 64 + ".lock")).write_text(content)
     await m.async_restore_dispatch_fences(hass)
     assert m.spotify_room_uncertain(hass, "synthetic-room", 7)
-
-
-@pytest.mark.asyncio
-async def test_success_observation_cannot_clear_an_unreconciled_disk_fence(hass, tmp_path, monkeypatch):
-    m = module()
-    controller, session, _, _, _ = await detached_boundary(hass, tmp_path)
-
-    def failed_clear(*_args):
-        message = "Synthetic disk reconciliation failure"
-        raise OSError(message)
-
-    monkeypatch.setattr(m, "_clear_dispatch_fence", failed_clear)
-    with pytest.raises(m.AudioCommandError):
-        await controller.async_resume(lambda: True)
-    assert controller.uncertain
-    assert len(list(session.journal.glob("fence-*.lock"))) == 1
-    assert len([c for c in session.calls if c[0] == "PUT"]) == 2
-    for key in tuple(hass.data):
-        if isinstance(key, str) and key.startswith("pyloxone_spotify_return"):
-            hass.data.pop(key)
-    await m.async_restore_dispatch_fences(hass)
-    assert m.spotify_room_uncertain(hass, "synthetic-room", 7)

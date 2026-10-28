@@ -156,12 +156,28 @@ async def test_newer_unqualified_spotify_state_cannot_replay_old_sampled_track(h
         assert 'spotify%3Atrack%3Aoriginal' in calls[0]
     else:
         # Real playing newer item is last-good even without optional timing.
-        # The provider may report ORIGINAL after we request NEWER; source is confirmed,
-        # with no automatic fallback command or seek of a different item.
-        await hass.services.async_call("media_player", "select_source", {
-            "entity_id": entity.entity_id, "source": "Spotify",
-        }, blocking=True)
-        assert len(calls) == 1 and calls[0].endswith('spotify%3Atrack%3Anewer')
+        # ORIGINAL after requesting exact NEWER is a failed exact return, with
+        # no automatic fallback command or seek into the wrong track.
+        before = entity._radio_catalogue.source_session('Spotify')
+        # Preserve the ORIGINAL counterfactual feedback rather than inheriting
+        # the generic exact-request success producer used by other fixtures.
+        async def wrong_return(client, command, key, *, is_current, on_send, **kwargs):
+            assert is_current()
+            on_send()
+            calls.append(command)
+            import asyncio
+            import json
+            asyncio.get_running_loop().call_soon(audio_setup.queues[0].put_nowait, json.dumps({
+                'audio_event': [library_row(audiopath='spotify:track:original',
+                    parent={'id': 'spotify:playlist:original'}, sourceName='Synthetic owner', time=0)],
+            }))
+        monkeypatch.setattr(wire.AudioServerCommands, '_async_request', wrong_return)
+        with pytest.raises(HomeAssistantError):
+            await hass.services.async_call("media_player", "select_source", {
+                "entity_id": entity.entity_id, "source": "Spotify",
+            }, blocking=True)
+        assert len(calls) == 1 and calls[0].endswith('spotify%3Atrack%3Anewer/noshuffle')
+        assert entity._radio_catalogue.source_session('Spotify') is before
     assert all('/parentpath/' not in command for command in calls) if loss != 'account_user' else True
 
 

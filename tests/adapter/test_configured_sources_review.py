@@ -89,8 +89,8 @@ async def test_older_history_completion_cannot_replace_newer_choices():
         if calls == 1:
             entered.set()
             await release.wait()
-            return {"items": [{"audiopath": "tunein:station:older", "title": "Older"}]}
-        return {"items": [{"audiopath": "tunein:station:newer", "title": "Newer"}]}
+            return {"items": [{"type": 2, "audiopath": "tunein:station:older", "title": "Older"}]}
+        return {"items": [{"type": 2, "audiopath": "tunein:station:newer", "title": "Newer"}]}
 
     commands.async_recent_sources.side_effect = recent
     catalogue = AudioCatalogue(commands, 7)
@@ -112,7 +112,7 @@ async def test_history_started_before_new_native_event_cannot_replace_it():
     async def recent(_player):
         entered.set()
         await release.wait()
-        return {"items": [{"audiopath": "tunein:station:older", "title": "Older"}]}
+        return {"items": [{"type": 2, "audiopath": "tunein:station:older", "title": "Older"}]}
 
     commands.async_recent_sources.side_effect = recent
     catalogue = AudioCatalogue(commands, 7)

@@ -31,7 +31,8 @@ async def test_configured_radio_remains_visible_without_a_resume_target(hass, au
         monkeypatch.setattr(wire.AudioServerCommands, name, value)
     await audio_setup.setup(playback=True)
     entity = hass.data['media_player'].get_entity(zone_entity_id(hass, 7))
-    assert set(entity.source_list) == {'Line-In', 'Local Library', 'Loxone Radio', 'Spotify', 'TuneIn'}
+    assert set(entity._radio_catalogue.source_descriptors) == {'Line-In', 'Local Library', 'Loxone Radio', 'Spotify', 'TuneIn'}
+    assert entity.source_list == ['Line-In']
     assert 'Loxone Radio' not in entity._radio_catalogue.source_choices
     with pytest.raises(HomeAssistantError, match='Browse'):
         await hass.services.async_call('media_player', 'select_source',
@@ -68,7 +69,8 @@ async def test_configured_presence_survives_optional_history_outage(hass, audio_
         monkeypatch.setattr(wire.AudioServerCommands, name, value)
     await audio_setup.setup(playback=True)
     entity = hass.data['media_player'].get_entity(zone_entity_id(hass, 7))
-    assert set(entity.source_list) == {'Line-In', 'Local Library', 'Loxone Radio', 'Spotify', 'TuneIn'}
+    assert set(entity._radio_catalogue.source_descriptors) == {'Line-In', 'Local Library', 'Loxone Radio', 'Spotify', 'TuneIn'}
+    assert entity.source_list == ['Line-In']
     assert not entity._radio_catalogue.source_choices
 
 
@@ -116,7 +118,8 @@ async def test_history_outage_publishes_configured_list_without_a_later_metadata
     commands.async_recent_sources.side_effect = TimeoutError('Synthetic optional history outage')
     assert entity.source_list is None
     await entity._async_refresh_native_sources()
-    assert entity.source_list == ['Spotify', 'TuneIn']
+    assert set(entity._radio_catalogue.source_descriptors) == {'Spotify', 'TuneIn'}
+    assert entity.source_list is None
     assert not entity._audio_sources_ready
 
 

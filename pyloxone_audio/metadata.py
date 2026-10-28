@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from urllib.parse import urljoin, urlsplit
 
 from .native import AudioServerCommands, AudioServerListener, AudioZoneMetadata, audioserver_uri
+from .diagnostic_events import diagnostic_event, diagnostics_enabled
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -28,6 +29,7 @@ class AudioMetadataCoordinator:
         self._client = AudioServerListener(host, self._on_update)
         self._http_origin = audioserver_uri(host).replace("ws://", "http://", 1)
         self._task: asyncio.Task[None] | None = None
+        self.diagnostics = None
 
     def async_start(self, create_task: Callable[[Coroutine[Any, Any, None]], asyncio.Task[None]] = asyncio.create_task) -> None:
         """Start observation with an optional host-owned task scheduler."""
@@ -89,6 +91,16 @@ class AudioMetadataCoordinator:
 
     def _on_update(self, updates: tuple[AudioZoneMetadata, ...]) -> None:
         """Notify affected players; an empty update invalidates every snapshot."""
+        if diagnostics_enabled(self.diagnostics):
+            if not updates:
+                diagnostic_event(self.diagnostics, "disconnected", transport="audio_server")
+            for row in updates:
+                diagnostic_event(self.diagnostics, "feedback", transport="audio_server", player=row.player_id,
+                                 content=row.audio_path, parent=row.parent_id, account=row.source_name,
+                                 position=row.position, duration=row.duration, mode=row.native_mode,
+                                 event_idle=row.event_idle, event_active=row.event_active,
+                                 shuffle=row.shuffle, repeat={0: "off", 1: "all", 3: "one"}.get(row.repeat),
+                                 seek_supported=bool(row.playback_restrictions is not None and row.playback_restrictions & 32))
         player_ids = {row.player_id for row in updates} if updates else set(self._listeners)
         for player_id in player_ids:
             for listener in tuple(self._listeners.get(player_id, ())):

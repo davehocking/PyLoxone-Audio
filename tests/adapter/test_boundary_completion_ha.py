@@ -15,7 +15,7 @@ from test_source_return_simplification_ha import simplified_harness, select, rsa
 
 from custom_components.loxone import audio_sources
 from custom_components.loxone.pyloxone_api import audioserver
-from custom_components.loxone.spotify_continuity import SpotifyReturnUnavailable
+
 
 
 @pytest.mark.asyncio
@@ -29,39 +29,6 @@ async def test_optional_restore_diagnostics_are_not_source_confirmation(hass, au
     assert not hasattr(entity, '_audio_last_source_failure')
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize('outcome', ['prewrite-absence', 'changed-native', 'uncertain-write', 'cancelled'])
-async def test_owning_source_route_not_host_bridge_decides_optional_fallback(hass, audio_setup, monkeypatch, outcome):
-    entity, emit, writes, session, spotify = await session_room(hass, audio_setup, monkeypatch)
-    original_cancellation = asyncio.CancelledError()
-
-    async def bridge(metadata, available):
-        assert available()
-        if outcome == 'cancelled':
-            raise original_cancellation
-        if outcome == 'changed-native':
-            await emit({**spotify, 'sourceName': 'Different account'})
-        if outcome == 'uncertain-write':
-            entity._audio_commands.source_fences[7] = lambda: None
-        raise SpotifyReturnUnavailable('Synthetic linked session unavailable')
-
-    monkeypatch.setattr(entity._spotify_return, 'async_resume_native', bridge)
-    try:
-        if outcome == 'prewrite-absence':
-            await entity.async_select_source('Spotify')
-            assert len(writes) == 1 and '/serviceplay/spotify/' in writes[0]
-        elif outcome == 'cancelled':
-            with pytest.raises(asyncio.CancelledError) as caught:
-                await entity.async_select_source('Spotify')
-            assert caught.value is original_cancellation
-            assert not writes
-        else:
-            with pytest.raises(HomeAssistantError):
-                await entity.async_select_source('Spotify')
-            assert not writes
-        assert entity._source_task is None
-    finally:
-        entity._audio_commands.source_fences.pop(7, None)
 
 
 @pytest.mark.asyncio
