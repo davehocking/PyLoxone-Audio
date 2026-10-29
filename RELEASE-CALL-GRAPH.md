@@ -14,7 +14,7 @@ KNOWN-ISSUES.md.
 
 ## Inherited 0.1.1 source call graph
 
-**Current 0.1.1.** The current source path is HA media-player selection →
+**Inherited from 0.1.1.** The current source path is HA media-player selection →
 `selection.async_source_route` → native no-op/resume or `catalogue.async_source_return`
 → `sources.async_select_catalogue` → authenticated native command → fresh qualified
 source feedback → at most one optional native seek. Qualified native room

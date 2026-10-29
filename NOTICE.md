@@ -1,7 +1,7 @@
 # Provenance and licence — PyLoxone-Audio 0.1.2
 
 PyLoxone-Audio 0.1.2 is supplied under Apache-2.0. Published 0.1.0 and 0.1.1 remain
-immutable; 0.1.2 is a prepared, unreleased candidate. `LICENSE` retains PyLoxone's Apache License, Version 2.0 verbatim.
+immutable; this 0.1.2 publication preserves the independently accepted runtime. `LICENSE` retains PyLoxone's Apache License, Version 2.0 verbatim.
 Actual public availability is established by the matching release production gate.
 
 The HA entry ownership, exact-player mapping, current-token callback and entity-property delegation are adapted from the PyLoxone integration maintained by JoDehli and its contributors, specifically the sealed `media_player.py`, `audio.py` and `coordinator.py` call graph. Those inspected source files contain no additional per-file copyright notices to remove or replace. This project does not assign invented upstream copyright ownership.

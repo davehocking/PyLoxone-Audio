@@ -1,9 +1,10 @@
 # Opt-in audio diagnostics — inherited in 0.1.2
 
 This separate, optional feature was introduced in 0.1.1 and is retained unchanged
-in the prepared 0.1.2 library/adapter pair. New users default OFF; existing saved
+in the matching 0.1.2 library/adapter pair. New users default OFF; existing saved
 preferences are preserved. Installing the wheel alone does not add the HA switch.
-The accepted pair is installed locally for testing, not publicly released as 0.1.2.
+The accepted pair is installed locally for testing; public availability is verified
+by the matching release and mandatory public-index production gate.
 Diagnostics neither enables the Audio Server client nor repairs playback. Set the
 Audio Server host and existing experimental playback option separately; see
 [Required setup](README.md#required-audio-server-configuration).
