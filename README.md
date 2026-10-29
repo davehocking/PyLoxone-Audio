@@ -20,8 +20,6 @@ Package availability and release-specific compatibility information belong on th
 
 The issue is the live status/reporting thread; the [0.1.1 release notes](https://github.com/davehocking/PyLoxone-Audio/releases/tag/v0.1.1) and [changelog](CHANGELOG.md) record version-specific changes and limitations. Please review and sanitise diagnostics before sharing; see [DIAGNOSTICS.md](DIAGNOSTICS.md).
 
-**Later scope:** 0.2.0 will mark the transition to Alexander's PyLoxone fork. Room grouping/cross-room session enhancements belong to 0.2.0 or later, not the 0.1.2 bug-fix release.
-
 ## Why a separate library?
 
 Audio communication and playback behaviour are developed and tested independently of Home Assistant-specific configuration and entities. Keeping that work in a library gives it its own tests and releases, while the adapter tests cover its use within PyLoxone. PyLoxone still needs host-side review and compatibility testing when it adopts an adapter or dependency update.

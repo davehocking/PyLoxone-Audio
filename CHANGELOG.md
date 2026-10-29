@@ -4,7 +4,7 @@
 
 - First committed bug fix: resolve [stale Audio Server metadata and HA track/progress synchronisation (#2)](https://github.com/davehocking/PyLoxone-Audio/issues/2). Development and regression testing have started; this is a planned correction, not a claim that a fixed build is available.
 - Validate the library and matching PyLoxone adapter together. Coordinated adapter changes may be needed; a library-only update is not assumed sufficient.
-- Bug fixes on the current integration only. The Alexander-fork transition is reserved for 0.2.0; grouping/cross-room session enhancements are 0.2.0-or-later work.
+- Bug fixes on the current integration only; room grouping/cross-room session enhancements are outside the 0.1.2 scope.
 
 ## 0.1.1 — 2026-10-28
 
