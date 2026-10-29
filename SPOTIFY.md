@@ -1,4 +1,9 @@
-# Native Spotify support — 0.1.1
+# Native Spotify support — inherited 0.1.1 behaviour
+
+> 0.1.2 preserves this feature, not a new source-return/mode correction. It is
+> prepared but unreleased. See [0.1.2 release notes](RELEASE-NOTES-0.1.2.md) and
+> [remaining return/position limitations](KNOWN-ISSUES.md). Historical 0.1.1
+> acceptance below must not be read as universal 0.1.2 return acceptance.
 
 The matching library and adapter passed independent source and exact-wheel review, and the common pair was installed on Home Assistant OS (Core 2026.10.4, Python 3.14.9). On 28 October 2026 the owner accepted two normal-use Local Library → Spotify returns to the same track near its saved position, supported by integration command and native content/position feedback. This is one-room confirmation, not all-room acoustic, whole-queue, persistent shuffle or restart-recovery proof.
 

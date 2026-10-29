@@ -1,16 +1,12 @@
-# Opt-in audio diagnostics — 0.1.1
+# Opt-in audio diagnostics — inherited in 0.1.2
 
-This feature is part of the matching PyLoxone 0.10.2 adapter and PyLoxone-Audio
-0.1.1 release pair, not the older 0.1.0 release. Installing the wheel alone does
-not add the Home Assistant switch. The matching pair has been privately installed
-on HAOS (Core 2026.10.4, Python 3.14.9); owner-enabled collection and a downloaded
-diagnostic report have been observed. This is not public availability, upstream
-approval, a universal UI/device test or a physical playback repair.
-
-The final same-track/native-mode pair has completed independent review and
-common private adoption. The owner subsequently accepted two one-room returns
-with supporting saved-session, exact command, content and position feedback.
-That is bounded confirmation, not all-room acoustic or queue proof.
+This separate, optional feature was introduced in 0.1.1 and is retained unchanged
+in the prepared 0.1.2 library/adapter pair. New users default OFF; existing saved
+preferences are preserved. Installing the wheel alone does not add the HA switch.
+The accepted pair is installed locally for testing, not publicly released as 0.1.2.
+Diagnostics neither enables the Audio Server client nor repairs playback. Set the
+Audio Server host and existing experimental playback option separately; see
+[Required setup](README.md#required-audio-server-configuration).
 
 Defaults, switch preferences, retention, storage/export bounds and schema version1
 remain unchanged. Its narrowly extended allowlist records native aliased
@@ -81,7 +77,10 @@ Menu placement may vary with HA. The private report is not a public fixture.
   `send_attempt`, `send_completed` and `reply` or an error/timeout. Use
   `session_saved` and `restore_decision` to distinguish a missing bookmark, an
   ineligible seek and an actual seek attempt. A `restore_echo` is not proof the
-  loudspeaker playback moved; report what was heard separately.
+  loudspeaker playback moved; report what was heard separately. An optional seek
+  with authentication/error but no `send_attempt`/`send_completed` was not sent;
+  do not describe it as a server-rejected dispatched seek. Transient
+  `seek_unsupported` and `missing_session` remain [known return limits](KNOWN-ISSUES.md).
 - Include the local incident time and timezone, intended room/source, exact
   versions/build, normal UI steps, and expected versus observed behaviour.
   Review the complete JSON before attaching it manually. Do not post private

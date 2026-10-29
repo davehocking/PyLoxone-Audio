@@ -1,0 +1,58 @@
+{
+  "status": "Independently accepted/runtime installed; publication successor preserves runtime. Hosted/PyPI/public-index production gate separately verified.",
+  "base_repository": "https://github.com/davehocking/PyLoxone-Audio",
+  "base_commit": "222ce5640c56d9168b509a0d5f161ca21b704f14",
+  "branch": "release/0.1.2",
+  "library_version": "0.1.2",
+  "host_repository": "https://github.com/JoDehli/PyLoxone",
+  "host_commit": "3db77b81f69c77cc814675d191061533b464df5e",
+  "host_tag": "0.10.2",
+  "paired_install_required": true,
+  "physical_receive_cause": "unproved; stale-data validity policy reproduced through real HA with synthetic I/O",
+  "files": [
+    {
+      "path": "pyloxone_audio/metadata.py",
+      "base_sha256": "31608a5f01b91adf30dc95d35c66be23dee1f719534136b0d4ab6cb770c71208",
+      "candidate_sha256": "6d07afaab740e45956e3b8a8d5d929368f62c797efbbfc4f6e8aa212727dd0b7",
+      "why": "Bound active freshness; entry-owned serial status recovery, spacing/backoff, cancellation, passive-only truth and explicit requalification",
+      "tests": "test_metadata_freshness_regression_ha.py; test_metadata_reconciliation_ha.py; test_metadata_inflight_recovery_ha.py"
+    },
+    {
+      "path": "pyloxone_audio/native.py",
+      "base_sha256": "89d104c3d1a466b516247aae7b9d0f7f6013ca11fe61ee7b12d627f44d66dfb0",
+      "candidate_sha256": "bfbd20400e1eb20138478a76003a4b9977201168a3f77e6414e12f383d0bbd21",
+      "why": "Fence credentials/stream/intent and meaningful feedback revisions; unusable in-flight rows cannot veto useful status publication",
+      "tests": "test_metadata_reconciliation_ha.py; inherited cold-start/crypto/native command suites; test_metadata_inflight_recovery_ha.py"
+    },
+    {
+      "path": "adapters/pyloxone/overlay/custom_components/loxone/media_player.py",
+      "base_sha256": "310dc1c458bb8e85e1d78e4c66e428dfaa0ecf252ac7afb2d5b1f0c3844f76df",
+      "candidate_sha256": "733c71e0c101d48c52fa642a28d0d94bcf3e62e20deac9913c01880dc3851e56",
+      "why": "Supply independent playing, clear stale projection and register opted-in entity eligibility/lifecycle",
+      "tests": "test_metadata_freshness_regression_ha.py; test_metadata_reconciliation_ha.py; inherited full owning-HA suite"
+    },
+    {
+      "path": "adapters/pyloxone/overlay/custom_components/loxone/manifest.json",
+      "base_sha256": "0839b691e6ea2b37e62a69bcd1092197a17ec33c5dbdff988df51aa0fcee699e",
+      "candidate_sha256": "f49e9084f975c7a18c5a35d3b2c9e6b08ff4708d3fcfc44867dc7ae3a4f46694",
+      "why": "Matching 0.1.2 dependency pin, no gate/default/configuration changes",
+      "tests": "normal local named-pin resolver; full canonical source/wheel HA imports"
+    }
+  ],
+  "bounded_successor": {
+    "previous_candidate": "a707d494984972f0b725d353bd607e3d12d4ad59",
+    "finding": "R110-01",
+    "status": "R110-01 independently closed by accepted-runtime review; no new runtime delta in release preparation",
+    "host_runtime_unchanged": true
+  },
+  "accepted_runtime_commit": "5a0ac187bbebfee23d4c3b08c7f6d926ddab7855",
+  "adapter_incremental_patch": {
+    "path": "audio-0.1.1-to-0.1.2.patch",
+    "baseline_commit": "222ce5640c56d9168b509a0d5f161ca21b704f14",
+    "baseline": "Published 0.1.1 AUDIO adapter, not stock 0.10.2 or an upstream-adopted adapter",
+    "media_player_added": 12,
+    "media_player_removed": 0,
+    "manifest_added": 1,
+    "manifest_removed": 1
+  }
+}

@@ -1,24 +1,22 @@
-> **0.1.1 matching reference adapter.** Independent review and private common
-> adoption are complete; public availability requires the release production gate.
-> No upstream approval or automatic installation is implied. Start with the
-> [tester guide](../../preview-build/README.md) or the
-> [Jo inspect/reproduce/test/rebase/adopt/release guide](jo-review/README.md).
-> The optional HA-Spotify bridge is removed; normal native Loxone Spotify remains.
-> POSITION-RESTORE.md records bounded readiness and one-room owner confirmation.
+# Versioned PyLoxone adapter: library 0.1.2 / host 0.10.2
 
-# Versioned PyLoxone adapter: library 0.1.1 / host 0.10.2
+Versioned 0.1.2 reference pair. Independent engineering and release-preparation
+review and local runtime installation are complete. Verify hosted/public-index
+production acceptance separately. Start with the [tester guide](../../preview-build/README.md) or
+[maintainer guide](jo-review/README.md); neither implies upstream adoption.
 
-This is a candidate reference delta awaiting independent review for the exact public JoDehli/PyLoxone release
-0.10.2 commit `3db77b81f69c77cc814675d191061533b464df5e`, not unreleased master
-and not an evergreen whole-file updater. Jo's later merged upstream files are
-authoritative. Rebase/review the audio delta when the host changes; never copy
-old full files over unrelated upstream fixes.
+This reference targets exact public JoDehli/PyLoxone 0.10.2 commit
+`3db77b81f69c77cc814675d191061533b464df5e`, not unreleased master and not an
+evergreen whole-file updater. Before upstream adoption, preserve current host
+changes and port the focused delta deliberately. Jo has not adopted the supplied
+0.1.1 adapter merely because an incremental patch uses it as a baseline.
+
 
 `BASE.json` records every exact upstream component file, the scoped audio overlay,
 and the complete expected assembly. Only `const.py` and `manifest.json` overlap
 the 0.10.1 -> 0.10.2 component changes: the assembly keeps `Platform.TEXT`, host
-version 0.10.2 and all original requirements, adding `PyLoxone-Audio==0.1.1`.
-The new diagnostics increment adds small owning-entrypoint/switch/download and
+version 0.10.2 and all original requirements, adding `PyLoxone-Audio==0.1.2`.
+Inherited diagnostics adds small owning-entrypoint/switch/download and
 audio-only existing Miniserver send hooks, preserving the0.10.2 fixes. BASE.json
 and Jo's file guide identify exact changed/unchanged bytes, not a whole-file copy
 from an older release. TextInput and unrelated entity functionality remain.
@@ -67,3 +65,18 @@ Normal external use requires the exact library pin to be available on PyPI;
 verify its project/version page and matching GitHub release before installation.
 The preview's embedded provenance records original offline validation, not live
 publication status. No upstream merge/adoption is implied by this reference.
+
+## Small increment versus complete adoption
+
+`jo-review/audio-0.1.1-to-0.1.2.patch` changes only `media_player.py` (+12/-0)
+and `manifest.json` (+1/-1 pin). It assumes the published 0.1.1 AUDIO adapter,
+not stock PyLoxone. The added entity lines report independent PLAYING, clear
+stale attributes and own bounded recovery registration/removal. Library
+metadata/receiver changes remain in the separate 0.1.2 dependency.
+`jo-review/audio-0.1.2-on-0.10.2.patch` is the cumulative patch for pinned stock
+0.10.2. Both apply/assembly paths must reproduce BASE.json exactly.
+
+Required: existing **Audioserver host** plus **Use Audio Server player play/pause
+(experimental; off by default)** ON. Diagnostics is optional/default OFF for new
+users and does not enable recovery. See main README and KNOWN-ISSUES.md; this
+metadata fix does not guarantee every Spotify source/position return.

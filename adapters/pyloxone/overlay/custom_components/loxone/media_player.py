@@ -253,6 +253,14 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
             self.async_on_remove(
                 self._audio_metadata.async_add_listener(self._audio_player_id, self._update_audio_metadata)
             )
+            if self._audio_commands_enabled and self._audio_commands is not None:
+                self.async_on_remove(self._audio_metadata.async_add_reconciler(
+                    self._audio_player_id, self._audio_commands, intent=lambda: self._source_generation,
+                    available=lambda: (self._can_announce() and self._source_task is None
+                                       and self._announcement_task is None and not self._transport_tasks
+                                       and self._audio_player_id not in self._audio_commands.source_fences
+                                       and self._audio_player_id not in self._audio_commands.announcement_fences),
+                ))
             self._update_audio_metadata()
         if self._can_announce():
             await self._async_refresh_audio_sources()
@@ -521,6 +529,10 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
                 # not undo an earlier Audio Server stop during transport lag.
                 self._audio_timing_mode = "play" if state == MediaPlayerState.PLAYING else "stop"
             self._state = state
+            if self._audio_metadata is not None and self._audio_player_id is not None:
+                self._audio_metadata.set_playing(self._audio_player_id, state == MediaPlayerState.PLAYING)
+                if self._audio_metadata.get(self._audio_player_id) is None:
+                    self._update_audio_metadata()
             should_update = True
 
         if should_update:

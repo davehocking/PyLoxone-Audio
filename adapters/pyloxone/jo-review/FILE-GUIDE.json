@@ -105,19 +105,19 @@
   },
   {
     "file": "custom_components/loxone/manifest.json",
-    "what": "Preserve upstream requirements/version/domain; exact PyLoxone-Audio==0.1.1 pin",
-    "why": "One existing integration and tested matched library/adapter version",
-    "tests": "test_distribution_dependencies.py; preview manifest/checksums",
+    "what": "Pin matching PyLoxone-Audio==0.1.2; preserve host domain/version and all other requirements",
+    "why": "Library freshness and owning-entity activity/cleanup wiring are a paired install unit",
+    "tests": "test_distribution_dependencies.py; preview manifest/checksums; test_metadata_freshness_regression_ha.py; test_metadata_reconciliation_ha.py",
     "base_sha256": "2a6717c693010200a5796ccd02bb67a281ab4b1797cfb69c56b0a78c8a1107a8",
-    "assembled_sha256": "0839b691e6ea2b37e62a69bcd1092197a17ec33c5dbdff988df51aa0fcee699e"
+    "assembled_sha256": "f49e9084f975c7a18c5a35d3b2c9e6b08ff4708d3fcfc44867dc7ae3a4f46694"
   },
   {
     "file": "custom_components/loxone/media_player.py",
-    "what": "Attach existing metadata/command observers without another setup or socket; native SHUFFLE_SET/REPEAT_SET confirmed state and lifecycle fences; R94 original-validity observation before awaited takeover; exact-return rejection preserves last-good while actual metadata stays truthful; R99 synchronously retains unresolved exact-return qualification across awaited takeover",
-    "why": "Default-off opt-in evidence, preserving one integration and unchanged playback/control semantics; exact-player Loxone capabilities, not provider control; transient native loss must not revive while old socket drains; wrong-track same-provider feedback is not exact return success; a departed old generation cannot mark wrong feedback after cancellation",
-    "tests": "test_audio_diagnostics_journey_ha.py; test_audio_diagnostics_seek_ha.py; test_audio_modes_ha.py; test_audio_modes_lifecycle.py; test_audio_modes_takeover.py; test_exact_track_return_ha.py; test_exact_return_takeover_ha.py",
+    "what": "Attach existing metadata/command observers without another setup or socket; native SHUFFLE_SET/REPEAT_SET confirmed state and lifecycle fences; R94 original-validity observation before awaited takeover; exact-return rejection preserves last-good while actual metadata stays truthful; R99 synchronously retains unresolved exact-return qualification across awaited takeover; 0.1.2 supplies independent playing feedback and entity-owned bounded metadata recovery registration",
+    "why": "Default-off opt-in evidence, preserving one integration and unchanged playback/control semantics; exact-player Loxone capabilities, not provider control; transient native loss must not revive while old socket drains; wrong-track same-provider feedback is not exact return success; a departed old generation cannot mark wrong feedback after cancellation; prevent stale metadata/timing from being presented or qualifying old actions during native playback",
+    "tests": "test_audio_diagnostics_journey_ha.py; test_audio_diagnostics_seek_ha.py; test_audio_modes_ha.py; test_audio_modes_lifecycle.py; test_audio_modes_takeover.py; test_exact_track_return_ha.py; test_exact_return_takeover_ha.py; test_metadata_freshness_regression_ha.py; test_metadata_reconciliation_ha.py",
     "base_sha256": "e0499cb11a10bd0a71d8be319ef999be09e509dc6e479b4c5e71fff7199aa7de",
-    "assembled_sha256": "310dc1c458bb8e85e1d78e4c66e428dfaa0ecf252ac7afb2d5b1f0c3844f76df"
+    "assembled_sha256": "733c71e0c101d48c52fa642a28d0d94bcf3e62e20deac9913c01880dc3851e56"
   },
   {
     "file": "custom_components/loxone/music-placeholder.png",

@@ -1,4 +1,9 @@
-# Native saved-position readiness — 0.1.1
+# Native saved-position readiness — inherited 0.1.1 behaviour
+
+> 0.1.2 preserves this feature, not a new source-return/mode correction. It is
+> prepared but unreleased. See [0.1.2 release notes](RELEASE-NOTES-0.1.2.md) and
+> [remaining return/position limitations](KNOWN-ISSUES.md). Historical 0.1.1
+> acceptance below must not be read as universal 0.1.2 return acceptance.
 
 ## Functional correction and limits
 

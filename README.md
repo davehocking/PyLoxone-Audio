@@ -1,5 +1,14 @@
 # PyLoxone-Audio
 
+> **0.1.2 — metadata freshness and read-only recovery.** The matching library
+> and adapter passed independent source/exact-wheel, owning-HA and release-preparation
+> review. The accepted runtime is already installed locally for normal-use testing.
+> See [release notes](RELEASE-NOTES-0.1.2.md) and the mandatory
+> [publication verification gate](PUBLISHING.md). Physical/UI outcomes remain separate.
+>
+> **Both the library and matching adapter are required.** The host remains
+> PyLoxone 0.10.2. No upstream adoption or automatic update is implied.
+
 A Python library for extending [PyLoxone](https://github.com/JoDehli/PyLoxone) capabilities on the Loxone Audio Server.
 
 PyLoxone-Audio is a separately maintained, testable audio library used through a companion PyLoxone adapter. Home Assistant retains **one integration, one setup and the existing room entities**.
@@ -12,11 +21,11 @@ The matching library and adapter passed independent source and exact-wheel revie
 
 Package availability and release-specific compatibility information belong on the [Releases page](https://github.com/davehocking/PyLoxone-Audio/releases). The library version is separate from the PyLoxone integration version; publishing a library package does not itself add support to an upstream PyLoxone release.
 
-## Known issues and 0.1.2 development
+## Known issues and the 0.1.2 correction
 
 **[Stale track and progress in Home Assistant — #2](https://github.com/davehocking/PyLoxone-Audio/issues/2):** HA can keep showing an old track, artwork or elapsed time while the Loxone Audio Server plays different content. Playing/volume feedback and controls may still work. Confirmed with 0.1.1 and its matching reference adapter; the event-stream cause is still under investigation.
 
-**0.1.2 is in development as a bug-fix release. Resolving #2 is its first committed fix and a release requirement.** It is not released or verified fixed yet. The correction may require a matching adapter update as well as the library; installation instructions will identify the tested pair. Updating a Python package alone must not be assumed to update the HA adapter.
+**0.1.2 addresses #2 with a focused metadata-freshness correction.** The paired correction has independent software and release-preparation acceptance and local installed-byte verification; sustained live recovery, rendered UI and all-room sound are not certified by those checks. Issue #2 is the canonical release/status thread. [METADATA-FRESHNESS.md](METADATA-FRESHNESS.md) identifies the tested library/adapter installation unit. Updating a Python package alone does not update the HA adapter.
 
 The issue is the live status/reporting thread; the [0.1.1 release notes](https://github.com/davehocking/PyLoxone-Audio/releases/tag/v0.1.1) and [changelog](CHANGELOG.md) record version-specific changes and limitations. Please review and sanitise diagnostics before sharing; see [DIAGNOSTICS.md](DIAGNOSTICS.md).
 
@@ -43,7 +52,7 @@ Home Assistant
 
 The adapter is maintained alongside the library in this repository under `adapters/pyloxone/`. It is applied within PyLoxone, not installed as a separate Home Assistant integration. The adapter documentation identifies its supported host base and the matching library version.
 
-The current reference adapter targets released PyLoxone **0.10.2**, exact public commit `3db77b81f69c77cc814675d191061533b464df5e`, with library **0.1.1**. The maintained `preview-build/` directory supplies a complete pinned integration ZIP, provenance/checksums, repeatable build/verification and install/update/rollback/native-UI test instructions. Its focused `adapters/pyloxone/jo-review/` pack is for upstream review; no upstream adoption is claimed.
+The current reference candidate targets released PyLoxone **0.10.2**, exact public commit `3db77b81f69c77cc814675d191061533b464df5e`, with the matching **0.1.2** library. The accepted runtime pair is installed locally for testing; this newly documented package is not a public release. The 0.1.1 owner acceptance above remains bounded historical evidence. The maintained `preview-build/` directory supplies a complete pinned integration ZIP, provenance/checksums, repeatable build/verification and install/update/rollback/native-UI test instructions. Its focused `adapters/pyloxone/jo-review/` pack is for upstream review; no upstream adoption is claimed.
 
 The adapter uses the library's public interface. Ordinary internal library bug fixes should not require structural adapter changes. New capabilities or intentional breaking API changes may still need coordinated updates.
 
@@ -77,7 +86,7 @@ agreed; no change of defaults or upstream adoption is implied here.
 
 ## Audio behaviour
 
-Version 0.1.1 focuses on Loxone Audio Server-backed rooms. Supported sources are **Local Library, Loxone Radio, Spotify, TuneIn and Line-In**, where available and configured in Loxone. Not every installation has every source or subscription. SoundSuit is outside the 0.1.1 scope.
+The 0.1.x feature set focuses on Loxone Audio Server-backed rooms. Supported sources are **Local Library, Loxone Radio, Spotify, TuneIn and Line-In**, where available and configured in Loxone. Not every installation has every source or subscription. SoundSuit is outside this scope.
 
 The standard **Source** selector lists only usable previously selected or played content for that exact room. Qualified native playback observed from Loxone or Spotify Connect can qualify without an HA play request. A folder visit, provider label, another room or phone-only playback cannot. First choose and **play** content in **Browse media > Radio** (TuneIn), **Local Library**, **Loxone Radio**, or **Spotify · your account**. No new history database is introduced. The requested “Previous Sources” wording cannot be set for the standard HA control; its normal **Source** heading is retained.
 
@@ -98,11 +107,13 @@ The main playback principles are:
 
 Returns use qualified room-native content, not a phone's unrelated selection. Saved exact tracks require matching feedback, and same-track position return has one-room owner confirmation. The whole queue and exact position on every attempt are not guaranteed. Historical raw capability-mask and wrong-track firmware causes remain unproved. Intermittent audible volume lag is **not fixed**.
 
+Remaining source-return cases are not repaired by the metadata fix: a return without a qualified saved session can choose different content, and transient native seek-capability loss can skip optional position restoration. One saved-position return with shuffle ON succeeded locally, but does not close the other cases or prove their cause. See [known issues](KNOWN-ISSUES.md).
+
 See [native Spotify’s function map](SPOTIFY.md), [exact-track return](EXACT-TRACK-RETURN.md), [native modes](NATIVE-MODES.md) and [position-restoration findings](POSITION-RESTORE.md).
 
 ## Repository layout
 
-The 0.1.1 source tree separates the portable library from its Home Assistant adapter:
+The source tree separates the portable library from its Home Assistant adapter:
 
 ```text
 pyloxone_audio/       Home Assistant-independent library
@@ -120,7 +131,7 @@ The Python package contains the portable library. The adapter stays separate fro
 
 **For Home Assistant users:** use a PyLoxone build that includes the matching audio adapter. Its manifest pins a tested library version, and Home Assistant installs that dependency automatically. The normal installation unit is PyLoxone; a separate integration or manual `pip` step is not required for a released, compatible pair. The presence of the adapter in this repository does not mean an upstream PyLoxone release already includes it.
 
-The maintained preview targets **PyLoxone 0.10.2 with PyLoxone-Audio 0.1.1**. Before installing it, verify the exact version on [PyPI](https://pypi.org/project/PyLoxone-Audio/0.1.1/) and the matching [release](https://github.com/davehocking/PyLoxone-Audio/releases/tag/v0.1.1). Use the complete preview ZIP, not the wheel alone. The final release verification manifest records actual public-index installation separately from offline bundle provenance. The preview is excluded from wheel and sdist. No upstream adoption or universal hardware/HAOS compatibility is claimed.
+The maintained preview targets **PyLoxone 0.10.2 with PyLoxone-Audio 0.1.2**. Use its matching complete ZIP and [installation/update/rollback guide](preview-build/README.md), not the wheel alone. Check the matching release and successful public-index production gate before installation; do not use 0.1.1 to satisfy a 0.1.2 pin. Historical releases and preview archives remain unchanged; the assembled integration is excluded from wheel and sdist. Existing locally installed identical runtime needs no repeat install merely for these documentation/package changes.
 
 - **Testers: [start here](preview-build/README.md)** — prerequisites, backup, install/update/rollback, native UI and report checklist.
 - **Maintainers: [review and adoption](adapters/pyloxone/jo-review/README.md)** — ordered inspect/reproduce/test/rebase/adopt/release and per-file what/why/tests.
@@ -143,7 +154,7 @@ Compatibility claims apply to the Python, Home Assistant, PyLoxone and device/fi
 
 ## Opt-in audio diagnostics
 
-The matching 0.1.1 adapter adds one **Audio diagnostics** switch per Loxone entry, **OFF by default** and hidden from automatic dashboards. Enable it, reproduce normally, use the entry's **Download diagnostics**, disable it, then review the entire file before sharing. No automatic upload occurs. Toggling does not reload the integration, change playback or discard bookmarks.
+The matching adapter retains the 0.1.1 feature: one **Audio diagnostics** switch per Loxone entry, **OFF by default** and hidden from automatic dashboards. Enable it, reproduce normally, use the entry's **Download diagnostics**, disable it, then review the entire file before sharing. No automatic upload occurs. Toggling does not reload the integration, change playback or discard bookmarks.
 
 Collection continues until switched off, retaining up to the latest **24 hours**, subject to fixed queue/disk/export bounds. Reports explain shortened coverage, omissions and failures. Preference persists once saving is confirmed; if storage fails, inspect pending-preference/restart-risk health before relying on it. Actual sends, replies and restore decisions are distinct from HA requests and physical playback. HA's outer download envelope may include installation details: sanitised audio events do not make the entire file universally anonymous. See [workflow, privacy and limits](DIAGNOSTICS.md).
 
