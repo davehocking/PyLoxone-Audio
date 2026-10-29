@@ -1,10 +1,15 @@
 # Complete PyLoxone 0.10.2 / audio 0.1.2 preview
 
+This is the documentation refresh accompanying **0.1.2.post1**. Component files
+and the exact `PyLoxone-Audio==0.1.2` installation pin remain unchanged. The new
+ZIP refreshes only shipping documentation/provenance; original release ZIPs
+remain unchanged. No installed Home Assistant update or restart is needed.
+
 ## Start here: status and installation unit
 
 This matched **0.1.2 reference preview** addresses stale track/artwork/timing while
 native playback continues. Use the matching complete
-`PyLoxone-0.10.2-audio-0.1.2-publication-preview.zip`, provenance, checksums and
+`PyLoxone-0.10.2-audio-0.1.2-docs-post1-preview.zip`, provenance, checksums and
 tooling from this revision. **Both the library and adapter are needed.** A wheel
 alone cannot wire independent PLAYING feedback or clear stale HA attributes.
 
@@ -83,7 +88,7 @@ wheel/sdist; it is not an evergreen overlay for a newer upstream version.
 3. On Linux with Python and filesystem access to that **stopped** config:
 
 ```sh
-python preview-build/preview.py install --archive preview-build/PyLoxone-0.10.2-audio-0.1.2-publication-preview.zip --sha256 <verified-sha256> --config /path/to/stopped/config --backup /path/outside/config/new-component-backup
+python preview-build/preview.py install --archive preview-build/PyLoxone-0.10.2-audio-0.1.2-docs-post1-preview.zip --sha256 <verified-sha256> --config /path/to/stopped/config --backup /path/outside/config/new-component-backup
 ```
 
 The tool accepts absent component, exact stock 0.10.2 (excluding its packaged

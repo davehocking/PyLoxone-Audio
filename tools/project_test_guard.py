@@ -17,7 +17,7 @@ def pytest_sessionfinish(session, exitstatus):
     root=Path(os.environ['PYLOXONE_PROJECT_LIBRARY_ROOT']).resolve()
     package=Path(pyloxone_audio.__file__).resolve()
     assert package.is_relative_to(root),str(package)
-    assert importlib.metadata.version('PyLoxone-Audio')=='0.1.2'
+    assert importlib.metadata.version('PyLoxone-Audio')=='0.1.2.post1'
     assert 'pyloxone_audio.diagnostics' not in sys.modules
     # The approved opt-in 0.1.1 collector supersedes the old module exclusion;
     # the removed unconditional legacy trace API remains prohibited.
@@ -32,4 +32,4 @@ def pytest_sessionfinish(session, exitstatus):
             p=Path(sys.modules[name].__file__).resolve()
             assert p.is_relative_to(host),str(p)
             owners[name]=str(p)
-    Path(os.environ['PYLOXONE_PROJECT_RECEIPT']).write_text(json.dumps({'package_path':str(package),'version':'0.1.2','owning_modules':owners,'exit_code':int(exitstatus),'warnings':WARNINGS},indent=2)+'\n')
+    Path(os.environ['PYLOXONE_PROJECT_RECEIPT']).write_text(json.dumps({'package_path':str(package),'version':'0.1.2.post1','owning_modules':owners,'exit_code':int(exitstatus),'warnings':WARNINGS},indent=2)+'\n')

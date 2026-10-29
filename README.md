@@ -1,5 +1,11 @@
 # PyLoxone-Audio
 
+> **Documentation-only revision `0.1.2.post1`.** This republishes corrected
+> package-description text for the 0.1.2 metadata-fix release. Audio code,
+> dependencies and the matching 0.1.2 adapter/pin are unchanged; existing
+> installations need no update or restart. Original 0.1.2 files remain unchanged.
+> A separately named preview refresh updates only documentation and provenance.
+
 > **0.1.2 — metadata freshness and read-only recovery.** The matching library
 > and adapter passed independent source/exact-wheel, owning-HA and release-preparation
 > review. The accepted runtime is already installed locally for normal-use testing.

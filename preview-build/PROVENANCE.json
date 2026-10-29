@@ -95,17 +95,17 @@
     "adapters/pyloxone/jo-review/METADATA-DELTA-0.1.2.json": "a98e2bc40b8d9e0255f2ccde948222c3c072b6c1893ef174771a753dcf6ea3b5",
     "KNOWN-ISSUES.md": "6713a37638a1128093fe0bb37b8c79e73208a388e53c695b98ff1f44c1fb68af",
     "RELEASE-NOTES-0.1.2.md": "d733bc2a566408781b7f5e71ab230396d4f83fc8a8fed06fdcdd2caf492dd5f7",
-    "README.md": "e91025d8ed2f3233526f777071db898061318c68f678292af38811307e3a4e60",
+    "README.md": "b68bf10dfa1f53d841f7fe5a15685963caf51ef095851da0c1b8601a0d464929",
     "API.md": "5de59bb4aa9e17061dbd7377f2738c7a659f396e55582c8e4bb0fb3be544957a",
     "POSITION-RESTORE.md": "61ae2ff06aa34e99368b66ebbf8eb2a652e096d3b29b04b6711029d7e5b3bce5",
-    "preview-build/README.md": "5b859b7010561fb5fd2c7f5bfa6397e49c26ac4b821995d1afa027a7d5cfb2ee",
+    "preview-build/README.md": "bec698f6d65fb7c04868de7551802f4e9719790fd0303573386dcd5d3efe4a61",
     "preview-build/PRE-RELEASE.md": "3772b917538b6abb415c6bf7146b4836e44c4d1ade8834f9e37e3f218883bd59",
     "adapters/pyloxone/jo-review/INCREMENTAL-0.1.2.md": "7e23b2814a671022df94212e8412aaf1e0fb3bbbacc2cec57fa11b768b58a3b3"
   },
   "external_adoption_ready": false,
   "published": false,
   "deployed": false,
-  "scope": "0.1.2 publication snapshot: metadata-freshness pair, runtime byte-identical to independently accepted preparation; no new source-return or control fix",
+  "scope": "Documentation-only preview refresh; every component/library runtime byte and the exact 0.1.2 adapter pin are preserved. The separate 0.1.2.post1 distribution corrects PyPI description text only.",
   "predecessor_component_files": {
     "custom_components/loxone/__init__.py": "b4f4a151320138d66db54f35c2032ad08e59f82974cdb6682d14d973dda7257f",
     "custom_components/loxone/alarm_control_panel.py": "b529abd77d278ad5292bf24dfc7ca8e78f7065cd20f6ec18184633c9b3d17513",
@@ -178,8 +178,9 @@
   "status_provenance": "Build-time archive flags are FALSE before publication. Engineering and release-preparation reviews accepted identical runtime, already locally installed. Later hosted/PyPI/public-index results belong to the final release verification manifest; physical/UI outcomes remain separate.",
   "superseded_candidate_commit": "a707d494984972f0b725d353bd607e3d12d4ad59",
   "superseded_preview_sha256": "1f375dc3f2b638831a717d3526baac6942329b1c2c08fc2f3d17e72dd23d447e",
-  "candidate_revision": "release/0.1.2-publication",
+  "candidate_revision": "0.1.2-documentation-post1",
   "accepted_runtime_commit": "5a0ac187bbebfee23d4c3b08c7f6d926ddab7855",
   "accepted_runtime_preview_sha256": "af60a8714de000cfe6dbe492eb948e6d1d161446ac5f4103b5c4906fcf38ab32",
-  "approved_preparation_commit": "e3ca70bc9819623d471b142f7526d91221318524"
+  "approved_preparation_commit": "e3ca70bc9819623d471b142f7526d91221318524",
+  "documentation_revision": "0.1.2.post1"
 }
