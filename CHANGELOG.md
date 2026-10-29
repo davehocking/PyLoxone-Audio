@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2.post1 — 2026-10-29
+
+- Documentation-only post-release: publish the corrected PyPI package description, removing the stale statement that 0.1.2 was not publicly released.
+- Preserve every library runtime file, dependency and matching 0.1.2 adapter/pin. Existing Home Assistant installations need no update or restart. Original 0.1.2 releases and files are not replaced; a separately named documentation-only preview refreshes current README hashes and provenance.
+- The only Python-source edits are test/preview helper literals for the exact distribution version and newly named archive. Library/audio code and all test assertions remain otherwise unchanged; no checks are removed or weakened.
+
 ## 0.1.2 — 2026-10-29
 
 - Address [stale Audio Server metadata and HA track/progress synchronisation (#2)](https://github.com/davehocking/PyLoxone-Audio/issues/2) on the current integration. Clear expired active title/artwork/timing while preserving independent Miniserver playing/volume state.
