@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 — in development (unreleased)
+
+- First committed bug fix: resolve [stale Audio Server metadata and HA track/progress synchronisation (#2)](https://github.com/davehocking/PyLoxone-Audio/issues/2). Development and regression testing have started; this is a planned correction, not a claim that a fixed build is available.
+- Validate the library and matching PyLoxone adapter together. Coordinated adapter changes may be needed; a library-only update is not assumed sufficient.
+- Bug fixes on the current integration only. The Alexander-fork transition is reserved for 0.2.0; grouping/cross-room session enhancements are 0.2.0-or-later work.
+
 ## 0.1.1 — 2026-10-28
 
 - Retire the optional HA-Spotify provider/session/binding bridge; preserve native
@@ -32,6 +38,10 @@
   sdist installations with dependencies, imports and exact runtime checks.
 - Keep current Audio Server host/playback option label/default/gate unchanged.
   Diagnostics is separate. Intermittent audible volume lag remains unresolved.
+
+### Known issues discovered after release
+
+- [#2 — stale track/progress](https://github.com/davehocking/PyLoxone-Audio/issues/2): HA may retain old Audio Server metadata while native playback continues with different content. Committed for resolution in 0.1.2; not yet verified fixed. Use the issue for current status and sanitised reports.
 
 Published 0.1.0 artifacts remain immutable. The notes below preserve that release’s
 historical preparation, not the current 0.1.1 publication or adoption status.

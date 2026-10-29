@@ -12,6 +12,16 @@ The matching library and adapter passed independent source and exact-wheel revie
 
 Package availability and release-specific compatibility information belong on the [Releases page](https://github.com/davehocking/PyLoxone-Audio/releases). The library version is separate from the PyLoxone integration version; publishing a library package does not itself add support to an upstream PyLoxone release.
 
+## Known issues and 0.1.2 development
+
+**[Stale track and progress in Home Assistant — #2](https://github.com/davehocking/PyLoxone-Audio/issues/2):** HA can keep showing an old track, artwork or elapsed time while the Loxone Audio Server plays different content. Playing/volume feedback and controls may still work. Confirmed with 0.1.1 and its matching reference adapter; the event-stream cause is still under investigation.
+
+**0.1.2 is in development as a bug-fix release. Resolving #2 is its first committed fix and a release requirement.** It is not released or verified fixed yet. The correction may require a matching adapter update as well as the library; installation instructions will identify the tested pair. Updating a Python package alone must not be assumed to update the HA adapter.
+
+The issue is the live status/reporting thread; the [0.1.1 release notes](https://github.com/davehocking/PyLoxone-Audio/releases/tag/v0.1.1) and [changelog](CHANGELOG.md) record version-specific changes and limitations. Please review and sanitise diagnostics before sharing; see [DIAGNOSTICS.md](DIAGNOSTICS.md).
+
+**Later scope:** 0.2.0 will mark the transition to Alexander's PyLoxone fork. Room grouping/cross-room session enhancements belong to 0.2.0 or later, not the 0.1.2 bug-fix release.
+
 ## Why a separate library?
 
 Audio communication and playback behaviour are developed and tested independently of Home Assistant-specific configuration and entities. Keeping that work in a library gives it its own tests and releases, while the adapter tests cover its use within PyLoxone. PyLoxone still needs host-side review and compatibility testing when it adopts an adapter or dependency update.
