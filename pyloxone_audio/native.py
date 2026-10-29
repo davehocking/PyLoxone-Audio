@@ -4,7 +4,8 @@ Audioserver metadata/events and explicitly opt-in exact-player playback.
 Event shapes follow the author-reported contract in PyLoxone issue #523.
 The parser/receiver sends nothing. The optional connection owner performs only
 the WebSocket handshake and receives events; it never authenticates or controls.
-AudioServerCommands is a separate lazy connection used only for explicit actions.
+AudioServerCommands is a separate lazy connection for explicit actions and
+opted-in bounded status reconciliation; recovery never sends a media control.
 """
 
 from __future__ import annotations
@@ -161,6 +162,16 @@ class AudioZoneMetadata:
     shuffle: bool | None = None
     repeat: AudioRepeatMode | None = None
     shuffle_switch_supported: bool | None = None
+
+    @property
+    def has_observation(self) -> bool:
+        """Distinguish parsed observations from generated timestamp/default fields."""
+        return self.event_active is True or any(value is not None for value in (
+            self.audio_path, self.title, self.artist, self.album, self.cover_url,
+            self.source, self.source_name, self.parent_id, self.native_mode,
+            self.event, self.position, self.duration, self.playback_restrictions,
+            self.shuffle, self.repeat,
+        ))
 
 
 def audio_mode_supported(
@@ -560,7 +571,10 @@ class AudioServerCommands:
         if target is None:
             message = "Player status requires an exact player"
             raise ValueError(message)
+        credentials = self._credentials()
         payload = await self._async_request(f"audio/{target}/status", "status_result", is_current=is_current)
+        if not is_current() or self._credentials() != credentials:
+            raise AudioCommandError("Native player status authentication or intent changed")
         rows = [payload] if isinstance(payload, dict) else payload
         if (
             not isinstance(rows, list) or len(rows) != 1
@@ -929,7 +943,10 @@ class AudioServerCommands:
         if diagnostics_enabled(observer):
             record("request")
         try:
-
+            # Status reconciliation must not cross authentication changes while
+            # waiting for the existing shared lock or handshake. Other native
+            # routes retain their established transport/ownership behaviour.
+            status_credentials = self._credentials() if reply_key == "status_result" else None
             async with asyncio.timeout(self._timeout), self._lock:
 
                 if self._closed:
@@ -961,6 +978,8 @@ class AudioServerCommands:
                         raise AudioCommandError(message)
                     if require_shuffle_switch and shuffle_switch is not True:
                         raise AudioCommandError("Explicit shuffle requires Audio Server API1.6/firmware16.1.09.23")
+                    if status_credentials is not None and self._credentials() != status_credentials:
+                        raise AudioCommandError("Native player status authentication changed before dispatch")
                     if is_current is not None and not is_current():
                         message = "Audio seek is no longer applicable to the current track"
                         raise AudioCommandError(message)
@@ -1149,6 +1168,7 @@ class AudioEventReceiver:
         """Create a receiver whose notifications run on its owning event loop."""
         self._on_update = on_update
         self._metadata: dict[int, AudioZoneMetadata] = {}
+        self._feedback_revision: dict[int, int] = {}
         self._end_timers: dict[int, asyncio.TimerHandle] = {}
         self._listening = False
         self._stream_generation = 0
@@ -1165,6 +1185,7 @@ class AudioEventReceiver:
             timer.cancel()
         self._end_timers.clear()
         self._metadata.clear()
+        self._feedback_revision.clear()
         self._shuffle_switch_supported = None
         self._on_update(())
 
@@ -1187,8 +1208,32 @@ class AudioEventReceiver:
             raise AudioCommandError(message)
         self._on_update((self._apply(row),))
 
+    async def async_refresh_snapshot(
+        self, player_id: int, read: Callable[[], Awaitable[AudioZoneMetadata]], *, is_current: Callable[[], bool],
+    ) -> None:
+        """Reconcile a silent live stream without overwriting intervening feedback."""
+        generation = self._stream_generation
+        revision = self._feedback_revision.get(player_id, 0)
+        if not self._listening or not is_current():
+            raise AudioCommandError("Native metadata recovery is no longer applicable")
+        row = await read()
+        if (
+            not self._listening or generation != self._stream_generation or not is_current()
+            or self._feedback_revision.get(player_id, 0) != revision or row.player_id != player_id
+            or row.native_mode not in ("play", "pause", "stop")
+            or row.event_active is None or not (row.audio_path or row.event_active)
+        ):
+            raise AudioCommandError("Native metadata recovery was superseded or unusable")
+        self._on_update((self._apply(row),))
+
     def _apply(self, row: AudioZoneMetadata) -> AudioZoneMetadata:
         """Publish metadata promptly, stabilising only known flapping event ends."""
+        # Bare parsed rows still replace the raw snapshot, but cannot veto a
+        # useful awaited read. Retain a revision across later empty rows so any
+        # intervening real observation (including sparse zero/False/account or
+        # context fields) remains a supersession fence, even for the same track.
+        if row.has_observation:
+            self._feedback_revision[row.player_id] = self._feedback_revision.get(row.player_id, 0) + 1
         row = replace(row, shuffle_switch_supported=self._shuffle_switch_supported)
         player_id = row.player_id
         old = self._metadata.get(player_id)
@@ -1209,6 +1254,7 @@ class AudioEventReceiver:
         self._end_timers.pop(player_id, None)
         row = replace(self._metadata[player_id], event=None, event_active=False)
         self._metadata[player_id] = row
+        self._feedback_revision[player_id] = self._feedback_revision.get(player_id, 0) + 1
         self._on_update((row,))
 
     async def async_listen(self, messages: AsyncIterable[str | bytes]) -> None:
@@ -1263,6 +1309,12 @@ class AudioServerListener:
     ) -> None:
         """Keep explicit read bootstrap separate from receive-only connection IO."""
         await self._receiver.async_ensure_snapshot(player_id, read, is_current=is_current)
+
+    async def async_refresh_snapshot(
+        self, player_id: int, read: Callable[[], Awaitable[AudioZoneMetadata]], *, is_current: Callable[[], bool],
+    ) -> None:
+        """Publish a fenced read through the existing receiver, not a second cache."""
+        await self._receiver.async_refresh_snapshot(player_id, read, is_current=is_current)
 
     async def async_run(self) -> None:
         """Receive events until the owning HA entry cancels this coroutine."""

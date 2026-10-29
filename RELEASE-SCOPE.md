@@ -1,22 +1,20 @@
-# 0.1.1 release scope
+# 0.1.2 release scope
 
-The current release retires the optional HA-Spotify provider/session/binding
-bridge; preserves native Spotify/account/control/Browse/manual seek and shared
-fences; lists usable room-native previous content rather than folders; and adds
-the corrections and controls described below. Line-In last and standard Source
-UI remain. Volume lag is unresolved. See SPOTIFY.md for current ownership,
-POSITION-RESTORE.md for limits and TEST-DISPOSITIONS.json for case provenance.
-No Core/frontend patch or second integration is introduced. Upstream contact and
-further household changes are not authorised by this release guide.
-The library, adapter, Jo patch and complete preview must be used as one pinned
-versioned release pair. Old 0.1.0 artifacts remain immutable.
+This is a focused metadata-freshness/recovery correction on the current host,
+not a new source-return, queue, persistence, grouping or provider feature. See
+[release notes](RELEASE-NOTES-0.1.2.md), [freshness contract](METADATA-FRESHNESS.md)
+and [known remaining issues](KNOWN-ISSUES.md). Both library and matching adapter
+are required. Independent runtime engineering acceptance and local adoption are
+complete, including independent release-preparation review. This publication successor
+preserves runtime bytes; hosted/public-index production acceptance is a separate gate.
 
-Current 0.1.1 also includes native Shuffle/Repeat, exact per-item Spotify start,
-same-track saved return/last-good protection and bounded seek readiness. All rooms
-share the implementation with independent RAM-only bookmarks. Independent review,
-common private HAOS adoption and one-room owner return confirmation are complete.
-Public publication/installation is governed by PUBLISHING.md; upstream adoption,
-universal queue/acoustic behaviour and restart persistence are not claimed.
+Inherited 0.1.1 features include native-only Spotify, room-native previous content,
+native Shuffle/Repeat, exact-track/last-good protection, bounded optional seek and
+default-off diagnostics. Keep one integration/setup/native entity set and the
+existing Audio Server host/playback-ON prerequisite. Do not alter controls,
+authentication, options, private deployment/capture or any accepted runtime bytes.
+Historical 0.1.0 and 0.1.1 artifacts remain unchanged. No guide grants authority to
+push, publish, contact maintainers or operate household devices.
 
 ## Historical 0.1.0 extraction record (superseded where noted above)
 

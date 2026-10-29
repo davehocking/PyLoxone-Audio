@@ -1,6 +1,20 @@
-# 0.1.1 current call graph
+# 0.1.2 current metadata call graph
 
-**Current 0.1.1.** The current source path is HA media-player selection →
+Independent Miniserver event → `LoxoneAudioZoneV2.event_handler` → coordinator
+`set_playing`/`get` → projected attribute clearing when native data is stale.
+Entity lifecycle → existing opted-in commands → `async_add_reconciler` → bounded
+`async_player_status` → original receiver `async_refresh_snapshot` with current
+player/stream/authentication/intent/meaningful-revision checks → normal subscriber
+publication. Entity/entry removal unregisters and drains owned work. Recovery
+sends no playback/source/seek/volume/mode command. See METADATA-FRESHNESS.md.
+
+The following source-return call graph describes inherited 0.1.1 behaviour, not
+an additional 0.1.2 fix. Remaining missing-session/temporary-seek issues are in
+KNOWN-ISSUES.md.
+
+## Inherited 0.1.1 source call graph
+
+**Inherited from 0.1.1.** The current source path is HA media-player selection →
 `selection.async_source_route` → native no-op/resume or `catalogue.async_source_return`
 → `sources.async_select_catalogue` → authenticated native command → fresh qualified
 source feedback → at most one optional native seek. Qualified native room

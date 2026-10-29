@@ -1,10 +1,14 @@
 # Changelog
 
-## 0.1.2 — in development (unreleased)
+## 0.1.2 — 2026-10-29
 
-- First committed bug fix: resolve [stale Audio Server metadata and HA track/progress synchronisation (#2)](https://github.com/davehocking/PyLoxone-Audio/issues/2). Development and regression testing have started; this is a planned correction, not a claim that a fixed build is available.
-- Validate the library and matching PyLoxone adapter together. Coordinated adapter changes may be needed; a library-only update is not assumed sufficient.
-- Bug fixes on the current integration only; room grouping/cross-room session enhancements are outside the 0.1.2 scope.
+- Address [stale Audio Server metadata and HA track/progress synchronisation (#2)](https://github.com/davehocking/PyLoxone-Audio/issues/2) on the current integration. Clear expired active title/artwork/timing while preserving independent Miniserver playing/volume state.
+- Use bounded read-only native status recovery through the existing opted-in client. Reject stale player, stream, credentials, meaningful feedback and newer-intent results; continuing unusable frames cannot starve useful delayed recovery publication.
+- Ship the matching library AND PyLoxone 0.10.2 adapter. Relative to the already-audio-enabled published 0.1.1 adapter, the host delta is twelve added lines in `media_player.py` plus the dependency pin change in `manifest.json`. This is not the cumulative stock-host adoption diff, nor evidence Jo has adopted 0.1.1.
+- Independent source/exact-wheel and owning-HA engineering and release-preparation acceptance is complete; the accepted runtime pair is installed locally for normal-use testing. This publication successor preserves all runtime bytes. Hosted CI, actual uploaded distributions and fresh normal public-index wheel/sdist acceptance are mandatory and recorded separately from offline review. Issue #2 is the canonical metadata status thread.
+- Preserve the existing Audio Server host + experimental playback-ON prerequisite. Diagnostics remains separate, optional and default OFF for new users. No playback/source/seek/volume/mode fallback, new setting, provider bridge, grouping or restart persistence is introduced.
+- Remaining source-return limits: without a qualified saved session a return can choose different content; transient native seek-support loss can skip the optional saved-position send. A later same-track/saved-position return with shuffle ON succeeded, not a fix for all returns. Historical receive cause, regression attribution and shuffle causation remain unproved. See [known issues](KNOWN-ISSUES.md).
+- Refresh setup/API, release notes, diagnostics/tester/maintainer instructions and both baseline-labelled adapter patches; keep preview/host material out of Python distributions. Old released and accepted artifacts remain unchanged.
 
 ## 0.1.1 — 2026-10-28
 

@@ -42,17 +42,9 @@ Official references:
 
 ## Current version and handoffs
 
-0.1.1 is the owner-authorised release after independent exact-track/native-mode
-review, common HAOS installation and accepted one-room same-track/near-saved-
-position returns on 28 October 2026. Whole-queue/all-room/persistence is not claimed.
-The existing release workflow and protected environment secret are reused: no
-new PyPI project, token rotation or authentication migration is required.
-Source push, GitHub release, PyPI upload and verified public installation are
-separate stages. Use the release's final verification manifest for the exact
-commit, workflow, distribution hashes and normal public-index installation proof.
-The [tester start-here](preview-build/README.md) and
-[maintainer guide](adapters/pyloxone/jo-review/README.md) apply to this pair.
-Keep published 0.1.0 assets immutable; upstream adoption/contact remains separate.
+Version **0.1.2** is the metadata-freshness patch. Its matching runtime pair passed independent engineering and release-preparation review and is installed locally for normal-use testing. The publication successor changes only status/documentation/packaging, not runtime. See [release notes](RELEASE-NOTES-0.1.2.md), [tester guide](preview-build/README.md) and [maintainer guide](adapters/pyloxone/jo-review/README.md). Actual hosted CI, PyPI upload and normal public-index wheel/sdist acceptance must be verified from the release workflow and final verification manifest, never inferred from this versioned source.
+
+Reuse the existing intentional-release workflow/environment; no new account, secret extraction/rotation or OIDC migration is required. Its production gate remains mandatory. Source push, CI, tag, GitHub release, PyPI upload and public installation are distinct stages. Preserve all published filenames/tags/bytes. Owner-authorised publication does not authorise household controls or maintainer contact. Any local Jo/Sebastian draft remains separate from publishable source and unsent.
 
 ## Release procedure
 
@@ -81,7 +73,7 @@ retry exhaustion and retained non-success receipts.
 
 For an independent readback using downloaded TESTED workflow distributions:
 
-    python tools/verify_public_release.py --dist /path/to/tested-dist --version 0.1.1 --work-dir /path/to/new-public-check
+    python tools/verify_public_release.py --dist /path/to/tested-dist --version 0.1.2 --work-dir /path/to/new-public-check
 
 This tool reads public endpoints and creates only a new local isolated environment;
 it cannot upload or mutate a release. Keep its exact result and actual workflow

@@ -1,4 +1,9 @@
-# PyLoxone-Audio 0.1.1 — API and compatibility
+# PyLoxone-Audio 0.1.2 — API and compatibility
+
+The 0.1.2 metadata-freshness correction passed independent engineering and
+release-preparation review. The matching runtime pair is installed locally for
+normal-use testing. Actual publication and sustained physical/UI outcomes are
+separate; verify the matching release and production-gate receipts.
 
 A separately installable Apache-2.0 Python library containing the concrete native
 audio implementation used by one existing PyLoxone integration. This is not a
@@ -98,11 +103,11 @@ portable runs explicitly reject HA imports. External I/O in tests is synthetic;
 AF_UNIX wire tests use actual websocket/crypto implementations with TCP blocked.
 No all-version/firmware/room or universal physical playback claim follows from these tests.
 
-For Python consumers, install the public named pin `PyLoxone-Audio==0.1.1` in a
-supported isolated environment. The release production gate checks both public
-wheel and sdist resolution, dependencies, imports and runtime identity. A local
-`--no-deps` wheel installation is only an artifact test, not public resolution.
-The matching host manifest pins that version while retaining domain `loxone`,
+For Python consumers, the matching pair pins `PyLoxone-Audio==0.1.2`.
+Do not substitute 0.1.1 or infer public availability from version text alone.
+The production gate must verify normal public-index wheel AND sdist resolution,
+dependencies, imports and runtime digests after publication. Local artifact tests
+are not that gate. The matching host manifest pins 0.1.2 while retaining domain `loxone`,
 name PyLoxone and integration version 0.10.2. For HA, use the complete matching
 adapter/preview and normal host dependency handling, not a manual live pip step.
 
@@ -121,3 +126,21 @@ provider access. The native command/authentication/metadata/Browse/manual-seek A
 remains. previous_source_labels is the room-local playable-content view; configured
 presence is still source_descriptors, not evidence of selected/played content.
 See SPOTIFY.md and POSITION-RESTORE.md for the current function map and limits.
+
+## 0.1.2 freshness and host obligations
+
+`AudioZoneMetadata.has_observation`, receiver per-player meaningful revisions and
+`AudioMetadataCoordinator.get`/`set_playing` separate fresh native information
+from independently reported activity. The adapter supplies Miniserver PLAYING,
+clears withheld projected metadata and owns `async_add_reconciler` registration
+and removal. Recovery uses `AudioServerCommands.async_player_status` and the
+existing listener's `async_refresh_snapshot`, not a media-control fallback.
+
+Expired active data becomes unknown after 30 seconds or a trustworthy track end.
+Recovery is opt-in, serial per entry, >=1 second between starts, <=15 seconds per
+read and capped 300-second per-player failure backoff. Exact player, stream,
+meaningful-feedback revision, credentials, intent and ownership must still match
+before publication. Idle/paused rooms are not polled simply for age. Continuous
+empty rows can clear presentation again; useful read publication is not a promise
+of uninterrupted metadata under arbitrary unusable traffic. See the full
+[freshness contract](METADATA-FRESHNESS.md) and [remaining return limits](KNOWN-ISSUES.md).

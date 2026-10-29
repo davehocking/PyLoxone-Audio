@@ -15,3 +15,7 @@ include POSITION-RESTORE.md
 include DIAGNOSTICS.md
 include NATIVE-MODES.md
 include EXACT-TRACK-RETURN.md
+include METADATA-FRESHNESS.md
+include KNOWN-ISSUES.md
+include RELEASE-NOTES-0.1.2.md
+include CHANGELOG.md
