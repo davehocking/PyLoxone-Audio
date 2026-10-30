@@ -24,7 +24,7 @@ def previous(tmp_path):
 
 def test_exact_010_upgrade_preserves_settings_and_rolls_back(previous,tmp_path):
     before=preview.files(previous,component_only=True)
-    bundle=ROOT/'preview-build/PyLoxone-0.10.2-audio-0.1.2-docs-post1-preview.zip'
+    bundle=ROOT/'preview-build/PyLoxone-0.10.2-audio-0.1.2-hacs-install-preview.zip'
     backup=tmp_path/'backup'
     receipt=preview.install(bundle,previous,backup,preview.sha(bundle))
     assert receipt['before']==before
@@ -41,7 +41,7 @@ def test_dirty_predecessor_is_refused_without_backup_or_target_mutation(previous
     elif mutation=='extra':(target.parent/'owner-addition.py').write_text('# keep')
     else:target.unlink()
     before=preview.files(previous)
-    bundle=ROOT/'preview-build/PyLoxone-0.10.2-audio-0.1.2-docs-post1-preview.zip'
+    bundle=ROOT/'preview-build/PyLoxone-0.10.2-audio-0.1.2-hacs-install-preview.zip'
     with pytest.raises(ValueError):preview.install(bundle,previous,tmp_path/'backup',preview.sha(bundle))
     assert preview.files(previous)==before
     assert not (tmp_path/'backup').exists()

@@ -1,5 +1,11 @@
 # PyLoxone-Audio
 
+> **HACS installation correction:** the current [preview installer and guide](preview-build/README.md)
+> now accept an exact stock PyLoxone 0.10.2 installation with its three packaged
+> API test files. No manual removal is needed. Their hashes are checked and the
+> complete original component is backed up for rollback; unknown or modified files
+> are still refused. Library/audio-adapter code and the `0.1.2` pin are unchanged.
+
 > **Documentation-only revision `0.1.2.post1`.** This republishes corrected
 > package-description text for the 0.1.2 metadata-fix release. Audio code,
 > dependencies and the matching 0.1.2 adapter/pin are unchanged; existing

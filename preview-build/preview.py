@@ -119,8 +119,9 @@ def archive_bodies(archive, expected_sha):
         raise ValueError('Archive member hash mismatch')
     return {n:v for n,v in bodies.items() if n.startswith(COMPONENT)}
 
-def expected_stock():
-    return {n:h for n,h in pinned_spec()['base_files'].items() if '/tests/' not in n}
+def expected_stock(*, packaged_tests=False):
+    """Accept either exact stock layout, never arbitrary files under tests/."""
+    return {n:h for n,h in pinned_spec()['base_files'].items() if packaged_tests or '/tests/' not in n}
 
 def rename_no_replace(src, dst, *, src_dir_fd, dst_dir_fd):
     """Linux atomic no-clobber rename; fail closed if unavailable (no fallback)."""
@@ -205,7 +206,7 @@ def preview_inventory():
     return {n:h for n,h in provenance()['shipping_files'].items() if n.startswith(COMPONENT)}
 
 def pinned_archive_sha():
-    name='PyLoxone-0.10.2-audio-0.1.2-docs-post1-preview.zip'
+    name='PyLoxone-0.10.2-audio-0.1.2-hacs-install-preview.zip'
     rows=[line.split() for line in (HERE/'SHA256SUMS').read_text().splitlines() if line.strip()]
     matches=[row[0] for row in rows if len(row)==2 and row[1]==name]
     if len(matches)!=1 or len(matches[0])!=64:
@@ -219,7 +220,7 @@ def validate_receipt(receipt, config):
     if receipt['config']!=str(config) or receipt['archive_sha256']!=pinned_archive_sha():
         raise ValueError('Wrong config or incompatible preview receipt')
     if receipt['after']!=preview_inventory() or receipt['before'] not in [
-        {},expected_stock(),preview_inventory(),provenance()['predecessor_component_files'],
+        {},expected_stock(),expected_stock(packaged_tests=True),preview_inventory(),provenance()['predecessor_component_files'],
     ]:
         raise ValueError('Unrecognised backup inventories')
 
@@ -234,7 +235,7 @@ def install(archive, config, backup, expected_sha):
         raise ValueError('Archive is not the pinned preview build')
     before=files(config,component_only=True)
     after={n:hashlib.sha256(v).hexdigest() for n,v in bodies.items()}
-    if before not in [{},expected_stock(),after,provenance()['predecessor_component_files']]:
+    if before not in [{},expected_stock(),expected_stock(packaged_tests=True),after,provenance()['predecessor_component_files']]:
         raise ValueError('Unrecognised/dirty existing component; preserve it and reconcile manually')
     backup.mkdir(parents=True)
     # Copy only the validated inventory, never recurse into newly added entries.
