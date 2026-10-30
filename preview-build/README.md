@@ -1,15 +1,16 @@
 # Complete PyLoxone 0.10.2 / audio 0.1.2 preview
 
-This is the documentation refresh accompanying **0.1.2.post1**. Component files
-and the exact `PyLoxone-Audio==0.1.2` installation pin remain unchanged. The new
-ZIP refreshes only shipping documentation/provenance; original release ZIPs
-remain unchanged. No installed Home Assistant update or restart is needed.
+This installation-tool and documentation refresh fixes stock HACS recognition.
+Component files and the exact `PyLoxone-Audio==0.1.2` installation pin remain
+unchanged. The separately named ZIP refreshes shipping documentation/provenance;
+original release ZIPs remain unchanged. Existing working audio installations need
+no update or restart for this installer correction.
 
 ## Start here: status and installation unit
 
 This matched **0.1.2 reference preview** addresses stale track/artwork/timing while
 native playback continues. Use the matching complete
-`PyLoxone-0.10.2-audio-0.1.2-docs-post1-preview.zip`, provenance, checksums and
+`PyLoxone-0.10.2-audio-0.1.2-hacs-install-preview.zip`, provenance, checksums and
 tooling from this revision. **Both the library and adapter are needed.** A wheel
 alone cannot wire independent PLAYING feedback or clear stale HA attributes.
 
@@ -58,8 +59,8 @@ Read [metadata freshness](../METADATA-FRESHNESS.md) for policy and evidence limi
 - `PROVENANCE.json` pins base/overlay/library and every shipping member.
   `SHA256SUMS` covers the new ZIP and companion files. Obtain matching trusted
   files: checksums do not authenticate an untrusted download.
-- `preview.py` retains the stdlib-only guarded builder/installer; only its
-  pinned archive filename changes for the new successor. It never
+- `preview.py` retains the stdlib-only guarded builder/installer, now recognising
+  both exact stock layouts described below. It never
   installs packages, runs HA, contacts devices or edits config/registries.
 - The retained 0.1.1 ZIP is **historical only** and its bytes are unchanged. Its
   original provenance/tooling belongs to the 0.1.1 release, not this successor's
@@ -88,14 +89,34 @@ wheel/sdist; it is not an evergreen overlay for a newer upstream version.
 3. On Linux with Python and filesystem access to that **stopped** config:
 
 ```sh
-python preview-build/preview.py install --archive preview-build/PyLoxone-0.10.2-audio-0.1.2-docs-post1-preview.zip --sha256 <verified-sha256> --config /path/to/stopped/config --backup /path/outside/config/new-component-backup
+python preview-build/preview.py install --archive preview-build/PyLoxone-0.10.2-audio-0.1.2-hacs-install-preview.zip --sha256 <verified-sha256> --config /path/to/stopped/config --backup /path/outside/config/new-component-backup
 ```
 
-The tool accepts absent component, exact stock 0.10.2 (excluding its packaged
-tests), the **exact published 0.1.1 predecessor** pinned in this provenance, or
+The tool accepts an absent component, exact stock 0.10.2 **with or without its
+three packaged API test files**, the **exact published 0.1.1 predecessor** pinned in this provenance, or
 this exact 0.1.2 candidate. It refuses other/dirty trees rather than destroying
 local changes. It no longer labels the older 0.1.0 tree as this build's immediate
 predecessor; reconcile unknown versions against their own backup/tooling.
+
+### Stock HACS installations: no manual test-file removal
+
+Stock PyLoxone 0.10.2 installed through HACS may include these upstream files:
+
+- `pyloxone_api/tests/__init__.py`
+- `pyloxone_api/tests/test_discover.py`
+- `pyloxone_api/tests/test_run_alone.py`
+
+Their paths are relative to `custom_components/loxone/`. Older preview installers
+mistook this stock layout for an **Unrecognised/dirty existing component**.
+Use this revision's matching installer, ZIP, provenance and checksums instead of
+deleting or moving those files yourself. The installer checks the exact pinned
+upstream filenames and hashes; it does **not** blindly ignore the tests folder.
+All three original files are included in the component backup and restored on
+rollback. The installed audio preview still excludes upstream tests.
+Additional, modified, partially missing or symlinked files remain a refusal:
+preserve the installation and compare it with its exact supported base rather
+than bypassing the check. Keep the matching older tooling for older backups;
+do not mix installer/provenance/ZIP revisions.
 
 The external backup records exact before/after inventories. Displaced originals
 remain in reported `.loxone-recovery-*` directories, including late editor writes.
@@ -150,6 +171,36 @@ with its declared dependencies and retain resolver/import receipts; neither this
 nor a public package's older receipt proves the 0.1.2 public pin.
 Canonical runners block external sockets, verify actual owning imports, preserve
 warning gates and record full case identities/input hashes. Use fresh outputs.
+
+## Independent tester feedback: 0.1.1
+
+[Sebastian's 30 October 2026 report](https://github.com/JoDehli/PyLoxone/issues/523#issuecomment-6523457142)
+covered the **0.1.1** complete preview on HAOS / Core 2026.10.4 / Python 3.14.9,
+with an Audio Server and 14 configured zones. He tested remotely and then by ear;
+this is independent real-installation feedback, not certification of every zone,
+firmware or later 0.1.2/development feature.
+
+- He reports successful Browse/Search, source switching, audible same-track Spotify
+  saved-position return, seek, Repeat, Next/Pause, unchanged volume and complete
+  announcements without a clipped first syllable. HA resolved the pinned library
+  from PyPI automatically; no manual package installation was needed.
+- **Announcement volume:** his tests used the room's current volume, not Loxone's
+  separately configured TTS/night-reduction volume. Check the target room level
+  before testing; do not assume a Loxone TTS night setting limits HA announcements.
+  This installer correction does not change announcement or volume behaviour.
+- He observed missing room-favourite artwork and one initial optional-position
+  restore failure which did not recur. Neither is claimed fixed by this installer
+  correction; keep expected/observed content and position separate in reports.
+- He saw a media-player setup warning taking over ten seconds, but the integration
+  loaded. Retain timing/logs if startup remains slow; the warning alone was not a
+  failed installation in his test.
+- The Miniserver firmware changed during his test period. Record Miniserver and
+  Audio Server versions separately; do not attribute the non-recurrence of a
+  problem to that update without a controlled comparison.
+
+His additional SMB/delayed-file observations are reference findings, not a reason
+to change this preview's already working HTTP announcement upload path. An event
+broadcast to every player must still be distinguished from playback on its target.
 
 ## Owner-operated acceptance and remaining limits (not auto-run)
 
