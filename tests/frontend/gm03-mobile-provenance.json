@@ -1,0 +1,12 @@
+{
+  "asset": "adapters/pyloxone/frontend/dist/group-control-card-0.1.3.dev7-gm03-mobile-r1.js",
+  "module_sha256": "dcfa24c090147079bb69a6c29399e732215eb472bef4af6d39f301388a5904c1",
+  "requests_sha256": "60057966e18505b6741e832798e7ba5a9643e03276a93d9575547c374963421b",
+  "count": 12,
+  "raw_inputs": {
+    "runs/final-gesture/gesture-traces.json": "14aad27682e3174339d74a7da0fde6e6b5989480a18340831e4c7baa69dd234c",
+    "runs/final-gesture-controls/gesture-owning-requests.json": "ca72d951ad7591618eea2f6adf1f3c155dfe009c794cbbd226cbc28319ff11be"
+  },
+  "epoch": "NEW mobile-r1 actual trusted mouse/CDP touch/native keyboard release; old 911 RED unchanged; old a150 historical literal fixtures untouched",
+  "owning_scope": "exact six-identity projection of 32-room browser fixture; actual emitted requests and both controlled group membership/volumes unchanged"
+}

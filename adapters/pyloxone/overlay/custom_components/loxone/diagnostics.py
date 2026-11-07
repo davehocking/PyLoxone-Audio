@@ -6,6 +6,7 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.loader import async_get_integration
 
 from .const import DOMAIN
 
@@ -25,10 +26,15 @@ async def async_get_config_entry_diagnostics(
         return {"error": "Audio diagnostics unavailable"}
     from importlib.metadata import version
     from homeassistant.const import __version__ as ha_version
+    integration = await async_get_integration(hass, config_entry.domain)
     return {"audio": await diagnostics.async_export(),
-            "environment": {"home_assistant": ha_version, "pyloxone": "0.10.2",
+            "environment": {"home_assistant": ha_version, "pyloxone": str(integration.version),
                             "pyloxone_audio": version("PyLoxone-Audio")},
             "evidence_limits": ["No commands from before opt-in", "Socket send is not device execution",
                                 "Numeric position replies are echoes, not physical movement",
-                                "No audio, titles, private announcement text or raw house configuration"]}
+                                "No audio, titles, private announcement text or raw house configuration",
+                                "A native reply is not final HA service acceptance",
+                                "HA Action history records calls and context, not internal audio transmission or sound",
+                                "Native HA logs and Action history are separate raw data, not included or sanitised here",
+                                "Debug console is optional administrator-only Python execution; input is logged"]}
 

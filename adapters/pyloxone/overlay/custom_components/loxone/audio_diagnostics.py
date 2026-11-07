@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import suppress
-from datetime import datetime
+from datetime import UTC, datetime
+from functools import wraps
 import json
 import math
 import logging
@@ -23,10 +24,14 @@ from pyloxone_audio.diagnostic_events import (
     NUMBERS,
     STAGES,
 )
-from pyloxone_audio.diagnostic_events import DiagnosticEmitter
+from pyloxone_audio.diagnostic_events import (
+    DiagnosticEmitter, current_operation_id, diagnostic_event,
+    diagnostic_operation, diagnostics_enabled,
+)
 from homeassistant.helpers.storage import Store
 from homeassistant.core import CoreState, callback
-from homeassistant.const import EVENT_CALL_SERVICE
+from homeassistant.const import EVENT_CALL_SERVICE, EVENT_STATE_CHANGED
+from .const import SENDDOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,7 +50,96 @@ _STATS = (
     "dropped_storage",
     "storage_failures",
     "observer_failures",
+    "sampled_routine_records",
+    "dropped_important_queue",
 )
+
+
+def _operation_snapshot(observer, entity, phase, common):
+    """Read only bounded known fields; diagnostics never alters action outcome."""
+    try:
+        fields = dict(common, phase=phase, available=entity.available, ha_state=entity.state,
+                      volume=getattr(entity, "_room_volume_percent", None))
+        metadata = getattr(entity, "_audio_metadata", None)
+        row = metadata.get(entity._audio_player_id) if metadata is not None else None
+        fields["metadata_present"] = row is not None
+        if row is not None:
+            source = (row.source or "").lower().replace(" ", "").replace("-", "")
+            fields.update(
+                source={"locallibrary": "library"}.get(source, source),
+                content=row.audio_path, parent=row.parent_id, account=row.source_name,
+                position=row.position, duration=row.duration, mode=row.native_mode,
+                event_idle=row.event_idle, event_active=row.event_active,
+                playback_restrictions=row.playback_restrictions,
+                capability_present="pbr" in row.mode_fields_present,
+                capability_valid=row.playback_restrictions is not None,
+                metadata_age_ms=(datetime.now(UTC) - row.received_at).total_seconds() * 1000,
+            )
+        grouping = getattr(entity, "_audio_grouping", None)
+        descriptor = grouping.control_descriptor(entity._audio_player_id) if grouping is not None else None
+        if descriptor is not None:
+            fields.update(group_id=descriptor["group_id"], group_revision=descriptor["revision"],
+                          group_size=len(descriptor["members"]), leader=descriptor["members"][0])
+        diagnostic_event(observer, "state_snapshot", **fields)
+    except Exception:
+        # A broken observer/property cannot fail, retry or change playback.
+        pass
+
+
+def fire_audio_command(entity, data):
+    """Carry a non-secret trace token on the existing internal event only."""
+    try:
+        observer = getattr(entity, "_audio_diagnostics", None)
+        operation = current_operation_id() if diagnostics_enabled(observer) else None
+    except Exception:
+        operation = None
+    if operation is not None:
+        data = dict(data, _audio_diagnostic_operation=operation)
+    entity.hass.bus.async_fire(SENDDOMAIN, data)
+
+
+async def async_diagnostic_dispatch(callback, operation, *args):
+    """Retain explicit event ownership through a deferred existing send task."""
+    if type(operation) is str and len(operation) == 32 and re.fullmatch(r"[0-9a-f]{32}", operation):
+        with diagnostic_operation(operation):
+            return await callback(*args)
+    return await callback(*args)
+
+
+def audio_operation(operation):
+    """Observe the ACTUAL owning method return/raise, after its final guards."""
+    def decorate(function):
+        @wraps(function)
+        async def observed(entity, *args, **kwargs):
+            try:
+                observer = getattr(entity, "_audio_diagnostics", None)
+            except Exception:
+                observer = None
+            if not diagnostics_enabled(observer) or current_operation_id() is not None:
+                return await function(entity, *args, **kwargs)
+            try:
+                context = getattr(getattr(entity, "_context", None), "id", None)
+                common = {"operation": operation, "transport": "ha_service",
+                          "player": getattr(entity, "_audio_player_id", None),
+                          "room": getattr(entity, "uuidAction", None), "ha_context_id": context}
+            except Exception:
+                return await function(entity, *args, **kwargs)
+            with diagnostic_operation():
+                start = time.monotonic()
+                outcome = "returned"
+                diagnostic_event(observer, "operation_started", **common)
+                _operation_snapshot(observer, entity, "before", common)
+                try:
+                    return await function(entity, *args, **kwargs)
+                except BaseException as error:
+                    outcome = "cancelled" if isinstance(error, asyncio.CancelledError) else "timeout" if isinstance(error, TimeoutError) else "error"
+                    raise
+                finally:
+                    _operation_snapshot(observer, entity, "after", common)
+                    diagnostic_event(observer, "operation_finished", **common, outcome=outcome,
+                                     elapsed_ms=(time.monotonic() - start) * 1000)
+        return observed
+    return decorate
 
 
 def _encode(value):
@@ -109,6 +203,17 @@ def _safe_event(row):
         return len(_encode(row)) + 1 <= EVENT_BYTES
     except (KeyError, ValueError, TypeError, OverflowError):
         return False
+
+
+def _important_event(row):
+    """Keep incident decisions/results ahead of routine progress/bookmarks."""
+    return row.get("stage") not in {"feedback", "session_saved", "state_published"} or "operation_id" in row or row.get("signal_changed") is True
+
+
+def _priority_indices(rows):
+    important = [_important_event(row) for row in rows]
+    newest = range(len(rows) - 1, -1, -1)
+    return [i for i in newest if important[i]] + [i for i in newest if not important[i]]
 
 
 class RollingJournal:
@@ -335,24 +440,31 @@ class RollingJournal:
             "coverage_newest_utc": rows[-1]["utc"] if rows else None,
             **self.stats,
             "export_omitted_records": 0,
+            "export_omitted_important_records": 0,
+            "export_selection": "important_then_recent",
             "events": [],
         }
         # One encoding per row plus fixed metadata: O(n), not repeated full
         # serialisation of a shrinking list. Reserve counter-digit growth.
         budget = (
-            self.export_bytes - len(json.dumps(report, allow_nan=False).encode()) - 24
+            self.export_bytes - len(json.dumps(report, allow_nan=False).encode()) - 64
         )
         retained = []
-        for row in reversed(rows):
+        for index in _priority_indices(rows):
+            row = rows[index]
             size = len(json.dumps(row, allow_nan=False).encode()) + (
                 2 if retained else 0
             )
             if size > budget:
-                break
-            retained.append(row)
+                continue
+            retained.append(index)
             budget -= size
         report["export_omitted_records"] = len(rows) - len(retained)
-        report["events"] = list(reversed(retained))
+        chosen = set(retained)
+        report["export_omitted_important_records"] = sum(
+            _important_event(row) for i, row in enumerate(rows) if i not in chosen
+        )
+        report["events"] = [rows[i] for i in sorted(retained)]
         return report
 
 
@@ -383,6 +495,10 @@ class EntryAudioDiagnostics:
         self._task = None
         self.closed = False
         self.dropped_queue = 0
+        self.dropped_important_queue = 0
+        self.sampled_routine_records = 0
+        self._samples = {}
+        self._detail_until = 0.0
         self.dropped_storage = 0
         self.storage_failures = 0
         self.status = "off"
@@ -392,6 +508,7 @@ class EntryAudioDiagnostics:
         self.controls = {}
         self.states = {}
         self._unsubscribe = None
+        self._unsubscribe_state = None
         for uuid, control in (structure.get("controls") or {}).items():
             if not isinstance(control, dict) or control.get("type") != "AudioZoneV2":
                 continue
@@ -441,6 +558,8 @@ class EntryAudioDiagnostics:
         try:
             await self._run_disk(self.journal.maintain, [])
             self.dropped_queue = self.journal.stats["dropped_queue"]
+            self.dropped_important_queue = self.journal.stats["dropped_important_queue"]
+            self.sampled_routine_records = self.journal.stats["sampled_routine_records"]
             self.dropped_storage = self.journal.stats["dropped_storage"]
             self.storage_failures += self.journal.stats["storage_failures"]
             self.emitter.sink_failures = self.journal.stats["observer_failures"]
@@ -451,6 +570,9 @@ class EntryAudioDiagnostics:
         )
         self._unsubscribe = self.hass.bus.async_listen(
             EVENT_CALL_SERVICE, self._service_event
+        )
+        self._unsubscribe_state = self.hass.bus.async_listen(
+            EVENT_STATE_CHANGED, self._state_event
         )
         if self.enabled:
             self.emit("collection_started")
@@ -473,9 +595,45 @@ class EntryAudioDiagnostics:
     def _enqueue(self, row):
         if not self.enabled or not _safe_event(row):
             return
+        now = row["monotonic"]
+        if row.get("request_kind") != "status" and row["stage"] in {
+            "operation_started", "ha_service_request", "send_attempt", "request"
+        }:
+            self._detail_until = now + 45.0
+        if row["stage"] in {"feedback", "session_saved", "state_published"}:
+            channel = "volume" if row.get("transport") == "miniserver" and "volume" in row else "play_state" if row.get("transport") == "miniserver" and "play_state" in row else None
+            key = (row["stage"], row.get("transport"), row.get("player"), channel)
+            ignored = {"utc", "monotonic", "sequence", "position", "request_id", "operation_id", "ha_context_id"}
+            signal = {k: v for k, v in row.items() if k not in ignored}
+            previous = self._samples.get(key)
+            position = row.get("position")
+            changed = previous is None or signal != previous[0]
+            if previous is not None and type(position) in (int, float) and type(previous[1]) in (int, float):
+                delta = position - previous[1]
+                changed |= delta < -0.5 or delta > max(0, now - previous[2]) + 2.0
+            retained_at = previous[3] if previous is not None else float("-inf")
+            period = 0.25 if now <= self._detail_until else 30.0
+            keep = changed or now - retained_at >= period
+            if key not in self._samples and len(self._samples) >= 256:
+                self._samples.pop(next(iter(self._samples)))
+            self._samples[key] = (signal, position, now, now if keep else retained_at)
+            if not keep:
+                self.sampled_routine_records += 1
+                return
+            if changed:
+                row = dict(row, signal_changed=True)
         if self.queue.full():
-            self.queue.get_nowait()
             self.dropped_queue += 1
+            if not _important_event(row):
+                return
+            # No await: writer cannot interleave while the bounded queue is
+            # rotated using its public API. Prefer losing one routine row.
+            pending = [self.queue.get_nowait() for _ in range(self.queue.qsize())]
+            victim = next((i for i, old in enumerate(pending) if not _important_event(old)), 0)
+            self.dropped_important_queue += int(_important_event(pending[victim]))
+            for i, old in enumerate(pending):
+                if i != victim:
+                    self.queue.put_nowait(old)
         self.queue.put_nowait(row)
         self.wake.set()
 
@@ -489,7 +647,7 @@ class EntryAudioDiagnostics:
             data = event.data
             operation = data.get("service")
             if (
-                data.get("domain") != "media_player"
+                data.get("domain") not in {"media_player", "loxone"}
                 or operation not in ENUMS["operation"]
             ):
                 return
@@ -511,6 +669,7 @@ class EntryAudioDiagnostics:
                     "operation": operation,
                     "transport": "ha_service",
                     "request_id": event.context.id,
+                    "ha_context_id": event.context.id,
                 }
                 if operation == "media_seek":
                     fields["position"] = service_data.get("seek_position")
@@ -518,6 +677,31 @@ class EntryAudioDiagnostics:
                 if operation == "volume_set" and type(volume) in (int, float):
                     fields["volume"] = volume * 100
                 self.emit("ha_service_request", **fields)
+        except Exception:
+            self.emitter.sink_failures += 1
+
+    @callback
+    def _state_event(self, event):
+        if not self.enabled:
+            return
+        try:
+            from homeassistant.helpers import entity_registry as er
+
+            state = event.data.get("new_state")
+            if state is None or not state.entity_id.startswith("media_player."):
+                return
+            entity = er.async_get(self.hass).async_get(state.entity_id)
+            if entity is None or entity.config_entry_id != self.entry.entry_id or entity.unique_id not in self.controls:
+                return
+            attrs = state.attributes
+            volume = attrs.get("volume_level")
+            self.emit(
+                "state_published", transport="ha_service", player=self.controls[entity.unique_id],
+                ha_context_id=event.context.id, ha_state=state.state,
+                position=attrs.get("media_position"), duration=attrs.get("media_duration"),
+                volume=volume * 100 if type(volume) in (int, float) else None,
+                ha_track=attrs.get("audio_track_id"),
+            )
         except Exception:
             self.emitter.sink_failures += 1
 
@@ -614,6 +798,8 @@ class EntryAudioDiagnostics:
                 "dropped_storage": self.dropped_storage,
                 "storage_failures": self.storage_failures,
                 "observer_failures": self.emitter.sink_failures,
+                "sampled_routine_records": self.sampled_routine_records,
+                "dropped_important_queue": self.dropped_important_queue,
             }
 
             def maintain():
@@ -774,12 +960,22 @@ class EntryAudioDiagnostics:
         # that separate platform metadata instead of budgeting compact JSON.
         rows = report["events"]
         omitted = report.get("export_omitted_records", 0)
+        important_omitted = report.get("export_omitted_important_records", 0)
+        order = _priority_indices(rows)
+
+        def retain(count):
+            chosen = set(order[:count])
+            report["events"] = [row for i, row in enumerate(rows) if i in chosen]
+            report["export_omitted_records"] = omitted + len(rows) - count
+            report["export_omitted_important_records"] = important_omitted + sum(
+                _important_event(row) for i, row in enumerate(rows) if i not in chosen
+            )
+            report["export_oldest_utc"] = report["events"][0]["utc"] if count else None
+
         low, high = 0, len(rows)
         while low < high:
-            cut = (low + high) // 2
-            report["events"] = rows[cut:]
-            report["export_omitted_records"] = omitted + cut
-            report["export_oldest_utc"] = rows[cut]["utc"] if cut < len(rows) else None
+            count = (low + high + 1) // 2
+            retain(count)
             if (
                 len(
                     json.dumps(
@@ -788,12 +984,10 @@ class EntryAudioDiagnostics:
                 )
                 > EXPORT_BYTES - 65536
             ):
-                low = cut + 1
+                high = count - 1
             else:
-                high = cut
-        report["events"] = rows[low:]
-        report["export_omitted_records"] = omitted + low
-        report["export_oldest_utc"] = rows[low]["utc"] if low < len(rows) else None
+                low = count
+        retain(low)
         return report
 
     async def async_close(self):
@@ -802,6 +996,9 @@ class EntryAudioDiagnostics:
         if self._unsubscribe is not None:
             self._unsubscribe()
             self._unsubscribe = None
+        if self._unsubscribe_state is not None:
+            self._unsubscribe_state()
+            self._unsubscribe_state = None
         self.wake.set()
         if self._task is not None:
             with suppress(asyncio.CancelledError):

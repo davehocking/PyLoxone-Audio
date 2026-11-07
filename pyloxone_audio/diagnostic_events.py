@@ -7,6 +7,8 @@ material, announcement text and arbitrary caller fields are deliberately absent.
 from __future__ import annotations
 
 from collections.abc import Callable
+from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import UTC, datetime
 import hashlib
 import hmac
@@ -15,6 +17,7 @@ import re
 import time
 from typing import Any
 from urllib.parse import unquote
+from uuid import uuid4
 
 STAGES = frozenset(
     {
@@ -37,6 +40,13 @@ STAGES = frozenset(
         "collection_stopped",
         "session_saved",
         "ha_service_request",
+        "operation_started",
+        "operation_finished",
+        "state_snapshot",
+        "state_published",
+        "lock_acquired",
+        "connection_opened",
+        "request_finished",
     }
 )
 ENUMS = {
@@ -70,12 +80,19 @@ ENUMS = {
         "shuffle_set",
         "repeat_set",
         "state",
+        "join", "unjoin", "audio_group_manage", "audio_room_volume",
+        "audio_room_transport", "browse_media", "search_media", "turn_on", "turn_off",
+        "getservices", "getradios", "getroomfavs", "getinputs", "getmediafolder",
+        "getservicefolder", "globalsearch", "dgroup", "playuploadedfile",
     },
     "transport": {"audio_server", "miniserver", "source", "ha_service"},
-    "source": {"spotify", "library", "tunein", "loxoneradio", "linein", "airplay"},
+    "source": {"spotify", "library", "tunein", "loxoneradio", "linein", "airplay", "bluetooth", "unknown"},
+    "outcome": {"returned", "error", "cancelled", "timeout"},
+    "ha_state": {"playing", "paused", "idle", "off", "on", "standby", "buffering", "unknown", "unavailable"},
+    "request_kind": {"transport", "source_start", "seek", "status", "browse", "search", "group_change", "group_transport", "announcement", "mode", "other"},
     "mode": {"play", "pause", "stop"},
     "repeat": {"off", "all", "one"},
-    "phase": {"initial", "post_auth", "after_restore"},
+    "phase": {"initial", "post_auth", "after_restore", "before", "after"},
     "reason": {
         "eligible",
         "missing_session",
@@ -110,14 +127,42 @@ NUMBERS = frozenset(
         "echo_position",
         "volume",
         "play_state",
+        "elapsed_ms", "playback_restrictions", "metadata_age_ms", "group_size",
     }
 )
 BOOLEANS = frozenset(
-    {"saved_session", "available", "event_idle", "event_active", "seek_supported", "shuffle"}
+    {"saved_session", "available", "event_idle", "event_active", "seek_supported", "shuffle", "metadata_present", "capability_present", "capability_valid", "signal_changed"}
 )
 IDENTITIES = frozenset(
-    {"player", "room", "entry", "account", "content", "request_id", "parent"}
+    {"player", "room", "entry", "account", "content", "request_id", "parent", "operation_id", "ha_context_id", "ha_track", "group_id", "group_revision", "leader"}
 )
+
+
+class _Operation:
+    def __init__(self, identifier):
+        self.identifier = identifier
+        self.active = True
+
+
+_OPERATION = ContextVar("pyloxone_audio_diagnostic_operation", default=None)
+
+
+def current_operation_id():
+    operation = _OPERATION.get()
+    return operation.identifier if operation is not None and operation.active else None
+
+
+@contextmanager
+def diagnostic_operation(identifier=None):
+    """Correlate child commands, but expire inherited background-task copies."""
+    value = identifier if type(identifier) is str and 0 < len(identifier) <= 1024 else uuid4().hex
+    operation = _Operation(value)
+    token = _OPERATION.set(operation)
+    try:
+        yield value
+    finally:
+        operation.active = False
+        _OPERATION.reset(token)
 
 
 def diagnostics_enabled(observer: Any) -> bool:
@@ -246,6 +291,8 @@ class DiagnosticEmitter:
         if not self.enabled or event not in STAGES:
             return
         try:
+            if (operation := current_operation_id()) is not None:
+                fields.setdefault("operation_id", operation)
             self._sequence += 1
             row: dict[str, Any] = {
                 "schema": 1,

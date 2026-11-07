@@ -1,14 +1,8 @@
-# PyLoxone-Audio 0.1.2 — API and compatibility
+# PyLoxone-Audio 0.1.3 — API and compatibility
 
-The 0.1.2 metadata-freshness correction passed independent engineering and
-release-preparation review. The matching runtime pair is installed locally for
-normal-use testing. Actual publication and sustained physical/UI outcomes are
-separate; verify the matching release and production-gate receipts.
-
-A separately installable Apache-2.0 Python library containing the concrete native
-audio implementation used by one existing PyLoxone integration. This is not a
-second integration, new login, facade-only prototype or claim of upstream automatic
-adoption. Public availability is verified separately by the release production gate. See NOTICE.md for attribution/provenance.
+An Apache-2.0 Python library for native audio communication, consumed by the
+existing PyLoxone integration. The matching reference adapter is 0.10.3.dev18
+on stock PyLoxone 0.10.3. See [NOTICE.md](NOTICE.md) for attribution.
 
 ## Concrete public API and ownership
 
@@ -69,10 +63,10 @@ HA-independent exports. `AudioZoneMetadata` adds nullable `shuffle`, typed
 explicit native player request through existing authentication/serialization and
 strictly validate its reply. The host qualifies fresh native permissions/state
 and maintains its liveness callback; no Spotify bridge/API or optimistic metadata
-write is involved. See [NATIVE-MODES.md](NATIVE-MODES.md) for firmware, partial
-repeat capability, standard HA mapping and unknown/lifecycle semantics.
+write is involved. Unknown mode feedback stays unknown. HA maps Repeat Off/All/One to native 0/1/3;
+capability and source support govern which controls are available.
 
-## Optional structured diagnostics (new 0.1.1 increment)
+## Optional structured diagnostics
 
 `pyloxone_audio.diagnostic_events` defines the version1 fixed-field schema,
 `DiagnosticEmitter`, `diagnostics_enabled` and exception-isolating
@@ -89,45 +83,16 @@ not a portable HA/storage dependency or a second integration. Separate HA Store
 preference/salt avoids reload-on-options. See [DIAGNOSTICS.md](DIAGNOSTICS.md) for
 the supported enable/export workflow, exact bounds and evidence/privacy limits.
 
-This narrowly supersedes the earlier blanket instrumentation exclusion. The old
-`pyloxone_audio.diagnostics`, `SourceDiagnostics`, `trace_source_action`, raw
-snapshot logging and `last_source_failure` API remain removed, not compatibility
-stubs. No source/playback, authentication, fence, clock or retry policy changes.
+## Installation and host compatibility
 
-## Tested boundary and installation
+Requires Python >=3.14. Install `PyLoxone-Audio==0.1.3` for standalone consumers.
+Home Assistant users need the matching component and frontend described in the
+[installation guide](preview-build/README.md); HA installs Python dependencies.
+Keep domain `loxone`, existing entries/entities and the exact compatible pin.
+Source and installed-wheel checks use synthetic external I/O and real local
+WebSocket/crypto boundaries. They do not require household credentials.
 
-Only the canonical Python 3.14.7 / HA 2026.9.1 / websockets 15.0.1 /
-pycryptodome 4.0.1 / aiohttp 3.14.3 environment is exercised here. The metadata
-requires Python >=3.14 but is not a wider tested compatibility promise. HA-free
-portable runs explicitly reject HA imports. External I/O in tests is synthetic;
-AF_UNIX wire tests use actual websocket/crypto implementations with TCP blocked.
-No all-version/firmware/room or universal physical playback claim follows from these tests.
-
-For Python consumers, the matching pair pins `PyLoxone-Audio==0.1.2`.
-Do not substitute 0.1.1 or infer public availability from version text alone.
-The production gate must verify normal public-index wheel AND sdist resolution,
-dependencies, imports and runtime digests after publication. Local artifact tests
-are not that gate. The matching host manifest pins 0.1.2 while retaining domain `loxone`,
-name PyLoxone and integration version 0.10.2. For HA, use the complete matching
-adapter/preview and normal host dependency handling, not a manual live pip step.
-
-The matching library and adapter passed independent source and exact-wheel review, and the common pair was installed on Home Assistant OS (Core 2026.10.4, Python 3.14.9). On 28 October 2026 the owner accepted two normal-use Local Library → Spotify returns to the same track near its saved position, supported by integration command and native content/position feedback. This is one-room confirmation, not all-room acoustic, whole-queue, persistent shuffle or restart-recovery proof.
-
-For public availability, use the matching GitHub release, PyPI version and release verification receipts. Source, tag or uploader success alone is not the production gate. Existing Home Assistant installations do not automatically update.
-
-## Intentional 0.1.1 retirement
-
-The optional SpotifySessionBridge, SpotifyNativeSession,
-NativeSessionUnavailableError, NativeResumeOutcome, async_optional_native_resume
-and async_resume_native_session API and its bridge parameter are removed together
-with the HA-only controller. Consumers using those optional interfaces must update
-alongside the matching 0.1.1 adapter pin; no compatibility facade silently retains
-provider access. The native command/authentication/metadata/Browse/manual-seek API
-remains. previous_source_labels is the room-local playable-content view; configured
-presence is still source_descriptors, not evidence of selected/played content.
-See SPOTIFY.md and POSITION-RESTORE.md for the current function map and limits.
-
-## 0.1.2 freshness and host obligations
+## Freshness and host obligations
 
 `AudioZoneMetadata.has_observation`, receiver per-player meaningful revisions and
 `AudioMetadataCoordinator.get`/`set_playing` separate fresh native information
@@ -142,5 +107,4 @@ read and capped 300-second per-player failure backoff. Exact player, stream,
 meaningful-feedback revision, credentials, intent and ownership must still match
 before publication. Idle/paused rooms are not polled simply for age. Continuous
 empty rows can clear presentation again; useful read publication is not a promise
-of uninterrupted metadata under arbitrary unusable traffic. See the full
-[freshness contract](METADATA-FRESHNESS.md) and [remaining return limits](KNOWN-ISSUES.md).
+of uninterrupted metadata under arbitrary unusable traffic. See [Known issues](KNOWN-ISSUES.md) for current user-facing limitations.

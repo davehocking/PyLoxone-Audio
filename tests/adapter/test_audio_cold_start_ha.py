@@ -162,5 +162,5 @@ async def test_status_wire_projects_only_source_established_read_into_existing_c
     guard = lambda: True
     result = await owner.async_player_status(7, is_current=guard)
     assert result.player_id == 7 and result.event_idle and result.event_active is False
-    request.assert_awaited_once_with("audio/7/status", "status_result", is_current=guard)
+    request.assert_awaited_once_with("audio/7/status", "status_result", is_current=guard, strict_reply=True)
     assert not owner.source_fences and not owner.announcement_fences

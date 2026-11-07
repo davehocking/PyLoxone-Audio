@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Callable
 from contextlib import suppress
+from dataclasses import dataclass
 import logging
 from typing import TYPE_CHECKING
 from urllib.parse import urljoin, urlsplit
@@ -14,6 +15,7 @@ from .native import (
     AudioServerCommands,
     AudioServerListener,
     AudioZoneMetadata,
+    audio_mode_supported,
     audioserver_uri,
 )
 from .clock import utcnow
@@ -39,6 +41,17 @@ type _TaskFactory = Callable[[Coroutine[Any, Any, None]], asyncio.Task[None]]
 _LOGGER = logging.getLogger(__name__)
 
 
+@dataclass
+class _ModeRecovery:
+    """An obligation, not cached mode values or permission to reuse a reply."""
+
+    binding: _RecoveryBinding
+    intent: int
+    context: tuple[int, str, str | None, str]
+    authenticated: Callable[[], bool]
+    observed_at: float
+
+
 class AudioMetadataCoordinator:
     """Keep the event connection independent of ordinary Miniserver controls."""
 
@@ -51,6 +64,9 @@ class AudioMetadataCoordinator:
         self._playing: set[int] = set()
         self._active_since: dict[int, datetime] = {}
         self._stale: set[int] = set()
+        self._requested_refresh: set[int] = set()
+        self._mode_recovery: dict[int, _ModeRecovery] = {}
+        self._mode_revoked: set[int] = set()
         self._bindings: dict[int, _RecoveryBinding] = {}
         self._recoveries: dict[int, asyncio.Task[None]] = {}
         self._retry_at: dict[int, float] = {}
@@ -76,6 +92,7 @@ class AudioMetadataCoordinator:
     async def async_stop(self) -> None:
         """Cancel scheduled reads and await owned IO before dropping subscriptions."""
         self._create_task = None
+        self._mode_recovery.clear()
         if self._timer is not None:
             self._timer.cancel()
             self._timer = None
@@ -86,6 +103,7 @@ class AudioMetadataCoordinator:
         self._playing.clear()
         self._active_since.clear()
         self._stale.clear()
+        self._requested_refresh.clear()
         if self._task is not None:
             self._task.cancel()
             with suppress(asyncio.CancelledError):
@@ -102,6 +120,8 @@ class AudioMetadataCoordinator:
             if player_id in self._playing and self.get(player_id) is None:
                 self._stale.add(player_id)
             self._playing.discard(player_id)
+            self._requested_refresh.discard(player_id)
+            self._mode_recovery.pop(player_id, None)
             self._active_since.pop(player_id, None)
             if task := self._recoveries.get(player_id):
                 task.cancel()
@@ -152,6 +172,8 @@ class AudioMetadataCoordinator:
     ) -> Callable[[], None]:
         """Bind opted-in recovery to the actual entity's intent and lifecycle."""
         binding = (commands, intent, available)
+        self._mode_recovery.pop(player_id, None)
+        self._requested_refresh.discard(player_id)
         self._bindings[player_id] = binding
 
         def remove() -> None:
@@ -171,6 +193,94 @@ class AudioMetadataCoordinator:
                     "Audioserver metadata subscriber failed (%s)", type(err).__name__
                 )
 
+    @staticmethod
+    def _mode_context(row: AudioZoneMetadata) -> tuple[int, str, str | None, str] | None:
+        """Qualify omissions only; explicit invalid/denied modes revoke repair."""
+        if (
+            row.source not in {"Spotify", "Local Library"}
+            or (row.source == "Spotify" and row.source_name is None)
+            or not row.event_idle or row.native_mode != "play"
+            or not row.audio_path or row.parent_id is None
+            or any(key in row.mode_fields_present and getattr(row, name) is None
+                   for key, name in (("pbr", "playback_restrictions"), ("plshuffle", "shuffle"), ("plrepeat", "repeat")))
+            or ("pbr" in row.mode_fields_present and (row.playback_restrictions is None
+                or row.playback_restrictions & (2048 | 4096 | 8192) != (2048 | 4096 | 8192)))
+        ):
+            return None
+        return row.player_id, row.source, row.source_name, row.parent_id
+
+    def _mode_recovery_pending(self, player: int, observed: AudioZoneMetadata | None = None) -> bool:
+        """Retain exact ownership across sparse progress, never across revocation."""
+        obligation = self._mode_recovery.get(player)
+        if obligation is None:
+            return False
+        row = observed if observed is not None else self._client.get(player)
+        if (
+            self._create_task is not None and player in self._playing
+            and self._bindings.get(player) is obligation.binding
+            and obligation.binding[1]() == obligation.intent
+            and obligation.binding[2]() and obligation.authenticated()
+            and row is not None
+            # Bare rows do not supersede the native revision fence either.
+            and (not row.has_observation or (
+                self._mode_context(row) == obligation.context
+                and not all(audio_mode_supported(row, op) for op in ("shuffle", "repeat"))
+            ))
+        ):
+            return True
+        self._mode_recovery.pop(player, None)
+        self._requested_refresh.discard(player)
+        return False
+
+    def refresh_incomplete_modes(self, player_id: int, previous: AudioZoneMetadata | None) -> None:
+        """Read new modes after a sparse ordinary track change; never merge.
+
+        State stays unknown until the existing authenticated, revision-fenced
+        status read supplies new values. Explicit denial/malformed fields and
+        changed source/account/context, idle/event/stale data do not qualify.
+        """
+        row = self.get(player_id)
+        if (
+            player_id in self._mode_revoked
+            or previous is None or row is None or player_id not in self._playing
+            or row.source not in {"Spotify", "Local Library"}
+            or not row.event_idle or row.native_mode != "play"
+            or not previous.event_idle or previous.native_mode != "play"
+            or not previous.audio_path or not row.audio_path or previous.audio_path == row.audio_path
+            or previous.parent_id is None
+            or any(getattr(previous, name) != getattr(row, name)
+                   for name in ("player_id", "source", "source_name", "parent_id"))
+            or (row.source == "Spotify" and row.source_name is None)
+            or previous.received_at is None
+            or not 0 <= (utcnow() - previous.received_at).total_seconds() < _ACTIVE_SAMPLE_SECONDS
+            or any(key in row.mode_fields_present and getattr(row, name) is None
+                   for key, name in (("pbr", "playback_restrictions"), ("plshuffle", "shuffle"), ("plrepeat", "repeat")))
+            or ("pbr" in row.mode_fields_present and (row.playback_restrictions is None
+                or row.playback_restrictions & (2048 | 4096 | 8192) != (2048 | 4096 | 8192)))
+        ):
+            return
+        if any(
+            audio_mode_supported(previous, operation)
+            and not audio_mode_supported(row, operation)
+            and not {"pbr", key} <= row.mode_fields_present
+            for operation, key in (("shuffle", "plshuffle"), ("repeat", "plrepeat"))
+        ):
+            # A prior successful status read must not defer the next ordinary
+            # track's repair until its freshness deadline. Failed-read backoff
+            # and the shared serial read spacing still apply.
+            if player_id not in self._retry_delay:
+                self._retry_at.pop(player_id, None)
+            binding = self._bindings.get(player_id)
+            context = self._mode_context(row)
+            if binding is not None and context is not None and binding[2]():
+                if not self._mode_recovery_pending(player_id):
+                    self._mode_recovery[player_id] = _ModeRecovery(
+                        binding, binding[1](), context, binding[0].authentication_guard(),
+                        asyncio.get_running_loop().time(),
+                    )
+                self._requested_refresh.add(player_id)
+                self._check_freshness()
+
     def _schedule_check(self) -> None:
         """One entry-owned timer; no idle polling or permanently running helper."""
         if self._timer is not None:
@@ -181,8 +291,17 @@ class AudioMetadataCoordinator:
         loop = asyncio.get_running_loop()
         delays = []
         for player in self._playing:
+            self._mode_recovery_pending(player)
             remaining = self._remaining(player)
-            if remaining > 0:
+            if remaining > 0 and (
+                player not in self._requested_refresh
+                or (player in self._mode_recovery and player in self._retry_delay
+                    and self._mode_recovery[player].observed_at < self._retry_at.get(player, 0))
+            ):
+                # Fresh observations already invoke _check_freshness. After a
+                # failed mode read they are the retry trigger; do not poll a
+                # still-fresh sparse stream between those observations. A quiet
+                # stream keeps its ordinary freshness deadline as the fallback.
                 delays.append(remaining)
             elif player not in self._recoveries:
                 delays.append(
@@ -200,10 +319,19 @@ class AudioMetadataCoordinator:
         if self._create_task is None:
             return
         loop = asyncio.get_running_loop()
-        for player in tuple(self._playing):
-            if self._remaining(player) > 0:
+        # A fresh explicit omission must not sit behind every room whose
+        # ordinary content happens to expire together. All reads still share
+        # the same ownership, spacing and per-player failure backoff.
+        for player in sorted(self._playing, key=lambda p: p not in self._requested_refresh):
+            self._mode_recovery_pending(player)
+            remaining = self._remaining(player)
+            if remaining > 0 and player not in self._requested_refresh:
                 continue
-            if player not in self._stale:
+            obligation = self._mode_recovery.get(player)
+            if (remaining > 0 and obligation is not None and player in self._retry_delay
+                and obligation.observed_at < self._retry_at.get(player, 0)):
+                continue
+            if remaining <= 0 and player not in self._stale:
                 self._stale.add(player)
                 self._notify(player)
             binding = self._bindings.get(player)
@@ -217,19 +345,28 @@ class AudioMetadataCoordinator:
             if not binding[2]():
                 continue
             self._read_after = loop.time() + _READ_SPACING_SECONDS
+            obligation = self._mode_recovery.get(player)
+            if obligation is None:
+                self._requested_refresh.discard(player)
             self._recoveries[player] = self._create_task(
-                self._async_reconcile(player, binding)
+                self._async_reconcile(player, binding, obligation)
             )
         self._schedule_check()
 
-    async def _async_reconcile(self, player: int, binding: _RecoveryBinding) -> None:
+    async def _async_reconcile(
+        self, player: int, binding: _RecoveryBinding, obligation: _ModeRecovery | None = None,
+    ) -> None:
         """Read only, with host intent, receiver generation and sample fences."""
         commands, intent, available = binding
         generation = intent()
 
         def current() -> bool:
+            mode_current = obligation is None or (
+                self._mode_recovery.get(player) is obligation
+                and self._mode_recovery_pending(player)
+            )
             return bool(
-                self._create_task is not None
+                mode_current and self._create_task is not None
                 and self._bindings.get(player) is binding
                 and player in self._playing
                 and intent() == generation
@@ -339,6 +476,9 @@ class AudioMetadataCoordinator:
                     event_active=row.event_active,
                     shuffle=row.shuffle,
                     repeat={0: "off", 1: "all", 3: "one"}.get(row.repeat),
+                    playback_restrictions=row.playback_restrictions,
+                    capability_present="pbr" in row.mode_fields_present,
+                    capability_valid=row.playback_restrictions is not None,
                     seek_supported=bool(
                         row.playback_restrictions is not None
                         and row.playback_restrictions & 32
@@ -346,9 +486,20 @@ class AudioMetadataCoordinator:
                 )
         for row in updates:
             self._stale.discard(row.player_id)
+            owned = row.player_id in self._mode_recovery
+            if not self._mode_recovery_pending(row.player_id, row):
+                self._requested_refresh.discard(row.player_id)
+                if owned:
+                    self._mode_revoked.add(row.player_id)
+            elif row.has_observation:
+                self._mode_recovery[row.player_id].observed_at = asyncio.get_running_loop().time()
+        if not updates:
+            self._requested_refresh.clear()
+            self._mode_recovery.clear()
         player_ids = (
             {row.player_id for row in updates} if updates else set(self._listeners)
         )
         for player_id in player_ids:
             self._notify(player_id)
+        self._mode_revoked.clear()
         self._check_freshness()

@@ -34,11 +34,14 @@ async def async_send_announcement(  # noqa: PLR0913 - existing host signature
     data: bytes,
     duration: float,
     volume: int,
+    *,
+    is_available=None,
 ) -> None:
     """Delegate native ownership; lazily supply HA's existing HTTP session."""
     await async_send_prepared_announcement(
         lambda: aiohttp_client.async_get_clientsession(hass),
         commands, metadata, player_id, data, duration, volume,
+        is_available=is_available,
     )
 
 

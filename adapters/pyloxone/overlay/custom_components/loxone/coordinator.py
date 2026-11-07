@@ -57,6 +57,7 @@ class LoxoneCoordinator(DataUpdateCoordinator):
 
         self.api: LoxoneConnection | None = None
         self.audio_commands = None
+        self.audio_grouping = None
         self.audio_diagnostics = None
         self.miniserver: MiniServer | None = None
         self.listeners = []
@@ -89,6 +90,19 @@ class LoxoneCoordinator(DataUpdateCoordinator):
         must not break the live websocket path; the user just
         has to re-authenticate on the next restart.
         """
+        # The API updates its token before this callback. Observe synchronously,
+        # even if persistence fails or the token reverts before any media frame.
+        # Do not retain or log the value in this observation path.
+        if self.audio_commands is not None:
+            try:
+                self.audio_commands.observe_authentication()
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.warning("Audio authentication observation failed (%s)", type(err).__name__)
+        if self.audio_grouping is not None:
+            try:
+                self.audio_grouping.native.observe_current()
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.warning("Audio grouping token observation failed (%s)", type(err).__name__)
         try:
             new_data = {**self.config_entry.data, **token}
             # ``async_update_entry`` is the supported way to
@@ -104,7 +118,7 @@ class LoxoneCoordinator(DataUpdateCoordinator):
             )
         except Exception as e:
             _LOGGER.warning(
-                "Failed to persist updated token: %s", e, exc_info=True
+                "Failed to persist updated token (%s)", type(e).__name__
             )
 
     async def async_config_entry_first_refresh(self) -> None:
@@ -242,6 +256,11 @@ class LoxoneCoordinator(DataUpdateCoordinator):
 
 async def _async_close_audio_commands(coordinator: LoxoneCoordinator) -> None:
     """Close optional playback without preventing native API cleanup."""
+    if grouping := getattr(coordinator, "audio_grouping", None):
+        try:
+            await grouping.async_close()
+        finally:
+            coordinator.audio_grouping = None
     # Opt-in command connections must close before their token owner.
     if audio_commands := getattr(coordinator, "audio_commands", None):
         try:

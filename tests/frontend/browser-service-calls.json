@@ -1,0 +1,152 @@
+{
+  "provenance": "Actual complete compiled card Chromium calls; invented owning-HA exported states; service sink, replay separately through owning HA",
+  "source_sha256": "2eeb503df8b0a69b72a531a7961de102aa3ebe69276938e1ec1006d8072266d8",
+  "asset_sha256": "41419e9b32e2b40b99d7c71ef185d3ee21e46aed15a64b874f646359bcd44705",
+  "states_sha256": "5cc5c3f29ef933a7e1a87940976cf7fd6ac5fa4a68ef109e3cca6b9df6168717",
+  "calls": [
+    {
+      "domain": "media_player",
+      "service": "volume_set",
+      "data": {
+        "volume_level": 0.17
+      },
+      "target": {
+        "entity_id": "media_player.synthetic_speaker_2"
+      },
+      "groups": [
+        {
+          "id": "native",
+          "members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_2"
+          ]
+        }
+      ],
+      "mode": "immediate"
+    },
+    {
+      "domain": "media_player",
+      "service": "media_play",
+      "data": {},
+      "target": {
+        "entity_id": "media_player.synthetic_speaker_1"
+      },
+      "groups": [
+        {
+          "id": "native",
+          "members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_2"
+          ]
+        }
+      ],
+      "mode": "immediate"
+    },
+    {
+      "domain": "media_player",
+      "service": "join",
+      "data": {
+        "group_members": [
+          "media_player.synthetic_speaker_4"
+        ]
+      },
+      "target": {
+        "entity_id": "media_player.synthetic_speaker_3"
+      },
+      "groups": [
+        {
+          "id": "native",
+          "members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_2"
+          ]
+        }
+      ],
+      "mode": "defer"
+    },
+    {
+      "domain": "media_player",
+      "service": "volume_set",
+      "data": {
+        "volume_level": 0.23
+      },
+      "target": {
+        "entity_id": "media_player.synthetic_speaker_2"
+      },
+      "groups": [
+        {
+          "id": "native",
+          "members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ]
+        }
+      ],
+      "mode": "immediate"
+    },
+    {
+      "domain": "media_player",
+      "service": "join",
+      "data": {
+        "group_members": [
+          "media_player.synthetic_speaker_2"
+        ]
+      },
+      "target": {
+        "entity_id": "media_player.synthetic_speaker_3"
+      },
+      "groups": [
+        {
+          "id": "native",
+          "members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ]
+        }
+      ],
+      "mode": "reject"
+    },
+    {
+      "domain": "media_player",
+      "service": "unjoin",
+      "data": {},
+      "target": {
+        "entity_id": "media_player.synthetic_speaker_4"
+      },
+      "groups": [
+        {
+          "id": "native",
+          "members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ]
+        }
+      ],
+      "mode": "defer"
+    },
+    {
+      "domain": "media_player",
+      "service": "media_pause",
+      "data": {},
+      "target": {
+        "entity_id": "media_player.synthetic_speaker_1"
+      },
+      "groups": [
+        {
+          "id": "native",
+          "members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_3"
+          ]
+        }
+      ],
+      "mode": "immediate"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+// SPDX-License-Identifier: Apache-2.0
+// Narrow pinned-native binding: only the active Loxone More-info grouping button.
+import {project} from './group-manager.js';
+const SINGLETON=Symbol.for('pyloxone-audio.gm03.more-info');
+const validContext=(hass,instance)=>{
+  const id=instance?.stateObj?.entity_id,s=hass?.states?.[id],d=s?.attributes?.loxone_group_control;
+  return hass?.config?.version==='2026.10.4'&&hass?.connected!==false&&!!hass?.user?.id
+    &&instance?.isConnected&&instance.localName==='more-info-media_player'
+    &&project(hass,id)&&hass?.entities?.[id]?.platform==='loxone'&&d?.version===2&&Array.isArray(d.members)
+    &&d.members.includes(id)&&Array.isArray(d.candidates)&&d.members.every(i=>{
+      const other=hass.states[i]?.attributes?.loxone_group_control;
+      return hass.entities?.[i]?.platform==='loxone'&&other?.version===2&&other.owner===d.owner&&other.revision===d.revision;
+    })&&!['unknown','unavailable'].includes(s.state)?id:null;
+};
+function nativeTree(element,visit){
+  visit(element);
+  for(const child of element.children||[])nativeTree(child,visit);
+  if(element.shadowRoot)nativeTree(element.shadowRoot,visit);
+}
+export function installNativeMoreInfo(){
+  if(window[SINGLETON])return window[SINGLETON];
+  let root,binding,observers=[],scheduled=false,stopped=false;
+  const drop=()=>{if(binding)binding.instance.removeEventListener('click',binding.listener,true);binding=null;};
+  const reconcile=()=>{
+    scheduled=false;if(stopped)return;
+    const next=document.querySelector('home-assistant');
+    if(root!==next){drop();root=next;}
+    for(const o of observers)o.disconnect();observers=[];
+    if(!root?.isConnected||!root.shadowRoot)return;
+    const watch=target=>{const o=new MutationObserver(schedule);o.observe(target,{childList:true,subtree:true,attributes:true,attributeFilter:['disabled','open','class']});observers.push(o);};
+    watch(root.shadowRoot);
+    const dialog=root.shadowRoot.querySelector('ha-more-info-dialog');let instance;
+    if(dialog)nativeTree(dialog,el=>{if(el.shadowRoot)watch(el.shadowRoot);if(el.localName==='more-info-media_player')instance=el;});
+    const id=validContext(root.hass,instance),buttons=instance?.shadowRoot?.querySelectorAll('ha-icon-button#grouping-button');
+    const button=buttons?.length===1&&!buttons[0].disabled?buttons[0]:null;
+    if(!id||!button){drop();return;}
+    if(binding?.instance===instance&&binding.button===button&&binding.id===id)return;
+    drop();const current={instance,button,id};
+    current.listener=event=>{
+      const activeId=validContext(root?.hass,instance);
+      if(binding!==current||!activeId||!root?.isConnected
+        ||instance.shadowRoot?.querySelectorAll('ha-icon-button#grouping-button').length!==1
+        ||instance.shadowRoot.querySelector('#grouping-button')!==button||button.disabled||!event.composedPath().includes(button))return;
+      event.preventDefault();event.stopImmediatePropagation();
+      instance.dispatchEvent(new CustomEvent('show-dialog',{bubbles:true,composed:true,detail:{dialogTag:'loxone-group-manager-dialog',dialogImport:()=>Promise.resolve(),dialogParams:{entity:activeId}}}));
+    };
+    binding=current;instance.addEventListener('click',current.listener,true);
+  };
+  const schedule=()=>{if(!scheduled&&!stopped){scheduled=true;queueMicrotask(reconcile);}};
+  const start=()=>{stopped=false;reconcile();};
+  const stop=()=>{stopped=true;drop();for(const o of observers)o.disconnect();observers=[];};
+  const api={start,stop,dispose(){stop();window.removeEventListener('pagehide',stop);window.removeEventListener('pageshow',start);delete window[SINGLETON];},get binding(){return binding;}};window[SINGLETON]=api;
+  customElements.whenDefined('home-assistant').then(start);
+  window.addEventListener('pagehide',stop);window.addEventListener('pageshow',start);
+  return api;
+}
+
+export class LoxoneGroupManagerDialog extends HTMLElement {
+  constructor(){
+    super();this.attachShadow({mode:'open'});
+    this.shadowRoot.innerHTML='<ha-dialog><h2 slot="headerTitle">Audio groups</h2><loxone-group-manager></loxone-group-manager><ha-button slot="footer" data-action="close">Close</ha-button></ha-dialog>';
+    this._dialog=this.shadowRoot.querySelector('ha-dialog');this._manager=this.shadowRoot.querySelector('loxone-group-manager');
+    this.shadowRoot.querySelector('[data-action=close]').onclick=()=>this.closeDialog();
+    // Native Escape/header/scrim dismissal changes ha-dialog's internal state,
+    // not its public open input. Reconcile that input before HA caches/reuses us.
+    this._dialog.addEventListener('closed',()=>{this._open=false;this._dialog.open=false;this._manager._epoch++;this.dispatchEvent(new CustomEvent('dialog-closed',{detail:{dialog:this.localName},bubbles:true,composed:true}));});
+    // ha-dialog does not forward the HTML dialog's cancel event. Guard its
+    // actual owning dismissal paths, without changing native global behaviour.
+    this._dialog.addEventListener('keydown',e=>{if(this._manager._pending&&e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();}},true);
+    this._dialog.addEventListener('wa-hide',e=>{if(this._manager._pending&&e.composedPath()[0]===this._dialog.shadowRoot?.querySelector('wa-dialog'))e.preventDefault();},true);
+  }
+  set hass(hass){this._hass=hass;this._dialog.hass=hass;if(this._open)this._manager.hass=hass;}
+  get hass(){return this._hass;}
+  showDialog(params={}){this._entity=params.entity;this._open=true;this._manager._mode='overview';this._manager._selected.clear();this._manager.hass=this.hass;this._dialog.open=true;}
+  closeDialog(){if(this._manager._pending)return false;this._open=false;this._dialog.open=false;this._manager._epoch++;return true;}
+  disconnectedCallback(){this._manager._epoch++;this._manager._cancel?.(new Error('Dialog disconnected.'));this._open=false;this._dialog.open=false;}
+}
+if(!customElements.get('loxone-group-manager-dialog'))customElements.define('loxone-group-manager-dialog',LoxoneGroupManagerDialog);
+installNativeMoreInfo();

@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: Apache-2.0
+// Resource entrypoint: loads the More-info route even without a custom card.
+import './native-group-manager.js';
+export {project} from './group-manager.js';
+
+export class LoxoneGroupControlCard extends HTMLElement {
+  constructor(){
+    super();this.attachShadow({mode:'open'});
+    this.shadowRoot.innerHTML='<ha-card><ha-button data-action="open">Audio groups · Create Group</ha-button></ha-card>';
+    this.shadowRoot.querySelector('[data-action=open]').onclick=()=>this.open();
+  }
+  // Older entity/presentation fields are accepted as presentation metadata only.
+  // They never manufacture a group or a mandatory independent room.
+  setConfig(config){if(!config||typeof config!=='object')throw new Error('Card configuration required');this._config={...config};}
+  set hass(hass){this._hass=hass;this.shadowRoot.querySelector('ha-button').disabled=hass?.connected===false||!hass?.user?.id;}
+  get hass(){return this._hass;}
+  getCardSize(){return 1;}
+  static getStubConfig(){return {};}
+  open(){
+    if(!this.isConnected||this.hass?.connected===false||!this.hass?.user?.id)return;
+    this.dispatchEvent(new CustomEvent('show-dialog',{bubbles:true,composed:true,detail:{dialogTag:'loxone-group-manager-dialog',dialogImport:()=>Promise.resolve(),dialogParams:{}}}));
+  }
+}
+if(!customElements.get('loxone-group-control-card'))customElements.define('loxone-group-control-card',LoxoneGroupControlCard);
+window.customCards=window.customCards||[];
+if(!window.customCards.some(c=>c.type==='loxone-group-control-card'))window.customCards.push({type:'loxone-group-control-card',name:'Loxone audio groups',description:'Create and manage actual native groups; no fixed room required',preview:true});

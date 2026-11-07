@@ -78,7 +78,7 @@ async def test_upload_uses_exact_native_put_route_and_wav_bytes():
     await runner.setup()
     try:
         with tempfile.TemporaryDirectory(prefix="upload-", dir=os.environ.get("TMPDIR")) as directory:
-            path = str(Path(directory) / "http.sock")
+            path = "\0r1-upload-" + Path(directory).name
             await web.UnixSite(runner, path).start()
             async with ClientSession(connector=UnixConnector(path=path)) as session:
                 owner = wire.AudioServerCommands("audio.example.invalid", lambda: ("synthetic", "synthetic"))

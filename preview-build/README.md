@@ -1,232 +1,65 @@
-# Complete PyLoxone 0.10.2 / audio 0.1.2 preview
+# Sebastian: install or upgrade the audio preview
 
-This installation-tool and documentation refresh fixes stock HACS recognition.
-Component files and the exact `PyLoxone-Audio==0.1.2` installation pin remain
-unchanged. The separately named ZIP refreshes shipping documentation/provenance;
-original release ZIPs remain unchanged. Existing working audio installations need
-no update or restart for this installer correction.
+**Library 0.1.3 · reference adapter 0.10.3.dev18 · frontend r10.** The manifest pins the public `PyLoxone-Audio==0.1.3` package. It was checked with HA Core 2026.11.0 / Python 3.14.10. The library needs Python >=3.14; the guarded installer needs Linux with atomic rename support.
 
-## Start here: status and installation unit
+Download and extract the **[0.1.3 installation bundle](https://github.com/davehocking/PyLoxone-Audio/releases/download/v0.1.3/PyLoxone-Audio-0.1.3-install.zip)**, then work from its top-level folder. It includes the preview ZIP, `preview.py`, `PROVENANCE.json`, `SHA256SUMS` and frontend file. Developer source/tests are a separate optional download; you do not need a Docker image to install it.
 
-This matched **0.1.2 reference preview** addresses stale track/artwork/timing while
-native playback continues. Use the matching complete
-`PyLoxone-0.10.2-audio-0.1.2-hacs-install-preview.zip`, provenance, checksums and
-tooling from this revision. **Both the library and adapter are needed.** A wheel
-alone cannot wire independent PLAYING feedback or clear stale HA attributes.
+## Before changing anything
 
-Base: released PyLoxone **0.10.2**, commit
-`3db77b81f69c77cc814675d191061533b464df5e`, with normal requirement
-**`PyLoxone-Audio==0.1.2`**, Python **>=3.14**. Independent runtime engineering
-review used Python 3.14.7 / HA 2026.9.1. The accepted pair is installed locally
-(Core 2026.10.4 / Python 3.14.9) for normal-use testing. This new documentation/
-package successor preserves runtime bytes and passed release-preparation review.
-Verify hosted CI/public-index acceptance separately; sustained live recovery and
-all-room sound/UI are not certified by those checks.
+- Make a full Home Assistant backup, download a copy elsewhere and confirm how to restore it. Keep the previous matching library wheel and frontend file/registration if you used a private build.
+- Keep your existing Loxone entry and entities; do not delete/re-add them. Pause automatic integration updates while trying the preview.
+- Stop Core normally before replacing files. No Audio Server or Miniserver restart is needed.
 
-Retained 0.1.1/earlier 0.1.2 ZIPs are unchanged historical snapshots, not the
-current preview. Their embedded offline statuses describe their build time;
-never install them with this revision's provenance/tooling. No further household
-update is needed merely for this documentation/package successor. See [release notes](../RELEASE-NOTES-0.1.2.md).
+The installer accepts a fresh installation, exact stock PyLoxone 0.10.3 with or without its three hash-pinned packaged test files, this exact preview, or the previously supplied 0.1.2 docs-post1 preview. It backs up and restores the complete recognised layout, including packaged tests. Other edited, partial or extra-file layouts are refused. If refused, keep the original files and ask for a matching upgrade route; do not delete files to force it.
 
-**Before normal external installation, verify the exact package and matching
-release have passed the public-index production gate.** Local
-exact-wheel and named-pin tests are not a public resolver or HAOS install proof.
-Do not patch Core, suppress requirement processing, inject a wheel into a live
-interpreter, or substitute 0.1.1 for the 0.1.2 pin. No second integration/login,
-HA Spotify bridge, custom card or frontend override is required.
+<a id="public-dependency"></a>
 
-### Required setup
+## Install or upgrade
 
-In the existing Loxone entry, set **Audioserver host** and enable **Use Audio
-Server player play/pause (experimental; off by default)**
-(`audioserver_playback: true`). Despite its narrow label this creates the native
-client for active status reconciliation, Browse/Search, source selection/return,
-play/pause, seeking, native modes and announcements. This candidate does not
-change that option, its default or saved settings. With the option OFF, metadata
-remains passive: expired active attributes become unknown, without status reads.
-**Audio diagnostics** is a separate optional troubleshooting switch, not a
-prerequisite for playback/recovery.
+1. Home Assistant Core needs access to PyPI to resolve the manifest's exact `PyLoxone-Audio==0.1.3` requirement and its dependencies. No private wheel placement or manual pip install is needed. Do not install into an add-on or substitute a different package build.
 
-Read [metadata freshness](../METADATA-FRESHNESS.md) for policy and evidence limits,
-[diagnostics](../DIAGNOSTICS.md) for sanitised reports, and the
-[maintainer checklist](../adapters/pyloxone/jo-review/README.md) for adoption.
-
-## Contents and reproducibility
-
-- The new 0.1.2 ZIP contains complete `custom_components/loxone`, licences/notices,
-  contributor notes and embedded `PREVIEW.json`; no household configuration,
-  registries, tests, private captures or access scripts.
-- `PROVENANCE.json` pins base/overlay/library and every shipping member.
-  `SHA256SUMS` covers the new ZIP and companion files. Obtain matching trusted
-  files: checksums do not authenticate an untrusted download.
-- `preview.py` retains the stdlib-only guarded builder/installer, now recognising
-  both exact stock layouts described below. It never
-  installs packages, runs HA, contacts devices or edits config/registries.
-- The retained 0.1.1 ZIP is **historical only** and its bytes are unchanged. Its
-  original provenance/tooling belongs to the 0.1.1 release, not this successor's
-  current `PROVENANCE.json`. Never verify/install it using this successor's tool.
-
-From the repository root, using the exact unmodified extracted upstream base:
+2. Replace `<ZIP-SHA256>` below with the preview ZIP's value in `preview-build/SHA256SUMS`, and set your stopped config/backup paths. Use a new backup directory outside the configuration:
 
 ```sh
-python preview-build/preview.py build --upstream /path/to/exact-0.10.2 --output /path/to/new-preview.zip
-python preview-build/preview.py verify --archive /path/to/new-preview.zip --sha256 <verified-sha256>
+python preview-build/preview.py verify --archive preview-build/PyLoxone-0.10.3.dev18-audio-0.1.3-preview.zip --sha256 <ZIP-SHA256>
+python preview-build/preview.py install --archive preview-build/PyLoxone-0.10.3.dev18-audio-0.1.3-preview.zip --sha256 <ZIP-SHA256> --config /path/to/stopped/config --backup /path/outside/config/new-component-backup
 ```
 
-Outputs must not exist. The builder refuses dirty/extra/missing/symlinked inputs
-or mismatched documentation hashes. The full preview is excluded from Python
-wheel/sdist; it is not an evergreen overlay for a newer upstream version.
+The helper replaces the complete component and keeps a component backup. It does not install Python dependencies, configure HA or install the frontend. Keep any reported `.loxone-recovery-*` directories if it fails; do not retry blindly.
 
-## Backup, install and update (only when separately authorised)
+## Frontend
 
-1. Meet the dependency prerequisite above. Record exact HA/Python/base/library,
-   ZIP checksum, existing IDs/areas/options/source lists privately. Make a full
-   supported HA backup, keep a copy elsewhere, and retain the previous matching
-   library environment/wheel and component tooling.
-2. Stop HA through its supported controls; quiesce editors and updates. Retain
-   the existing `loxone` config entry, credentials, entities and settings. Do not
-   delete/re-add the integration or reset `.storage`/registries.
-3. On Linux with Python and filesystem access to that **stopped** config:
+Copy `preview-build/frontend/group-control-card-0.1.3.dev12-owner-r10.js` to `/config/www/pyloxone-audio/group-control-card-0.1.3.dev12-owner-r10.js`. The dev12 filename is historical; r10 is correct for this build.
 
-```sh
-python preview-build/preview.py install --archive preview-build/PyLoxone-0.10.2-audio-0.1.2-hacs-install-preview.zip --sha256 <verified-sha256> --config /path/to/stopped/config --backup /path/outside/config/new-component-backup
+Merge this into your existing configuration, preserving other frontend settings:
+
+```yaml
+frontend:
+  extra_module_url:
+    - /local/pyloxone-audio/group-control-card-0.1.3.dev12-owner-r10.js
 ```
 
-The tool accepts an absent component, exact stock 0.10.2 **with or without its
-three packaged API test files**, the **exact published 0.1.1 predecessor** pinned in this provenance, or
-this exact 0.1.2 candidate. It refuses other/dirty trees rather than destroying
-local changes. It no longer labels the older 0.1.0 tree as this build's immediate
-predecessor; reconcile unknown versions against their own backup/tooling.
+Keep an already-working r10 registration rather than adding it twice. A dashboard resource alone does not load it for every native Home/area panel. Keep wheels, backups and diagnostic files out of `www`.
 
-### Stock HACS installations: no manual test-file removal
+## Start and try it
 
-Stock PyLoxone 0.10.2 installed through HACS may include these upstream files:
+1. Run the normal configuration check (`ha core check` on HAOS), then start Core normally (`ha core start`). If the check fails, keep the error and recover rather than bypassing it.
+2. Use your existing Loxone entry. On a fresh installation only, add Loxone once through **Settings > Devices & services**.
+3. In the entry's configuration/options set **Audioserver host**, enable **Use Audio Server player play/pause (experimental; off by default)** (`audioserver_playback: true`) and save. This enables the other enhanced audio controls too. Keep your other options and diagnostics preference. No separate Spotify login/integration is needed.
+4. Check your room players are still available with their usual identities/settings. Refresh the browser, open a player's expanded controls and check **Join** opens **Audio groups**. If controls look old, refresh the frontend cache before restarting the backend again.
 
-- `pyloxone_api/tests/__init__.py`
-- `pyloxone_api/tests/test_discover.py`
-- `pyloxone_api/tests/test_run_alone.py`
+Use the [short user guide](../USER-GUIDE.md) to try the features you use in a suitable room/time. There is no mandatory full regression checklist: useful feedback is what you tried, what you expected and what you heard/saw. If something fails, [collect a diagnostic report](../DIAGNOSTICS.md). Group edits can interrupt sound; previous-source bookmarks can be lost across a restart.
 
-Their paths are relative to `custom_components/loxone/`. Older preview installers
-mistook this stock layout for an **Unrecognised/dirty existing component**.
-Use this revision's matching installer, ZIP, provenance and checksums instead of
-deleting or moving those files yourself. The installer checks the exact pinned
-upstream filenames and hashes; it does **not** blindly ignore the tests folder.
-All three original files are included in the component backup and restored on
-rollback. The installed audio preview still excludes upstream tests.
-Additional, modified, partially missing or symlinked files remain a refusal:
-preserve the installation and compare it with its exact supported base rather
-than bypassing the check. Keep the matching older tooling for older backups;
-do not mix installer/provenance/ZIP revisions.
+## Roll back if needed
 
-The external backup records exact before/after inventories. Displaced originals
-remain in reported `.loxone-recovery-*` directories, including late editor writes.
-Symlinked roots/members/receipts, unsupported entries, unreadable enumeration,
-modified receipts and concurrent target changes fail closed. Atomic no-clobber
-replacement requires Linux libc `renameat2` and filesystem `RENAME_NOREPLACE`;
-other OS/filesystems are not verified. If any operation fails, inspect the
-reported recovery folder and backup; do not retry blindly or delete originals.
-
-4. Start HA normally, allowing its normal dependency handling. Verify the actual
-   Core interpreter's package version/path, loaded entry and unchanged IDs/options;
-   an add-on/interpreter import is not equivalent. Existing installations retain
-   the existing entry; new installations add Loxone once through normal setup.
-5. Verify the **Required setup** options above before enhanced-feature checks.
-   Preserve exact room/account/player identities and volume limits. HA Spotify is
-   neither needed nor consulted; do not remove an unrelated Spotify integration.
-
-HACS/automatic PyLoxone updates can overwrite the preview; the host version stays
-0.10.2, so version text alone does not prove adapter identity. Keep checksums and
-backups. Never reapply an old whole-file overlay over newer upstream changes.
-
-## Rollback
-
-Stop HA. Use this same verified tooling and the exact backup created above:
+Stop Core. With the same unchanged installation and component backup:
 
 ```sh
 python preview-build/preview.py rollback --config /path/to/stopped/config --backup /path/outside/config/new-component-backup
 ```
 
-Rollback refuses intervening edits/changed receipts. It restores the exact prior
-component or removes a component originally absent; it does **not** restore Python
-dependencies, package caches or config entries. Restore the previous compatible
-library through that runtime's supported mechanism, or the full HA backup where
-needed. Restart normally and verify entry/IDs/settings/logs. Keep displaced trees
-and recovery folders through acceptance; inspect/archive them deliberately, never
-merge them into the active component. Filesystem tests are not HAOS restore proof.
+That reverses **component files only**. Restore the previous matching library through HA's normal dependency route and the previous frontend file/registration too. Keep the wheel required by any retained private manifest. If the previous native state is uncertain, use the full HA backup rather than copying Python packages or `.storage` files by hand. Do not force a refusal from changed files/backups.
 
-## Offline checks and isolated library tests
+Check configuration, start normally and refresh the browser. Confirm the previous players and controls are back. Automatic PyLoxone updates can overwrite the preview; do not reapply these full files over a different upstream version.
 
-In an already provisioned Python 3.14 test environment, outside any live appliance:
-
-```sh
-python -m pip install --no-deps --no-compile --target /path/to/new-installed /path/to/pyloxone_audio-0.1.2-py3-none-any.whl
-python tools/test_project.py library --library-root /path/to/new-installed --work-dir /path/to/new-library-check
-python tools/test_project.py adapter --library-root /path/to/new-installed --host-base /path/to/exact-0.10.2 --work-dir /path/to/new-adapter-check
-PREVIEW_TEST_UPSTREAM=/path/to/exact-0.10.2 PREVIEW_TEST_PREDECESSOR=/path/to/published-0.1.1-preview.zip PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -c /dev/null -q -p no:cacheprovider checks
-```
-
-`--no-deps` is ONLY for provisioned isolated test targets, never live HA startup.
-For normal isolated dependency resolution, use the matching local distribution
-with its declared dependencies and retain resolver/import receipts; neither this
-nor a public package's older receipt proves the 0.1.2 public pin.
-Canonical runners block external sockets, verify actual owning imports, preserve
-warning gates and record full case identities/input hashes. Use fresh outputs.
-
-## Independent tester feedback: 0.1.1
-
-[Sebastian's 30 October 2026 report](https://github.com/JoDehli/PyLoxone/issues/523#issuecomment-6523457142)
-covered the **0.1.1** complete preview on HAOS / Core 2026.10.4 / Python 3.14.9,
-with an Audio Server and 14 configured zones. He tested remotely and then by ear;
-this is independent real-installation feedback, not certification of every zone,
-firmware or later 0.1.2/development feature.
-
-- He reports successful Browse/Search, source switching, audible same-track Spotify
-  saved-position return, seek, Repeat, Next/Pause, unchanged volume and complete
-  announcements without a clipped first syllable. HA resolved the pinned library
-  from PyPI automatically; no manual package installation was needed.
-- **Announcement volume:** his tests used the room's current volume, not Loxone's
-  separately configured TTS/night-reduction volume. Check the target room level
-  before testing; do not assume a Loxone TTS night setting limits HA announcements.
-  This installer correction does not change announcement or volume behaviour.
-- He observed missing room-favourite artwork and one initial optional-position
-  restore failure which did not recur. Neither is claimed fixed by this installer
-  correction; keep expected/observed content and position separate in reports.
-- He saw a media-player setup warning taking over ten seconds, but the integration
-  loaded. Retain timing/logs if startup remains slow; the warning alone was not a
-  failed installation in his test.
-- The Miniserver firmware changed during his test period. Record Miniserver and
-  Audio Server versions separately; do not attribute the non-recurrence of a
-  problem to that update without a controlled comparison.
-
-His additional SMB/delayed-file observations are reference findings, not a reason
-to change this preview's already working HTTP announcement upload path. An event
-broadcast to every player must still be distinguished from playback on its target.
-
-## Owner-operated acceptance and remaining limits (not auto-run)
-
-Within a separately authorised room/volume scope, verify setup options first.
-Observe normal playback past a track change while PLAYING remains unchanged, then
-an ordinary overnight/long-pause wake. HA should show current title/source/time or
-honest unknown values, not an indefinitely advancing old track. Recovery must not
-start music, select media, seek, alter volume/modes or replace a good bookmark.
-Observe current-track recovery separately from physical sound and native UI.
-
-Also check source/Browse/search, exact-track return/optional position, play/pause,
-normal volume and native modes retain established behaviour. Use standard native
-HA controls, not a custom card. Bookmarks remain RAM-only; queue, persistent modes,
-restart continuity and every-room/firmware compatibility are not guaranteed.
-
-For a report, optionally enable **Audio diagnostics**, reproduce normal actions,
-download diagnostics, then disable it and check preference/coverage health.
-Default OFF; no automatic upload. Review the entire HA envelope and remove tokens,
-URLs, household IDs/accounts/titles/IPs and private configuration. Include exact
-ZIP/library/base/HA/Python versions, timestamps/timezone, expected/observed track
-and timing, reload/cleanup and audible/UI outcomes separately. Offline success is
-not physical acceptance or permission to actuate another room, deploy or publish.
-
-A return without a qualified saved session can choose different content. A
-temporary loss of native seek support during authentication can skip the optional
-position send even after the right track returns. One later same-track/saved-
-position return with shuffle ON worked locally, but is not blanket acceptance.
-Record those outcomes separately from current-track freshness. No firmware,
-shuffle or version-regression cause is established; see [known issues](../KNOWN-ISSUES.md).
+[User guide](../USER-GUIDE.md) · [Automation](../AUTOMATION-GROUPING.md) · [Report a problem](../DIAGNOSTICS.md)

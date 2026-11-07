@@ -534,7 +534,7 @@ async def async_setup_entry(hass, config_entry):
     hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = coordinator
 
     # Local opt-in evidence belongs to this existing entry, not another setup.
-    from .audio_diagnostics import EntryAudioDiagnostics
+    from .audio_diagnostics import EntryAudioDiagnostics, async_diagnostic_dispatch
     coordinator.audio_diagnostics = EntryAudioDiagnostics(
         hass, config_entry, coordinator.miniserver.lox_config.json)
     await coordinator.audio_diagnostics.async_start()
@@ -659,7 +659,9 @@ async def async_setup_entry(hass, config_entry):
             _schedule_reload(UNEXPECTED_FAILURE_RELOAD_DELAY)
 
     async def message_callback(message):
-        """Fire message on HomeAssistant Bus."""
+        """Feed entry-owned native group state before the ordinary HA event bus."""
+        if grouping := getattr(coordinator, "audio_grouping", None):
+            grouping.observe(message)
         try:
             if coordinator.audio_diagnostics is not None and coordinator.audio_diagnostics.enabled:
                 coordinator.audio_diagnostics.miniserver_feedback(message)
@@ -843,6 +845,8 @@ async def async_setup_entry(hass, config_entry):
         the change would only be written with the next value update.
         """
         coordinator.connection_available = state == "connected"
+        if grouping := getattr(coordinator, "audio_grouping", None):
+            grouping.connection_state(state)
         _LOGGER.debug("Loxone connection state: %s", state)
         # Every loaded LoxoneEntity of this entry rewrites its state (see
         # ``LoxoneEntity.async_added_to_hass``). Previously one
@@ -904,10 +908,15 @@ async def async_setup_entry(hass, config_entry):
                 if device_uuid is None:
                     device_uuid = DEFAULT
 
-                _send_in_background(
-                    device_uuid,
-                    coordinator.api.send_websocket_command(device_uuid, value),
+                operation = event.data.get("_audio_diagnostic_operation")
+                send = (
+                    async_diagnostic_dispatch(
+                        coordinator.api.send_websocket_command, operation, device_uuid, value
+                    )
+                    if operation is not None and coordinator.audio_diagnostics.enabled
+                    else coordinator.api.send_websocket_command(device_uuid, value)
                 )
+                _send_in_background(device_uuid, send)
 
             elif event.event_type == SECUREDSENDDOMAIN and isinstance(event.data, dict):
                 value = event.data.get(ATTR_VALUE, DEFAULT)

@@ -94,6 +94,11 @@
     }
   },
   "services": {
+    "audio_room_transport": {
+      "name": "Eén audioruimte afspelen of pauzeren",
+      "description": "Hervat of pauzeert alleen de geselecteerde ruimte, ook in een dynamische groep. Wijzigt geen groepslidmaatschap, volume of bron. De standaard afspeel-/pauzebediening bestuurt de hele groep.",
+      "fields": {"action": {"name": "Actie", "description": "Hervat de huidige sessie (play) of pauzeer alleen deze ruimte (pause)."}}
+    },
     "reload": {
       "name": "PyLoxone herladen",
       "description": "Herlaadt de Loxone-integratie door opnieuw verbinding te maken met de Miniserver en alle entiteiten bij te werken. Dit is handig na configuratiewijzigingen in Loxone Config of bij verbindingsproblemen. Alle huidige entiteitstatussen worden opnieuw gesynchroniseerd vanaf de Miniserver."
@@ -172,6 +177,9 @@
     }
   },
   "exceptions": {
+    "audioserver_grouping_unavailable": {"message": "Groeperen is niet beschikbaar. Wacht op de actuele groepsstatus en kies ondersteunde kamers uit deze Loxone-configuratie."},
+    "audioserver_grouping_failed": {"message": "De groepswijziging is niet bevestigd. Controleer de huidige groepen voordat u het opnieuw probeert."},
+    "audioserver_grouping_busy": {"message": "Voor deze kamer wordt een groep gewijzigd. Wacht tot dit klaar is."},
     "audioserver_announcement_unavailable": {
       "message": "Audio Server-meldingen zijn niet beschikbaar of een eerdere aanvraag is nog onopgelost. Er is geen nieuwe melding verzonden."
     },

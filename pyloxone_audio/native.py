@@ -16,16 +16,18 @@ import json
 import logging
 import re
 from contextlib import suppress
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from enum import IntEnum
 from http import HTTPStatus
 from inspect import signature
 from ipaddress import IPv6Address, ip_address
 from math import isfinite
+from time import monotonic
 from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 from uuid import uuid4
+from weakref import WeakSet
 
 from .diagnostic_events import diagnostic_event, diagnostics_enabled
 
@@ -162,6 +164,8 @@ class AudioZoneMetadata:
     shuffle: bool | None = None
     repeat: AudioRepeatMode | None = None
     shuffle_switch_supported: bool | None = None
+    # Explicit null/invalid/zero is not an omitted native mode field.
+    mode_fields_present: frozenset[str] = field(default_factory=frozenset, repr=False, compare=False)
 
     @property
     def has_observation(self) -> bool:
@@ -355,6 +359,7 @@ def parse_audio_events(payload: object) -> tuple[AudioZoneMetadata, ...]:
                 playback_restrictions=(row["pbr"] if type(row.get("pbr")) is int and row["pbr"] >= 0 else None),
                 shuffle=_shuffle(row.get("plshuffle")) if not is_event else None,
                 repeat=_repeat(row.get("plrepeat")) if not is_event else None,
+                mode_fields_present=frozenset(key for key in ("pbr", "plshuffle", "plrepeat") if key in row),
             ),
         )
     return tuple(updates)
@@ -387,7 +392,38 @@ class AudioServerCommands:
         self.diagnostics = diagnostics
         self.announcement_fences: dict[int, Callable[[], None]] = {}
         self.source_fences: dict[int, Callable[[], None]] = {}
+        self.source_fence_owners: dict[int, tuple[Callable[[], None], asyncio.Task | None]] = {}
         self.source_observations: dict[int, asyncio.Future[None]] = {}
+        self._authentication_guards: WeakSet[Callable[[], bool]] = WeakSet()
+
+    def authentication_guard(self) -> Callable[[], bool]:
+        """Fence a bounded read obligation to this authentication lifetime.
+
+        The owner publishes token changes synchronously via
+        observe_authentication, including while recovery waits for the lock.
+        Weak observation lasts only as long as the obligation retains its guard;
+        the registry itself retains no credentials or completed obligations.
+        """
+        credentials = self._credentials()
+        valid = True
+
+        def current() -> bool:
+            nonlocal valid
+            try:
+                valid = bool(valid and not self._closed and self._credentials() == credentials)
+            except Exception:  # noqa: BLE001
+                # An unavailable provider revokes this obligation. Never expose
+                # potentially credential-bearing exception text or revive it.
+                valid = False
+            return valid
+
+        self._authentication_guards.add(current)
+        return current
+
+    def observe_authentication(self) -> None:
+        """Latch published revocation without retaining token publication data."""
+        for current in tuple(self._authentication_guards):
+            current()
 
     async def async_close(self) -> None:
         """Reject queued/future requests and close an in-flight owned socket."""
@@ -399,12 +435,90 @@ class AudioServerCommands:
 
     async def async_execute(
         self, player_id: object, action: str, *, is_current: Callable[[], bool] | None = None,
+        on_send: Callable[[], None] | None = None, guard_cleanup: bool = False,
     ) -> None:
-        """Send one exact-player play/pause and require a literal true reply."""
+        """Send one exact-player action; optionally fence through socket cleanup.
+
+        Existing callers retain their established applicability behaviour. The
+        shared room/group owner opts into cleanup fencing and send accounting.
+        """
         command, reply_key = audio_control_command(player_id, action)
-        if await self._async_request(command, reply_key, is_current=is_current) is not True:
+        credentials = self._credentials() if guard_cleanup else None
+        valid = True
+
+        def applicable() -> bool:
+            nonlocal valid
+            valid = bool(valid and not self._closed and self._credentials() == credentials
+                         and (is_current is None or is_current()))
+            return valid
+
+        options: dict[str, Any] = {"is_current": applicable if guard_cleanup else is_current}
+        if guard_cleanup:
+            # The new room route requires an unambiguous ACK, including error
+            # fields. Preserve the parser contract of existing ordinary callers.
+            options["strict_reply"] = True
+        if on_send is not None:
+            options["on_send"] = on_send
+        reply = await self._async_request(command, reply_key, **options)
+        if guard_cleanup and not applicable():
+            raise AudioCommandError("Room transport changed during socket cleanup")
+        if reply is not True:
             message = "Audio playback command was not acknowledged"
             raise AudioCommandError(message)
+
+    async def async_update_group(self, group_id, members, *, is_current, on_send=None):
+        """Send one typed group-ID update; authoritative state is a separate feed."""
+        from .grouping import group_id_segment
+
+        if (group_id is not None and not group_id_segment(group_id)) or (
+            not isinstance(members, tuple) or len(members) > 256 or len(members) == 1
+            or (group_id is None and not members)
+            or any(type(player) is not int or player <= 0 for player in members)
+            or len(set(members)) != len(members)
+        ):
+            raise ValueError("Native grouping requires an exact group ID and ordered unique numeric players")
+        segment = "new" if group_id is None else group_id
+        route = f"audio/cfg/dgroup/update/{segment}"
+        if members:
+            route += "/" + ",".join(str(player) for player in members)
+        reply = await self._async_request(route, "dgroup_update_result", is_current=is_current, on_send=on_send)
+        result = reply.get("id") if isinstance(reply, dict) else None
+        if not group_id_segment(result) or (group_id is not None and result != group_id):
+            raise AudioCommandError("Native group update was not acknowledged with the exact group ID")
+        return result
+
+    async def async_group_transport(self, members, action, *, is_current, on_send=None):
+        """One native participant-list transport; never a group ID or volume route."""
+        if (
+            action not in ("play", "pause")
+            or not isinstance(members, tuple) or not 2 <= len(members) <= 256
+            or any(type(p) is not int or not 0 < p <= 2**31 - 1 for p in members)
+            or len(set(members)) != len(members)
+        ):
+            raise ValueError("Grouped transport requires bounded unique player IDs")
+        credentials = self._credentials()
+        reply = await self._async_request(
+            f"audio/grouped/{action}/" + ",".join(map(str, members)),
+            f"grouped_{action}_result", is_current=is_current, on_send=on_send,
+        )
+        if self._closed or self._credentials() != credentials or not is_current():
+            raise AudioCommandError("Grouped transport changed during socket cleanup")
+        rows = reply.get("players") if isinstance(reply, dict) else None
+        if (
+            not isinstance(reply, dict) or set(reply) != {"players"}
+            or not isinstance(rows, list) or len(rows) != len(members)
+            or any(
+                not isinstance(row, dict)
+                or set(row) != {"playerid", "mode"}
+                or type(row["playerid"]) is not int
+                or not 0 < row["playerid"] <= 2**31 - 1
+                or row["mode"] != action
+                for row in rows
+            )
+            or len({row["playerid"] for row in rows}) != len(members)
+            or {row["playerid"] for row in rows} != set(members)
+        ):
+            raise AudioCommandError("Grouped transport reply did not confirm every exact participant")
 
     async def async_set_shuffle(
         self, player_id: object, shuffle: bool, *, is_current: Callable[[], bool],
@@ -572,7 +686,7 @@ class AudioServerCommands:
             message = "Player status requires an exact player"
             raise ValueError(message)
         credentials = self._credentials()
-        payload = await self._async_request(f"audio/{target}/status", "status_result", is_current=is_current)
+        payload = await self._async_request(f"audio/{target}/status", "status_result", is_current=is_current, strict_reply=True)
         if not is_current() or self._credentials() != credentials:
             raise AudioCommandError("Native player status authentication or intent changed")
         rows = [payload] if isinstance(payload, dict) else payload
@@ -929,16 +1043,38 @@ class AudioServerCommands:
         search_scopes: tuple[str, ...] | None = None,
         spotify_account: str | None = None,
         require_shuffle_switch: bool = False,
+        strict_reply: bool = False,
     ) -> Any:
         """Share the existing single-send authentication and ownership boundary."""
         owned_socket = None
         observer = self.diagnostics
-        diagnostic_id = uuid4().hex if diagnostics_enabled(observer) else None
+        observing = diagnostics_enabled(observer)
+        diagnostic_id = uuid4().hex if observing else None
+        diagnostic_start = monotonic() if observing else None
+        diagnostic_outcome = "error"
+        parts = command.split("/", 5) if observing else []
+        action = parts[2] if len(parts) > 2 else ""
+        request_kind = (
+            "announcement" if parts[1:3] == ["grouped", "playuploadedfile"] else
+            "group_transport" if parts[1:2] == ["grouped"] else
+            "group_change" if parts[1:3] == ["cfg", "dgroup"] and parts[3:4] == ["update"] else
+            "search" if parts[1:3] == ["cfg", "globalsearch"] else
+            "browse" if parts[1:2] == ["cfg"] and action in {"getservices", "getradios", "getroomfavs", "getinputs", "getmediafolder", "getservicefolder"} else
+            "source_start" if action in {"serviceplay", "library", "playpath", "linein", "roomfav"} else
+            "seek" if action == "position" else
+            "status" if action in {"getstatus", "status"} else
+            "mode" if action in {"shuffle", "repeat"} else
+            "transport" if action in {"play", "pause", "stop", "next", "prev", "volume"} else
+            "other"
+        )
+        source = "library" if action == "library" else parts[3] if action == "serviceplay" and len(parts) > 3 else None
 
         def record(stage: str, **fields: Any) -> None:
             if diagnostics_enabled(observer):
                 diagnostic_event(observer, stage, transport="audio_server", route=command,
-                                 request_id=diagnostic_id, **fields)
+                                 request_id=diagnostic_id, request_kind=request_kind, source=source, operation=action,
+                                 elapsed_ms=(monotonic() - diagnostic_start) * 1000 if diagnostic_start is not None else None,
+                                 **fields)
 
         if diagnostics_enabled(observer):
             record("request")
@@ -946,9 +1082,9 @@ class AudioServerCommands:
             # Status reconciliation must not cross authentication changes while
             # waiting for the existing shared lock or handshake. Other native
             # routes retain their established transport/ownership behaviour.
-            status_credentials = self._credentials() if reply_key == "status_result" else None
+            status_credentials = self._credentials() if reply_key in ("status_result", "dgroup_update_result", "grouped_play_result", "grouped_pause_result") else None
             async with asyncio.timeout(self._timeout), self._lock:
-
+                record("lock_acquired")
                 if self._closed:
                     message = "Audio playback connection is closed"
                     raise AudioCommandError(message)
@@ -966,6 +1102,7 @@ class AudioServerCommands:
                     **_DIRECT_CONNECT,
                 ) as socket:
                     owned_socket = self._socket = socket
+                    record("connection_opened")
                     if self._closed:
                         message = "Audio playback connection is closed"
                         raise AudioCommandError(message)
@@ -996,7 +1133,7 @@ class AudioServerCommands:
                     elif reply_key == "globalsearch_result" and not command.endswith("/describe"):
                         result = await self._radio_search_reply(socket)
                     elif reply_key is not None:
-                        result = await self._reply(socket, reply_key)
+                        result = await self._reply(socket, reply_key, strict=strict_reply)
                     else:
                         result = None
                     # Native source results are optional, not the BaseResponse
@@ -1009,24 +1146,39 @@ class AudioServerCommands:
                             record("reply" if proof == "echo" else "source_confirmed")
                     elif diagnostics_enabled(observer):
                         record("reply")
+                    if reply_key in ("grouped_play_result", "grouped_pause_result") and (
+                        self._closed or self._credentials() != status_credentials
+                        or (is_current is not None and not is_current())
+                    ):
+                        raise AudioCommandError("Grouped transport was superseded after dispatch")
+                    diagnostic_outcome = "returned"
                     return result
         except asyncio.CancelledError:
+            diagnostic_outcome = "cancelled"
             if diagnostics_enabled(observer):
                 record("cancelled")
             raise
         except AudioCommandError:
+            diagnostic_outcome = "error"
             if diagnostics_enabled(observer):
                 record("error", reason="rejected")
             raise
         except (OSError, WebSocketException, TimeoutError, ValueError, TypeError, KeyError, IndexError) as err:  # fmt: skip
+            diagnostic_outcome = "timeout" if isinstance(err, TimeoutError) else "error"
             if diagnostics_enabled(observer):
                 record("timeout" if isinstance(err, TimeoutError) else "error", reason="transport_failed")
             # Neither native errors nor authentication envelopes may reach logs.
             message = "Audio playback failed; no fallback or automatic retry was sent"
             raise AudioCommandError(message) from None
+        except BaseException:
+            diagnostic_outcome = "error"
+            # Observe unexpected cleanup failures, preserving original exception.
+            record("error", reason="transport_failed")
+            raise
         finally:
             if self._socket is owned_socket:
                 self._socket = None
+            record("request_finished", outcome=diagnostic_outcome)
 
     async def _authenticate(self, socket: Any, username: str, token: str) -> bool | None:
         """Authenticate the owned socket without sending a player command."""
@@ -1133,8 +1285,15 @@ class AudioServerCommands:
                 return "source_proof"
 
     @staticmethod
-    async def _reply(socket: Any, key: str) -> Any:
+    async def _reply(socket: Any, key: str, *, strict: bool = False) -> Any:
         """Receive under the caller's deadline, tolerating interleaved event frames."""
+        def unique_object(pairs):
+            result = {}
+            for name, value in pairs:
+                if name in result:
+                    raise AudioCommandError("Ambiguous duplicate native reply field")
+                result[name] = value
+            return result
         while True:
             # recv() can complete immediately from a busy socket's buffer. Yield
             # so cancellation and the command-wide timeout cannot be starved.
@@ -1143,7 +1302,7 @@ class AudioServerCommands:
             if not isinstance(message, str):
                 continue
             try:
-                reply = json.loads(message)
+                reply = json.loads(message, object_pairs_hook=unique_object) if strict or key in ("grouped_play_result", "grouped_pause_result") else json.loads(message)
             except (ValueError, TypeError):  # fmt: skip
                 continue
             if isinstance(reply, dict) and key in reply:
@@ -1273,7 +1432,7 @@ class AudioEventReceiver:
                     continue
                 try:
                     payload = json.loads(frame)
-                except ValueError:
+                except (ValueError, RecursionError):
                     # Includes malformed JSON and Python's oversized-integer limit.
                     continue
                 if updates := parse_audio_events(payload):

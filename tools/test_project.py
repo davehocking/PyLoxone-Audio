@@ -23,6 +23,7 @@ def main() -> int:
     parser.add_argument('--library-root',type=Path)
     parser.add_argument('--host-base',type=Path)
     parser.add_argument('--work-dir',type=Path,required=True)
+    parser.add_argument('--case', action='append', default=[], help='Repository-relative test file or node ID; repeatable')
     args=parser.parse_args()
     repo=Path(__file__).resolve().parents[1]
     work=args.work_dir.resolve()
@@ -31,7 +32,12 @@ def main() -> int:
     assert (lib/'pyloxone_audio/__init__.py').is_file()
     scratch=Path(os.environ.get('TMPDIR',str(work))).resolve()
     scratch.mkdir(parents=True,exist_ok=True)
-    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',TMPDIR=tempfile.mkdtemp(prefix='la-',dir=scratch))
+    # Offline tests must not inherit unrelated host credentials. In particular,
+    # pytest can include os.environ's repr when a trace-path lookup fails.
+    allowed={'HOME','PATH','LANG','LC_ALL','LC_CTYPE','PYTHONHASHSEED','VIRTUAL_ENV','UV_CACHE_DIR',
+             'STAGE2_EVIDENCE_ROOT','GM03_BROWSER_STATES','GM03_BROWSER_REQUESTS','GM03_FOCUS_EXPORT','GM03_FOCUS_REQUESTS','GM03_FOCUS_WIRES','UI1_BROWSER_TRACE','UI2_BROWSER_TRACE','UI2_NATIVE_TRACE','UI2_TESTED_ASSET','UI2_R1_BROWSER_TRACE','UI2_R1_NATIVE_TRACE'}
+    env={k:v for k,v in os.environ.items() if k in allowed}
+    env.update(PYTHONDONTWRITEBYTECODE='1',TMPDIR=tempfile.mkdtemp(prefix='la-',dir=scratch))
     roots=[str(lib),str(repo/'tools')]
     temporary_metadata=None
     if lib==repo:
@@ -73,7 +79,7 @@ def main() -> int:
     paths={}
     for directory in [repo/'pyloxone_audio',repo/'tests'/args.suite,repo/'adapters/pyloxone',repo/'tools']:
         for current,dirs,names in os.walk(directory):
-            dirs[:]=[d for d in dirs if d not in {'.private','__pycache__','.pytest_cache'}]
+            dirs[:]=[d for d in dirs if d not in {'.private','__pycache__','.pytest_cache','node_modules'}]
             for name in names:
                 p=Path(current)/name;paths[str(p.relative_to(repo))]=digest(p)
     for name in ['pyproject.toml','README.md','API.md','LICENSE','NOTICE.md','pytest.ini','CONTRIBUTING-RELEASE.md']:
@@ -81,7 +87,15 @@ def main() -> int:
     (work/'input-manifest.json').write_text(json.dumps(paths,indent=2)+'\n')
     cmd=[sys.executable,'-m','pytest','-q','--disable-socket','--allow-unix-socket','-p','no:cacheprovider','-p','project_test_guard','-W','error::RuntimeWarning','-W','error::ResourceWarning','-W','error::pytest.PytestUnraisableExceptionWarning','--junitxml='+str(work/'result.xml')]
     if args.suite=='library':cmd+=['-p','pytest_asyncio.plugin','-p','pytest_socket','-o','asyncio_mode=auto']
-    cmd += [str(repo/'tests'/args.suite)]
+    if args.case:
+        for case in args.case:
+            name, *node = case.split('::')
+            path = (repo/name).resolve()
+            if not path.is_file() or not path.is_relative_to(repo/'tests'/args.suite):
+                parser.error('--case must name an existing file in the selected suite')
+            cmd.append('::'.join([str(path), *node]))
+    else:
+        cmd += [str(repo/'tests'/args.suite)]
     try:
         if temporary_metadata is not None:
             shutil.copytree(generated,temporary_metadata)

@@ -1,0 +1,16 @@
+{
+  "inputs": {
+    "tests/frontend/frozen-oracles/637a0a321aef51347598f85259796d5f70f2df74bf0fff0be99674015487d624.js.txt": "637a0a321aef51347598f85259796d5f70f2df74bf0fff0be99674015487d624",
+    "tests/frontend/frozen-oracles/2a55336f77272583e88253b2203273f203dec8a875eaa42d0305a196de3441bf.js.txt": "2a55336f77272583e88253b2203273f203dec8a875eaa42d0305a196de3441bf",
+    "tests/frontend/frozen-oracles/124a1e59eb06c1fd362bcc22fa5699f79a89d1544b4e458314fd6548fb3d00fe.js.txt": "124a1e59eb06c1fd362bcc22fa5699f79a89d1544b4e458314fd6548fb3d00fe",
+    "tests/frontend/browser-native-gm03.mjs": "94e0570edcff85c062ea95c6d29565b8cd24c1d82c4a2bfd8bbe41fe0863426e",
+    "tests/frontend/gm03-native-requests.json": "335fbb81a70b7b9caf7e7d1981bbe4054c044fdbeabf8f4c24db1e3e8489a79a",
+    "tests/frontend/gm03-native-numeric.json": "c9d51839c1e528e0a9ce067ad0d876c171a05208e40ef2405f68c9a16a2ad34e"
+  },
+  "module_sha256": "a150b8d1853eed2d2e8bf98103fe7210a05cc4e16429e15dcfe45a1d174c187e",
+  "emission_context": "HISTORICAL a150 input epoch: full pinned unmodified HA frontend with synthetic owning-HA state exports. Three changed source paths now bind byte-identical frozen inputs recovered by hash from git; requests, 200 numeric cases, module hash and original test assertions unchanged. Not current 911 UI execution or household acceptance.",
+  "counts": {
+    "workflow": 13,
+    "integer_nudges": 200
+  }
+}

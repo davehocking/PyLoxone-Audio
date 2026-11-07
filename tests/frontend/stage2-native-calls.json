@@ -1,0 +1,26 @@
+{
+  "input_sha256": "a02d4fa675fba0ccd252d4b1dba8fa536b59ea87f9a673ac99fe6b82ac909458",
+  "module_sha256": "911eed0c78f7bc13e013e51bddd42e14274bf8d892f18109a2c9d0f96c69660a",
+  "calls": [
+    {
+      "domain": "media_player",
+      "service": "shuffle_set",
+      "data": {
+        "entity_id": "media_player.duplicate_zone_name_7",
+        "shuffle": false
+      },
+      "target": null
+    },
+    {
+      "domain": "media_player",
+      "service": "repeat_set",
+      "data": {
+        "entity_id": "media_player.duplicate_zone_name_7",
+        "repeat": "off"
+      },
+      "target": null
+    }
+  ],
+  "native_result_sha256": "7521248ccf2162dc720d042b4b17c245c9c84156a0b76ded1a18cf61b682e828",
+  "epoch": "actual Stage2 owning-HA Local Library exports; literal full pinned native app button emissions; service sink requires owning replay"
+}

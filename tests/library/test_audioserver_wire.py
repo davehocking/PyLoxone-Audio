@@ -16,6 +16,7 @@ from Crypto.Util.Padding import unpad
 import os
 from pathlib import Path
 import tempfile
+import hashlib
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -58,7 +59,7 @@ async def test_listener_uses_real_websocket_handshake_and_frames(monkeypatch: py
 
     # Explicit TMPDIR keeps this probe in the caller's managed scratch area.
     with tempfile.TemporaryDirectory(prefix="audio-ws-", dir=os.environ.get("TMPDIR")) as directory:
-        path = str(Path(directory) / "ws.sock")
+        path = "\0r1-wire-" + hashlib.sha256(directory.encode()).hexdigest()
         async with await unix_serve(handler, path, subprotocols=[Subprotocol("remotecontrol")], ping_interval=None):
 
             def connect(uri: str, **kwargs: Any) -> Any:
@@ -137,7 +138,7 @@ async def test_player_commands_use_real_authenticated_websocket_frames(  # noqa:
             closed.set()
 
     with tempfile.TemporaryDirectory(prefix="audio-command-ws-", dir=os.environ.get("TMPDIR")) as directory:
-        path = str(Path(directory) / "ws.sock")
+        path = "\0r1-wire-" + hashlib.sha256(directory.encode()).hexdigest()
         async with await unix_serve(handler, path, subprotocols=[Subprotocol("remotecontrol")], ping_interval=None):
 
             def connect(uri: str, **kwargs: Any) -> Any:

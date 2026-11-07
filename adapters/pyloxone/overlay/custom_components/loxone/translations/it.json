@@ -94,6 +94,11 @@
     }
   },
   "services": {
+    "audio_room_transport": {
+      "name": "Riproduci o metti in pausa una stanza audio",
+      "description": "Riprende o mette in pausa solo la stanza selezionata, anche in un gruppo dinamico. Non modifica appartenenza, volume o sorgente. I comandi standard di riproduzione/pausa controllano l'intero gruppo.",
+      "fields": {"action": {"name": "Azione", "description": "Riprendi la sessione attuale (play) o metti in pausa solo questa stanza (pause)."}}
+    },
     "reload": {
       "name": "Ricarica PyLoxone",
       "description": "Ricarica l'integrazione Loxone riconnettendosi al Miniserver e aggiornando tutte le entità. È utile dopo modifiche alla configurazione in Loxone Config o quando si verificano problemi di connessione. Tutti gli stati attuali delle entità saranno risincronizzati dal Miniserver."
@@ -172,6 +177,9 @@
     }
   },
   "exceptions": {
+    "audioserver_grouping_unavailable": {"message": "Il raggruppamento non è disponibile. Attendere lo stato aggiornato dei gruppi e scegliere stanze compatibili di questa configurazione Loxone."},
+    "audioserver_grouping_failed": {"message": "La modifica del gruppo non è stata confermata. Controllare i gruppi attuali prima di riprovare."},
+    "audioserver_grouping_busy": {"message": "È in corso una modifica del gruppo per questa stanza. Attendere il completamento."},
     "audioserver_announcement_unavailable": {
       "message": "Gli annunci Audio Server non sono disponibili o una richiesta precedente è ancora irrisolta. Non è stato inviato un nuovo annuncio."
     },

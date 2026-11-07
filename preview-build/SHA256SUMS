@@ -1,7 +1,4 @@
-3772b917538b6abb415c6bf7146b4836e44c4d1ade8834f9e37e3f218883bd59  PRE-RELEASE.md
-f41b6bb0f57995fd39792e2000a578ea33f4cd694e182dd525e9f409eeeb392d  PROVENANCE.json
-5708af706912af7127c236dcb5d682950672884ec1c35e82ad8e90f1500c5ddf  PyLoxone-0.10.2-audio-0.1.2-docs-post1-preview.zip
-22698991d6f42025bd53ccc7bc42778a7e1b2f65a64a8ad434637cff9b4b0245  PyLoxone-0.10.2-audio-0.1.2-publication-preview.zip
-52e1c90094caed6b97111623cc4bd4f92140bfab36ad81f8ac6443be04da3569  README.md
-e37a625ed8dbbd352e9111832536935961c393818b19d4dfa1ea35b2d305141b  preview.py
-62c9769ce75fcca3a17f3f14ed5657f69c5b32becd736bd503acf7772c52242a  PyLoxone-0.10.2-audio-0.1.2-hacs-install-preview.zip
+9b6df83ea1c8b60562887b3f5027081442f17c11209390d207df8bfbafcfe6cd  PyLoxone-0.10.3.dev18-audio-0.1.3-preview.zip
+2b11977104e1a2c746b89c7e9c95480c6db6a908c685fe4750e65323e9eee381  PROVENANCE.json
+79bee183e7784d08461fdcde96e3bdf0dc608733fb2cd78a4dfd3e7393ba3eeb  preview.py
+af916795a0a15dcf52a9a2544d51d9eeefbbce4cdcd733e13d0306b5332cdf92  frontend/group-control-card-0.1.3.dev12-owner-r10.js

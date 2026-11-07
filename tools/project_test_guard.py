@@ -2,8 +2,10 @@
 from pathlib import Path
 import importlib.metadata
 import json
+import hashlib
 import os
 import sys
+from packaging.requirements import Requirement
 
 WARNINGS=[]
 
@@ -17,7 +19,14 @@ def pytest_sessionfinish(session, exitstatus):
     root=Path(os.environ['PYLOXONE_PROJECT_LIBRARY_ROOT']).resolve()
     package=Path(pyloxone_audio.__file__).resolve()
     assert package.is_relative_to(root),str(package)
-    assert importlib.metadata.version('PyLoxone-Audio')=='0.1.2.post1'
+    assert importlib.metadata.version('PyLoxone-Audio')=='0.1.3'
+    dependencies={}
+    for text in importlib.metadata.requires('PyLoxone-Audio') or ():
+        requirement=Requirement(text)
+        if requirement.marker is None or requirement.marker.evaluate():
+            version=importlib.metadata.version(requirement.name)
+            assert version in requirement.specifier,(text,version)
+            dependencies[requirement.name]={'version':version,'requirement':text}
     assert 'pyloxone_audio.diagnostics' not in sys.modules
     # The approved opt-in 0.1.1 collector supersedes the old module exclusion;
     # the removed unconditional legacy trace API remains prohibited.
@@ -32,4 +41,13 @@ def pytest_sessionfinish(session, exitstatus):
             p=Path(sys.modules[name].__file__).resolve()
             assert p.is_relative_to(host),str(p)
             owners[name]=str(p)
-    Path(os.environ['PYLOXONE_PROJECT_RECEIPT']).write_text(json.dumps({'package_path':str(package),'version':'0.1.2.post1','owning_modules':owners,'exit_code':int(exitstatus),'warnings':WARNINGS},indent=2)+'\n')
+    library_modules={}
+    for name,module in tuple(sys.modules.items()):
+        if name == 'pyloxone_audio' or name.startswith('pyloxone_audio.'):
+            origin=getattr(module,'__file__',None)
+            if not isinstance(origin,str):
+                raise AssertionError('Missing library module origin: '+name)
+            path=Path(origin).resolve()
+            assert path.is_relative_to(root),str(path)
+            library_modules[name]={'path':str(path),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+    Path(os.environ['PYLOXONE_PROJECT_RECEIPT']).write_text(json.dumps({'package_path':str(package),'version':importlib.metadata.version('PyLoxone-Audio'),'dependencies':dependencies,'owning_modules':owners,'library_modules':library_modules,'exit_code':int(exitstatus),'warnings':WARNINGS},indent=2)+'\n')

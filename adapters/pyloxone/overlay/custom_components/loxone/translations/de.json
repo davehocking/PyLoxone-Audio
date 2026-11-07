@@ -1,6 +1,10 @@
 {
   "entity": {
-    "switch": {"audio_diagnostics": {"name": "Audiodiagnose"}},
+    "switch": {
+      "audio_diagnostics": {
+        "name": "Audiodiagnose"
+      }
+    },
     "climate": {
       "room_controller_v2": {
         "state_attributes": {
@@ -26,6 +30,15 @@
           "prepare_cool_down": "Abkühlen vorbereiten",
           "overridden_by_source": "Von Quelle übersteuert",
           "fixed": "Fester Sollwert"
+        }
+      },
+      "window_state": {
+        "state": {
+          "closed": "Geschlossen",
+          "tilted": "Gekippt",
+          "open": "Offen",
+          "locked": "Abgeschlossen",
+          "unlocked": "Aufgeschlossen"
         }
       }
     }
@@ -94,6 +107,16 @@
     }
   },
   "services": {
+    "audio_room_transport": {
+      "name": "Einen Audioraum wiedergeben oder pausieren",
+      "description": "Setzt nur den ausgewählten Raum fort oder pausiert ihn, auch in einer dynamischen Gruppe. Ändert weder Gruppenmitglieder noch Lautstärke oder Quelle. Die normalen Wiedergabe-/Pausebefehle steuern die gesamte Gruppe.",
+      "fields": {
+        "action": {
+          "name": "Aktion",
+          "description": "Die aktuelle Sitzung fortsetzen (play) oder nur diesen Raum pausieren (pause)."
+        }
+      }
+    },
     "reload": {
       "name": "Pyloxone Reload",
       "description": "Lädt die Loxone-Integration neu, indem eine erneute Verbindung zum Miniserver hergestellt und alle Entitäten aktualisiert werden. Dies ist nützlich nach Konfigurationsänderungen in Loxone Config oder bei Verbindungsproblemen. Alle aktuellen Entitätszustände werden vom Miniserver neu synchronisiert."
@@ -162,6 +185,15 @@
     }
   },
   "exceptions": {
+    "audioserver_grouping_unavailable": {
+      "message": "Gruppierung ist nicht verfügbar. Warten Sie auf den aktuellen Gruppenstatus und wählen Sie unterstützte Räume dieses Loxone-Eintrags."
+    },
+    "audioserver_grouping_failed": {
+      "message": "Die Gruppenänderung wurde nicht bestätigt. Prüfen Sie die aktuellen Gruppen vor einem erneuten Versuch."
+    },
+    "audioserver_grouping_busy": {
+      "message": "Für diesen Raum läuft eine Gruppenänderung. Warten Sie, bis sie abgeschlossen ist."
+    },
     "audioserver_announcement_unavailable": {
       "message": "Audio Server-Durchsagen sind nicht verfügbar oder eine frühere Anfrage ist noch ungeklärt. Es wurde keine neue Durchsage gesendet."
     },
