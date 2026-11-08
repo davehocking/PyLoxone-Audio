@@ -146,7 +146,8 @@ async def test_r1_unusable_status_retains_obligation_and_real_backoff_without_sp
     assert len(reads) == 1 and all(p.closed for p in peers)
     assert h.entities[7].shuffle is None and not h.writes
     # Later authoritative ordinary feedback clears only the pending obligation.
-    await h.emit({**sparse, 'pbr': FULL, 'plshuffle': False, 'plrepeat': 0})
+    h.rows[7] = {**sparse, 'pbr': FULL, 'plshuffle': False, 'plrepeat': 0}
+    await h.emit(h.rows[7])
     await hass.async_block_till_done()
     assert 7 not in h.metadata._mode_recovery and 7 not in h.metadata._requested_refresh
     assert h.entities[7].shuffle is False and h.entities[7].repeat == 'off'

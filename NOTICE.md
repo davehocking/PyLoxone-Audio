@@ -12,7 +12,7 @@ The native event mapping retains this attribution:
 > Event names adapted from SebastianEitzert's Apache-2.0 POC in #523, comment 6251138699. See tests/fixtures/audioserver/README.md for provenance.
 
 The mapping is in `pyloxone_audio/native.py`. The current fixture provenance is
-[tests/library/fixtures/audioserver/README.md](tests/library/fixtures/audioserver/README.md);
+[tests/library/fixtures/audioserver/README.md](https://github.com/davehocking/PyLoxone-Audio/blob/main/tests/library/fixtures/audioserver/README.md);
 the path in the original attribution is historical. Native transport/authentication,
 metadata, catalogue, radio, source policy and announcement code are derived from
 this project's native-audio implementation. HA preparation and UI ownership stay

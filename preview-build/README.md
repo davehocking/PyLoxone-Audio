@@ -2,7 +2,7 @@
 
 **Library 0.1.3 · reference adapter 0.10.3.dev18 · frontend r10.** The manifest pins the public `PyLoxone-Audio==0.1.3` package. It was checked with HA Core 2026.11.0 / Python 3.14.10. The library needs Python >=3.14; the guarded installer needs Linux with atomic rename support.
 
-Download and extract the **[0.1.3 installation bundle](https://github.com/davehocking/PyLoxone-Audio/releases/download/v0.1.3/PyLoxone-Audio-0.1.3-install.zip)**, then work from its top-level folder. It includes the preview ZIP, `preview.py`, `PROVENANCE.json`, `SHA256SUMS` and frontend file. Developer source/tests are a separate optional download; you do not need a Docker image to install it.
+Download and extract the **[0.1.3 installation bundle](https://github.com/davehocking/PyLoxone-Audio/releases/download/v0.1.3/PyLoxone-Audio-0.1.3-docs2-install.zip)**, then work from its top-level folder. It includes the preview ZIP, `preview.py`, `PROVENANCE.json`, `SHA256SUMS` and frontend file. Developer source/tests are a separate optional download; you do not need a Docker image to install it.
 
 ## Before changing anything
 
@@ -21,8 +21,8 @@ The installer accepts a fresh installation, exact stock PyLoxone 0.10.3 with or 
 2. Replace `<ZIP-SHA256>` below with the preview ZIP's value in `preview-build/SHA256SUMS`, and set your stopped config/backup paths. Use a new backup directory outside the configuration:
 
 ```sh
-python preview-build/preview.py verify --archive preview-build/PyLoxone-0.10.3.dev18-audio-0.1.3-preview.zip --sha256 <ZIP-SHA256>
-python preview-build/preview.py install --archive preview-build/PyLoxone-0.10.3.dev18-audio-0.1.3-preview.zip --sha256 <ZIP-SHA256> --config /path/to/stopped/config --backup /path/outside/config/new-component-backup
+python preview-build/preview.py verify --archive preview-build/PyLoxone-0.10.3.dev18-audio-0.1.3-docs2-preview.zip --sha256 <ZIP-SHA256>
+python preview-build/preview.py install --archive preview-build/PyLoxone-0.10.3.dev18-audio-0.1.3-docs2-preview.zip --sha256 <ZIP-SHA256> --config /path/to/stopped/config --backup /path/outside/config/new-component-backup
 ```
 
 The helper replaces the complete component and keeps a component backup. It does not install Python dependencies, configure HA or install the frontend. Keep any reported `.loxone-recovery-*` directories if it fails; do not retry blindly.

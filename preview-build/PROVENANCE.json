@@ -98,7 +98,7 @@
     "DIAGNOSTICS.md": "18512fc792c44737693a271eb559a776f45badfa8eed63801ff9ebc07826f1b6",
     "KNOWN-ISSUES.md": "43f15e7d30ec34ab46f6979a17a1bb0bc8525370a9c2e7334bbc26aff263a45a",
     "LICENSE": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
-    "NOTICE.md": "d6d94dc059891fe5824c85e4fb5ece828c0da14c5d7c2f64fbb93fd94e043477",
+    "NOTICE.md": "6fd3d2dc472df9889d99d129bfa92186522245500c25eef5a148869204ac8102",
     "README.md": "2926402ca4a05cacc85fa78d27ef97e99d338dcf79f100c1af72e3deab782d4a",
     "USER-GUIDE.md": "1b6c5493210e3723bc1c9c2f8dc77bf9e556c8d8f8039be879d9092141a7ac65",
     "adapters/pyloxone/BASE.json": "e0a1e0cd64a2a2cffea4f03d041fcd5e3c5ef12d2a6c11433c9b16940862416a",
@@ -167,12 +167,12 @@
     "custom_components/loxone/translations/pt-PT.json": "81ed4439eee306e866ee6c5cf40e1d4439f61e52f9fbf9d7448001b5dc97043c",
     "custom_components/loxone/translations/pt.json": "81ed4439eee306e866ee6c5cf40e1d4439f61e52f9fbf9d7448001b5dc97043c",
     "custom_components/loxone/window_monitor.py": "be636969b2d35152aa5eaab717cd75751d47d12cfa3b7ad865c52b142a0f8364",
-    "preview-build/README.md": "6074e5ab6c0a66df39d18d5d3de1a5451888f882265fa05c974de73c18f51681",
+    "preview-build/README.md": "de6e46a18c3276d7b8f81b5ee93496fdd69748d567b75f5098d2f4c877e5ce76",
     "preview-build/frontend/group-control-card-0.1.3.dev12-owner-r10.js": "af916795a0a15dcf52a9a2544d51d9eeefbbce4cdcd733e13d0306b5332cdf92",
-    "preview-build/preview.py": "79bee183e7784d08461fdcde96e3bdf0dc608733fb2cd78a4dfd3e7393ba3eeb"
+    "preview-build/preview.py": "297e46fefd56bff33949514a745ece6246bfcbb20da38d58ccfb54b08eca7b9c"
   },
-  "archive_name": "PyLoxone-0.10.3.dev18-audio-0.1.3-preview.zip",
-  "documentation_revision": "release-0.1.3",
+  "archive_name": "PyLoxone-0.10.3.dev18-audio-0.1.3-docs2-preview.zip",
+  "documentation_revision": "release-0.1.3-docs2",
   "published": false,
   "status_provenance": "Build-time assembly metadata; actual registry availability is recorded by release verification, not rewritten into sealed archives."
 }

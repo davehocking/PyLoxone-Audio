@@ -103,7 +103,8 @@ async def test_r2_publication_while_queued_before_shared_lock(
     fresh = await h.commands.async_player_status(7, is_current=lambda: True)
     assert fresh.shuffle is True and fresh.repeat == 3
     monkeypatch.setattr(wire, 'connect', normal_connect)
-    await h.emit({**sparse, 'pbr': FULL, 'plshuffle': False, 'plrepeat': 0})
+    h.rows[7] = {**sparse, 'pbr': FULL, 'plshuffle': False, 'plrepeat': 0}
+    await h.emit(h.rows[7])
     await request(hass, h, 7, 'repeat', 'one')
     assert h.writes == ['audio/7/repeat/3']
     output(f'r2-queue-{history}-{persistence_fails}.json', {
