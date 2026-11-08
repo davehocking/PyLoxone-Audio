@@ -1,4 +1,4 @@
-# Contributor instructions for PyLoxone-Audio 0.1.2
+# Contributor instructions for PyLoxone-Audio 0.1.3
 
 Preserve Apache-2.0 LICENSE, NOTICE.md and upstream authorship; disclose human/LLM
 provenance honestly. This is a separately versioned concrete library consumed by
@@ -7,7 +7,7 @@ one existing PyLoxone integration, not another entity/setup path or facade.
 API.md describes ownership and host obligations. A compatible internal library
 fix should not restructure the adapter. New capabilities/API breaks require an
 explicit version/adapter decision. Default-off fixed-schema diagnostics
-is inherited from 0.1.1; see DIAGNOSTICS.md. Legacy unconditional
+is described in DIAGNOSTICS.md. Legacy unconditional
 private tracing/failure-summary APIs must not be reintroduced as compatibility.
 Keep fixed useful warnings; never log tokens, payloads or exception bodies.
 
@@ -47,19 +47,17 @@ replacing duplicate native cases with assertion-equivalent portable cases.
 The complete installable pinned preview and maintained builder/user instructions
 live in preview-build/; its material is excluded from BOTH Python wheel and sdist.
 The repository archive includes it. The broad generic host compatibility tests,
-historical/private receipts, capture/history and operational deployment scripts
-are not this repository. The Jo review pack is adapters/pyloxone/jo-review/.
-Further household adoption is a separate phase, not performed by these tests.
+operational capture/history and deployment scripts do not belong in the repository. The Jo review pack is adapters/pyloxone/jo-review/.
+These tests do not install or update a Home Assistant system.
 No test result grants public publication or agent household-control permission.
 
-## Prepared 0.1.2 scope
+## Adapter baselines
 
-Preserve the independently accepted native runtime: this phase changes release
-documents, metadata and paired delivery only. The metadata fix is not a promise
-that every Spotify return is repaired; see KNOWN-ISSUES.md. The incremental
-`audio-0.1.1-to-0.1.2.patch` assumes the published 0.1.1 audio adapter, whereas
-`audio-0.1.2-on-0.10.2.patch` applies cumulatively to pinned stock 0.10.2.
-Jo has not adopted the former merely because that baseline is supplied.
+The cumulative `audio-dev18-on-stock-0.10.3.patch` targets stock 0.10.3;
+`audio-0.1.2-to-dev18.patch` assumes the supplied 0.1.2 audio preview on 0.10.2
+and includes upstream 0.10.2→0.10.3 changes. These are review baselines, not a
+claim of upstream adoption. See the short maintainer guide for optional qualified
+HA reproduction; the stock runner can require the documented plugin ordering.
 
 Use isolated build tooling; never repair the provisioned HA test interpreter
 just to add build/twine. `python -m build` plus `twine check --strict` is the

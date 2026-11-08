@@ -188,7 +188,7 @@ async def test_enabled_restart_two_entry_isolation_and_persisted_loss_counters(
     b = hass.data[DOMAIN][second.entry_id].audio_diagnostics
     await a.async_set_enabled(True)
     for n in range(600):
-        a.emit("feedback", player=7, position=n)
+        a.emit("feedback", player=7, position=n, volume=n % 101)
     assert a.queue.qsize() == 256
     assert b.queue.empty() and not b.enabled
     assert a.emitter.alias("player", 7) != b.emitter.alias("player", 7)
@@ -236,7 +236,7 @@ async def test_existing_admin_download_route_bounds_real_ha_json_and_excludes_ra
     await collector.async_set_enabled(True)
     for batch in range(35):
         for n in range(128):
-            collector.emit("feedback", player=7, position=batch * 128 + n)
+            collector.emit("request", player=7, position=batch * 128 + n)
         await collector.async_flush()
     await hass.async_block_till_done()
     request = make_mocked_request(
@@ -345,7 +345,7 @@ async def test_entry_writer_continues_beyond_24h_and_expires_when_disabled(
             "schema": 1,
             "stage": "feedback",
             "sequence": sequence,
-            "monotonic": float(sequence),
+            "monotonic": clock[0],
             "utc": datetime.fromtimestamp(clock[0], UTC).isoformat(),
             "position": float(sequence),
         }

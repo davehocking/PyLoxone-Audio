@@ -1,0 +1,180 @@
+# Describes the format for available Loxone services
+
+event_websocket_command:
+  fields:
+    uuid:
+      name: UUID
+      description: Uuid for entity which you want to send a command
+      example: 0f1e0b31-0178-7f77-ffff402fb0c34b9e
+      selector:
+        text:
+    device:
+      name: Entity
+      description: Device which you want to send a command
+      example: Switch 1
+      selector:
+        entity:
+          integration: loxone
+    value:
+      name: Command
+      description: Command which you want to send
+      example: pulse
+      selector:
+        text:
+
+event_secured_websocket_command:
+  fields:
+    uuid:
+      name: UUID
+      description: Uuid for entity which you want to send a command
+      example: 0f1e0b31-0178-7f77-ffff402fb0c34b9e
+      selector:
+        text:
+    device:
+      name: Entity
+      description: Device which you want to send a command
+      example: Switch 1
+      selector:
+        entity:
+          integration: loxone
+    value:
+      name: Command
+      description: Command which you want to send
+      example: pulse
+      selector:
+        text:
+    code:
+      name: Code
+      description: Code for the entity
+      example: 1234
+      selector:
+        text:
+
+sync_areas:
+  description:
+    Applies areas to the loxone entites based on the room from loxone. If area not exists entites will not be
+    changed
+  fields:
+    create_areas:
+      name: Area create
+      description: Force to create areas when they not exist in HA
+      example: true
+      default: false
+      selector:
+        boolean:
+
+reload:
+  description: >
+    Reloads the Loxone integration by reconnecting to the Miniserver and 
+    refreshing all entities. This is useful after making configuration 
+    changes in Loxone Config or when connection issues occur. All current 
+    entity states will be re\-synchronized from the Miniserver.
+
+refresh_token:
+  name: Refresh Miniserver token
+  description: >
+    Immediately refreshes the authentication token for the selected Loxone
+    config entry and waits for the Miniserver to confirm the new token.
+  fields:
+    config_entry_id:
+      name: Loxone config entry
+      description: Select which configured Miniserver should refresh its token.
+      required: true
+      selector:
+        config_entry:
+          integration: loxone
+
+enable_sun_automation:
+  description: Enable Sun automation for Loxone Jalousie
+  target:
+    entity:
+      domain: cover
+
+disable_sun_automation:
+  description: Disable Sun automation for Loxone Jalousie
+  target:
+    entity:
+      domain: cover
+
+quick_shade:
+  description: Move Loxone Jalousie to shade position. Position is set by Loxone depends on multiple values.
+  target:
+    entity:
+      domain: cover
+
+audio_group_manage:
+  name: Manage an audio group
+  description: >
+    Create an exact group using the selected target as leader, add rooms to an
+    existing group, remove the selected room, or destroy its whole group.
+    Native group identity and stale-state guards are resolved automatically.
+    Only currently confirmed Loxone-managed audio rooms are supported.
+  target:
+    entity:
+      domain: media_player
+      integration: loxone
+  fields:
+    action:
+      name: Action
+      required: true
+      selector:
+        select:
+          options: [create, add, remove, destroy]
+    members:
+      name: Additional rooms
+      description: Rooms besides the selected leader/target. Create uses exactly these rooms and that leader; Add preserves the existing group's leader and other members.
+      selector:
+        entity:
+          domain: media_player
+          integration: loxone
+          multiple: true
+    override_existing_membership:
+      name: Override any existing group membership
+      description: >
+        For Create or Add, allow the selected rooms to leave existing dynamic
+        groups. Create also moves its selected leader if necessary. Unselected
+        rooms remain together where possible; playback may be interrupted.
+        Fixed groups cannot be transferred. Off refuses occupied-room conflicts.
+      default: false
+      selector:
+        boolean:
+
+audio_room_volume:
+  name: Set one audio room volume
+  description: Set only the selected room, including a group leader or follower. Public grouped media player volume controls adjust the whole group.
+  target:
+    entity:
+      domain: media_player
+      integration: loxone
+  fields:
+    volume_percent:
+      name: Room volume
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 1
+          unit_of_measurement: "%"
+
+audio_room_transport:
+  name: Play or pause one audio room
+  description: >
+    Resume or pause only the selected native audio room, even when it belongs
+    to a dynamic group. Does not change membership, volume or the selected
+    source. Use the standard media player play/pause actions for the whole group.
+    Requires enhanced Audio Server playback and current native grouping state.
+  target:
+    entity:
+      domain: media_player
+      integration: loxone
+  fields:
+    action:
+      name: Action
+      description: Resume the current session or pause this room only.
+      required: true
+      selector:
+        select:
+          options:
+            - play
+            - pause

@@ -1,6 +1,10 @@
 {
   "entity": {
-    "switch": {"audio_diagnostics": {"name": "Diagnostika zvuku"}},
+    "switch": {
+      "audio_diagnostics": {
+        "name": "Diagnostika zvuku"
+      }
+    },
     "climate": {
       "room_controller_v2": {
         "state_attributes": {
@@ -26,6 +30,15 @@
           "prepare_cool_down": "Příprava chlazení",
           "overridden_by_source": "Řízeno nadřazeným zdrojem",
           "fixed": "Pevná žádaná hodnota"
+        }
+      },
+      "window_state": {
+        "state": {
+          "closed": "Zavřeno",
+          "tilted": "Vyklopeno",
+          "open": "Otevřeno",
+          "locked": "Zamčeno",
+          "unlocked": "Odemčeno"
         }
       }
     }
@@ -59,6 +72,15 @@
     }
   },
   "exceptions": {
+    "audioserver_grouping_unavailable": {
+      "message": "Seskupování není dostupné. Počkejte na aktuální stav skupin a vyberte podporované místnosti z této konfigurace Loxone."
+    },
+    "audioserver_grouping_failed": {
+      "message": "Změna skupiny nebyla potvrzena. Před dalším pokusem zkontrolujte aktuální skupiny."
+    },
+    "audioserver_grouping_busy": {
+      "message": "Pro tuto místnost probíhá změna skupiny. Počkejte na dokončení."
+    },
     "audioserver_announcement_unavailable": {
       "message": "Hlášení Audio Server nejsou dostupná nebo předchozí požadavek není vyřešen. Nové hlášení nebylo odesláno."
     },

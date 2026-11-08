@@ -18,6 +18,8 @@ async def async_send_prepared_announcement(  # noqa: PLR0913, PLR0915
     data: bytes,
     duration: float,
     volume: int,
+    *,
+    is_available: Callable[[], bool] | None = None,
 ) -> None:
     """Require this owned event to start/end; let native firmware restore media."""
     fences = getattr(commands, "announcement_fences", None)
@@ -71,7 +73,8 @@ async def async_send_prepared_announcement(  # noqa: PLR0913, PLR0915
 
     def is_current() -> bool:
         snapshot = metadata.get(player_id)
-        return not finished.done() and snapshot is not None and snapshot.event_active is False and snapshot.event_idle
+        return (not finished.done() and snapshot is not None and snapshot.event_active is False
+                and snapshot.event_idle and (is_available is None or is_available()))
 
     def on_send() -> None:
         nonlocal dispatched

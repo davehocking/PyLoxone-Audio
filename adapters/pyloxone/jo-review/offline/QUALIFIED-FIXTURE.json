@@ -1,0 +1,31 @@
+{
+  "purpose": "Pinned optional offline Home Assistant test fixture and supplied helper",
+  "helper": "test_project.py",
+  "sha256": "f45df66323bc08e5a2a9906790a1751dd4bbb4940d6067fec93dd86313390e1e",
+  "provenance": {
+    "description": "Qualified offline helper supplied with the source bundle; explicitly loads pytest_homeassistant before plugin autoload.",
+    "not_baked_into_image": true
+  },
+  "image_id": "sha256:80cfe2bbf2ef0fc81dc0925fd367ea262fe8404b467daae93d97c059b55e2946",
+  "image_availability": "Owner-provisioned local offline test-tools image; not a public registry reference. Obtain this fixture separately if absent.",
+  "python": "3.14.10",
+  "homeassistant": "2026.11.0",
+  "pytest": "9.0.3",
+  "pytest_homeassistant": "2026.11.0",
+  "pytest_asyncio": "1.4.0",
+  "pytest_socket": "0.8.1",
+  "httpx": "0.28.1",
+  "httpx2": "2.14.0",
+  "binding": {
+    "repository": "/repo",
+    "helper": "/work/test_project.py",
+    "stock_host": "/host-base",
+    "output": "/review",
+    "library_root": "/review/exact-wheel"
+  },
+  "test_behavior": "Explicit -p pytest_homeassistant before plugin autoload; socket guard; empty owned work cwd; exact-wheel imported-path and input-manifest guard",
+  "qualification": "Image contains an older development package. Tests explicitly select the exact release wheel; this is not clean native dependency installation proof.",
+  "focus": "tests/adapter/test_automation_action_compatibility_ha.py",
+  "expected_passed_cases": 22,
+  "safety": "Linux Docker; network none; read-only root/repo/stock/helper; cap-drop ALL; no-new-privileges; user1000; synthetic output only. Never mount real HA configuration or credentials."
+}

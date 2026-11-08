@@ -713,6 +713,11 @@ async def async_observed_change(  # noqa: C901, PLR0913, PLR0915 - explicit send
     if not isinstance(observations, dict):
         observations = commands.source_observations = {}
     observations[player_id] = observation
+    # Associate the exact fence with its live caller, not just a player number.
+    # A host may cancel/drain its own action; orphan/foreign fences stay closed.
+    owners = getattr(commands, "source_fence_owners", None)
+    if owners is None:
+        owners = commands.source_fence_owners = {}
 
     def release() -> None:
         remove()
@@ -722,6 +727,8 @@ async def async_observed_change(  # noqa: C901, PLR0913, PLR0915 - explicit send
             observation.cancel()
         if fences.get(player_id) is release:
             fences.pop(player_id)
+        if owners.get(player_id, (None,))[0] is release:
+            owners.pop(player_id)
         if not finished.done():
             finished.cancel()
 
@@ -800,6 +807,7 @@ async def async_observed_change(  # noqa: C901, PLR0913, PLR0915 - explicit send
     remove = metadata.async_add_listener(player_id, updated)
 
     fences[player_id] = release
+    owners[player_id] = (release, asyncio.current_task())
     try:
         if not is_current():
             message = "Source state is unavailable or active; no content was sent"

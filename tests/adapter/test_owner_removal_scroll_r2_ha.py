@@ -1,0 +1,64 @@
+"""New synthetic triple-member owner oracle export and exact browser-service replay."""
+import json
+import os
+from pathlib import Path
+import pytest
+from test_audio_grouping_ha import grouped_setup, audio_setup, STATE, row, payload
+from test_audioserver_playback import SyntheticAudioSocket, rsa_key
+from test_gm03_browser_states_ha import fixed_entry
+from custom_components.loxone.pyloxone_api import audioserver as wire
+
+@pytest.mark.parametrize('request_index',range(8))
+async def test_owner_removal_registered_native_confirmation(hass,grouped_setup,fixed_entry,monkeypatch,rsa_key,request_index):
+    replay=True
+    g=grouped_setup
+    entry,co,ids=await g.setup()
+    rows=[row('one',(1,2,5)),row('outside',(3,4))]
+    sockets=[];commands=[]
+    class Socket(SyntheticAudioSocket):
+        async def send(self,message):
+            if not message.startswith('audio/cfg/dgroup/update/'):
+                await super().send(message);return
+            self.sent.append(message);commands.append(message)
+            parts=message.split('/');gid=parts[4]
+            members=tuple(map(int,parts[5].split(','))) if len(parts)>5 else ()
+            rows[:]=[r for r in rows if r['group']!=gid]
+            if members:rows.append(row(gid,members))
+            self.queue.put_nowait(json.dumps({'dgroup_update_result':{'id':gid}}))
+            await g.callbacks[entry.entry_id]['callback']({STATE:payload(*rows)})
+    def connect(*args,**kwargs):
+        s=Socket(rsa_key);sockets.append(s);return s
+    monkeypatch.setattr(wire,'connect',connect)
+    co.api.get_token_dict=lambda:{'token':'synthetic-active-token','valid_until':9999999999}
+    co.audio_commands._credentials=lambda:('synthetic-user','synthetic-active-token')
+    async def reset():
+        rows[:]=[row('one',(1,2,5)),row('outside',(3,4))]
+        await g.feed(entry,*rows)
+        await g.callbacks[entry.entry_id]['callback']({**{f'play-{p}':1 for p in ids},**{f'volume-{p}':v for p,v in zip(ids,[10,40,60,90,20,30])}})
+        await hass.async_block_till_done()
+    def capture(label):
+        return {'scenario':label,'target':ids[2],'states':{i:hass.states.get(i).as_dict() for i in ids.values()}}
+    await reset();initial=capture('initial')
+    requests=json.loads(Path(os.environ['GM03_FOCUS_REQUESTS']).read_text()) if replay else [{'domain':'loxone','service':'audio_group_manage','data':{'action':'remove','revision':co.audio_grouping.control_descriptor(5)['revision'],'group_id':'one'},'target':{'entity_id':ids[5]}}]
+    receipts=[]
+    try:
+        for request in requests[request_index:request_index+1]:
+            await reset()
+            assert request['domain']=='loxone' and request['service']=='audio_group_manage'
+            assert request['data']=={'action':'remove','revision':co.audio_grouping.control_descriptor(5)['revision'],'group_id':'one'}
+            assert request['target']=={'entity_id':ids[5]}
+            await hass.services.async_call(request['domain'],request['service'],dict(request['data']),target=request['target'],blocking=True)
+            await hass.async_block_till_done()
+            assert hass.states.get(ids[5]).attributes['group_members']==[ids[5]]
+            assert hass.states.get(ids[1]).attributes['group_members']==[ids[1],ids[2]]
+            assert hass.states.get(ids[3]).attributes['group_members']==[ids[3],ids[4]]
+            assert commands[-1]=='audio/cfg/dgroup/update/one/1,2'
+            assert not co.audio_grouping.native._tasks and not co.audio_grouping.native._requests and not co.audio_grouping.native._scope
+            receipts.append({'call':request,'wire':commands[-1],'confirmed':capture('removed-five')})
+        if not replay:
+            Path(os.environ['GM03_BROWSER_STATES']).write_text(json.dumps({'snapshots':[initial,capture('removed-five')]},indent=2,default=str))
+        else:
+            Path(os.environ['GM03_FOCUS_REQUESTS']).with_name('owning-replay-'+str(request_index)+'.json').write_text(json.dumps(receipts,indent=2,default=str))
+    finally:
+        await co.audio_commands.async_close()
+        assert all(s.closed for s in sockets)

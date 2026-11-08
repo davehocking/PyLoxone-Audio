@@ -1,0 +1,386 @@
+// SPDX-License-Identifier: Apache-2.0
+// Optional PyLoxone-Audio card. Uses only the owning HA entity/state/services.
+const FEATURES = {volume: 4, pause: 1, play: 16384, grouping: 524288};
+// @mdi/js 7.4.47 standard paths, rendered by HA's own ha-svg-icon.
+const ICONS = {play:'M8,5.14V19.14L19,12.14L8,5.14Z',pause:'M14,19H18V5H14M6,19H10V5H6V19Z',minus:'M19,13H5V11H19V13Z',plus:'M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z'};
+const percentOf = state => {
+  const value=state?.attributes?.volume_level;
+  return typeof value==='number'&&Number.isFinite(value)&&value>=0&&value<=1?Math.round(value*100):null;
+};
+const nudgePercentLevel = percent => {
+  const level=percent/100;
+  return Math.trunc(level*100)<percent?level+Number.EPSILON:level;
+};
+const entityId = value => typeof value === 'string' && /^media_player\.[a-z0-9_]+$/.test(value);
+const same = (a,b) => JSON.stringify(a) === JSON.stringify(b);
+const nameOf = state => state.attributes.friendly_name || state.entity_id;
+const compareNames = (hass,a,b) => {
+  const x=nameOf(hass.states[a]).toLocaleLowerCase('en'),y=nameOf(hass.states[b]).toLocaleLowerCase('en');
+  return x<y?-1:x>y?1:a<b?-1:a>b?1:0;
+};
+const contexts = hass => Object.keys(hass?.states||{}).filter(id=>project(hass,id)).sort((a,b)=>compareNames(hass,a,b));
+const transportAction = state => {
+  if(!state||!['playing','paused','idle','off','on','standby'].includes(state.state))return null;
+  const action=state.state==='playing'?'pause':'play';
+  return state.attributes.supported_features&FEATURES[action]?action:null;
+};
+const node = (tag, text, attrs={}) => {
+  const element=document.createElement(tag); if(text!==null)element.textContent=text;
+  for(const [key,value] of Object.entries(attrs))element.setAttribute(key,value);
+  return element;
+};
+
+export function project(hass, target) {
+  const state=hass?.states?.[target], d=state?.attributes?.loxone_group_control;
+  const available=s=>s && !['unknown','unavailable'].includes(s.state);
+  const ids=list=>Array.isArray(list)&&list.length>0&&list.length<=256&&list.every(entityId)&&new Set(list).size===list.length;
+  if(!available(state)||!d||d.version!==1||typeof d.owner!=='string'||typeof d.revision!=='string'
+    ||!ids(d.members)||!ids(d.candidates)||!d.members.includes(target)||!same(d.members,state.attributes.group_members))return null;
+  const candidates=d.candidates.filter(id=>{
+    const s=hass.states[id], other=s?.attributes?.loxone_group_control;
+    return available(s)&&hass.entities?.[id]?.platform==='loxone'&&other?.owner===d.owner
+      &&other.version===1&&other.revision===d.revision&&other.candidates?.includes(id)
+      &&!!(s.attributes.supported_features&FEATURES.grouping);
+  });
+  if(!d.members.every(id=>candidates.includes(id)))return null;
+  const compare=(a,b)=>compareNames(hass,a,b);
+  return {owner:d.owner,revision:d.revision,members:[...d.members],leader:d.members[0],group:d.group_id,
+    busy:!!d.busy,candidates,top:candidates.filter(id=>d.members.includes(id)).sort(compare),
+    other:candidates.filter(id=>!d.members.includes(id)).sort(compare)};
+}
+
+export class LoxoneGroupControlCard extends HTMLElement {
+  constructor(){
+    super();this.attachShadow({mode:'open'});this._rows=new Map();this._pending=false;this._error='';this._notice='';
+    this.shadowRoot.innerHTML=`<style>
+      :host{display:block;color:var(--primary-text-color,#212121);font-family:var(--paper-font-body1_-_font-family,Roboto,Arial,sans-serif)}
+      button,input,select{font:inherit;accent-color:var(--primary-color,#03a9f4)}
+      select{box-sizing:border-box;min-height:44px;max-width:100%;background:var(--card-background-color,#fff);color:inherit;border:1px solid var(--divider-color,#aaa);border-radius:8px;padding:8px}label.context{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+      button{min-height:44px;border:1px solid var(--divider-color,#aaa);border-radius:var(--ha-card-border-radius,12px);background:var(--card-background-color,#fff);color:inherit;padding:8px 12px;cursor:pointer}
+      button:disabled,input:disabled{opacity:.5;cursor:default}button:focus-visible,input:focus-visible{outline:3px solid var(--primary-color,#03a9f4);outline-offset:2px}
+      [data-action=row-play],.volume-controls button{display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:44px;padding:10px;border:0;border-radius:50%;color:var(--state-icon-color,var(--primary-text-color,#212121))}
+      [data-action=group-play]{display:inline-flex;align-items:center;gap:8px}ha-svg-icon{flex:none;--mdc-icon-size:24px}
+      .entry{width:100%;text-align:left;box-shadow:var(--ha-card-box-shadow,none)}.entry[hidden]{display:none}
+      .native-player{margin-bottom:8px}.native-player[hidden]{display:none}
+      .native-player[aria-busy=true],dialog[aria-busy=true] button:disabled,dialog[aria-busy=true] input:disabled,dialog[aria-busy=true] select:disabled{opacity:.25}
+      dialog{box-sizing:border-box;width:min(660px,calc(100vw - 16px));max-height:calc(100dvh - 24px);padding:16px;border:1px solid var(--divider-color,#aaa);border-radius:var(--ha-dialog-border-radius,16px);background:var(--card-background-color,#fff);color:inherit;overflow:auto}
+      dialog::backdrop{background:#0008}header,.actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}header h2{flex:1;margin:0;font-size:1.2rem}h3{font-size:1rem;margin:20px 0 6px}
+      .speaker{display:grid;grid-template-columns:28px minmax(60px,1fr) 48px minmax(236px,2fr);align-items:center;gap:8px;min-height:64px;border-bottom:1px solid var(--divider-color,#ddd)}
+      .volume-controls{display:grid;grid-template-columns:44px minmax(72px,1fr) 44px 4ch;gap:4px;align-items:center;min-width:0}
+      .speaker-name{overflow-wrap:anywhere}.name{min-width:0}[data-role=leader]{display:block;font-size:.75rem;color:var(--secondary-text-color,#666)}
+      input[type=checkbox]{width:22px;height:22px}input[type=range]{width:100%;min-width:0;min-height:44px;margin:0}output{font-variant-numeric:tabular-nums;text-align:right}
+      [role=alert]{color:var(--error-color,#db4437);white-space:pre-wrap}.status{font-size:.9rem;color:var(--secondary-text-color,#666);min-height:1.2em}
+      .actions{position:sticky;bottom:-16px;background:var(--card-background-color,#fff);padding:12px 0}p{overflow-wrap:anywhere}
+      .busy-banner{position:sticky;bottom:-16px;z-index:2;display:flex;align-items:center;gap:10px;padding:16px;margin:12px -16px -16px;background:var(--card-background-color,#fff);color:var(--primary-text-color,#212121);border-top:2px solid var(--primary-color,#03a9f4);box-shadow:0 -4px 12px #0003;font-weight:500;opacity:1}
+      .busy-banner:empty{display:none}.busy-banner[data-working=true]::before{content:'';width:18px;height:18px;flex:none;border:3px solid currentColor;border-right-color:transparent;border-radius:50%;animation:busy-spin 1s linear infinite}
+      @keyframes busy-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.busy-banner::before{animation:none!important}}
+      @media(max-width:540px){.speaker{grid-template-columns:28px minmax(60px,1fr) 44px;padding:6px 0}.volume-controls{grid-column:1/-1}}
+      @media(max-width:380px){dialog{padding:10px}.speaker{gap:4px}.actions{bottom:-10px}}
+      @media(max-width:380px){.busy-banner{bottom:-10px;margin-left:-10px;margin-right:-10px;margin-bottom:-10px;padding:12px}}
+    </style><div class="native-player" hidden></div><div class="status" data-role="player-status" aria-live="polite"></div><button class="entry" data-action="open"></button><dialog aria-labelledby="title"><header><h2 id="title">Audio group</h2><button data-action="close" aria-label="Close group controls">Close</button></header><label class="context">Room / group <select data-action="context" aria-label="Room / group" aria-describedby="context-help"></select></label><p id="context-help" data-role="context-help" class="status">Choose a room to view its native group. Selection alone changes nothing. The selected room remains included; choose another member to remove it.</p><p data-role="group"></p><button data-action="group-play"><ha-svg-icon aria-hidden="true"></ha-svg-icon><span></span></button><div class="status" role="status" aria-live="polite"></div><p role="alert" aria-live="assertive"></p><h3>In this group</h3><section data-section="members" aria-label="In this group"></section><h3>Other speakers</h3><section data-section="others" aria-label="Other speakers"></section></dialog>`;
+    this._dialog=this.shadowRoot.querySelector('dialog');
+    const status=this._dialog.querySelector('[role=status]');status.className='busy-banner';this._dialog.append(status);
+    this.shadowRoot.querySelector('[data-action=open]').onclick=()=>this.open();
+    this.shadowRoot.querySelector('[data-action=close]').onclick=()=>this._dialog.close();
+    this._dialog.oncancel=event=>{if(this._pending)event.preventDefault();};
+  }
+  connectedCallback(){this._epoch=(this._epoch||0)+1;this._render();}
+  disconnectedCallback(){
+    this._epoch=(this._epoch||0)+1;
+    // Removing a modal drops it from the top layer, but preserves .open.
+    // Close it so a later explicit open() re-establishes real modal semantics.
+    this._dialog.close();
+    this._dropNativeRoute();
+    this._playerRequest=null;this._playerKey=null;
+    const token=this._token;this._token=null;this._pending=false;
+    this._dialog.setAttribute('aria-busy','false');
+    const status=this.shadowRoot.querySelector('[role=status]');status.textContent='';status.dataset.working='false';
+    const slot=this.shadowRoot.querySelector('.native-player');slot.inert=false;slot.setAttribute('aria-busy','false');
+    token?.reject(new Error('Card disconnected; displayed values follow current native feedback.'));
+  }
+  setConfig(config){
+    if(!config||!entityId(config.entity))throw new Error('Select an existing Loxone media_player entity');
+    if(config.presentation!==undefined&&!['button','player'].includes(config.presentation))throw new Error('Presentation must be button or player');
+    if(this._pending)throw new Error('Wait for the pending operation before changing this card');
+    this._config={...config};this._selected=config.entity;this._epoch=(this._epoch||0)+1;this._clearRows();this._key=null;this._render();
+  }
+  get _entity(){return this._selected||this._config.entity;}
+  _clearRows(){for(const row of this._rows.values())row.remove();this._rows.clear();}
+  get hass(){return this._hass;}
+  set hass(value){this._hass=value;this._render();}
+  getCardSize(){return this._config?.presentation==='player'?4:1;}
+  static getConfigElement(){return document.createElement('loxone-group-control-editor');}
+  static getStubConfig(hass){return {entity:contexts(hass)[0]||''};}
+  open(){if(!this._pending){this._error='';this._notice='';}if(!this._dialog.open)this._epoch=(this._epoch||0)+1;this._render();if(!this._dialog.open)this._dialog.showModal();}
+  _auth(){return JSON.stringify([this.hass?.user,this.hass?.connected!==false]);}
+  _stamp(view){
+    return view?JSON.stringify([this._epoch,this._entity,this._auth(),view,
+      view.candidates.map(id=>this.hass.states[id].attributes.supported_features)]):null;
+  }
+  _valid(stamp,id,row){
+    const view=project(this.hass,this._entity);
+    return this.isConnected&&this._dialog.open&&!this._pending&&this.hass?.connected!==false&&!!this.hass?.user?.id
+      &&!!view&&!view.busy&&stamp===this._stamp(view)
+      &&(!row||(row.isConnected&&this._rows.get(id)===row&&view.candidates.includes(id)));
+  }
+  _contextStamp(){return JSON.stringify([this._epoch,this._entity,this._auth(),contexts(this.hass).map(id=>[id,project(this.hass,id)])]);}
+  _choose(entity,stamp){
+    if(!this.isConnected||!this._dialog.open||this._pending||this._view?.busy||this.hass?.connected===false||!this.hass?.user?.id||stamp!==this._contextStamp()||!project(this.hass,entity)){this._render();return;}
+    if(entity!==this._entity){this._selected=entity;this._epoch=(this._epoch||0)+1;this._clearRows();this._key=null;this._error='';this._notice='';}
+    this._render();
+  }
+  _dropNativeRoute(){
+    const binding=this._nativeBinding;
+    if(binding){binding.player.removeEventListener('click',binding.listener,true);binding.observer.disconnect();}
+    this._nativeBinding=null;
+    this.shadowRoot.querySelector('.entry').hidden=false;
+  }
+  _nativeButton(player){
+    const buttons=player?.shadowRoot?.querySelectorAll('.join-media');
+    return buttons?.length===1&&buttons[0].localName==='ha-icon-button'&&!buttons[0].disabled?buttons[0]:null;
+  }
+  _nativeReady(player,view){
+    return this.isConnected&&this._config?.presentation==='player'&&player===this._player
+      &&player?.isConnected&&player.parentNode===this.shadowRoot.querySelector('.native-player')
+      &&player.localName==='hui-media-control-card'&&this.hass?.connected!==false&&!!this.hass?.user?.id&&!!view;
+  }
+  _reconcileNativeRoute(){
+    const player=this._player,view=project(this.hass,this._entity),button=this._nativeButton(player);
+    if(!this._nativeReady(player,view)||!button){this._dropNativeRoute();return;}
+    const stamp=this._stamp(view),current=this._nativeBinding;
+    if(current?.player===player&&current.button===button&&current.stamp===stamp)return;
+    this._dropNativeRoute();
+    const binding={player,button,stamp};
+    binding.listener=event=>{
+      const now=project(this.hass,this._entity);
+      if(this._nativeBinding!==binding||!this._nativeReady(player,now)||this._nativeButton(player)!==button
+        ||stamp!==this._stamp(now)||!event.composedPath().includes(button))return;
+      // Only this exact rendered native Groups button. Other clicks and all
+      // other card/More-info instances retain their own native handlers.
+      event.preventDefault();event.stopImmediatePropagation();
+      if(!this._pending&&!now.busy)this.open();
+    };
+    binding.observer=new MutationObserver(()=>this._reconcileNativeRoute());
+    binding.observer.observe(player.shadowRoot,{childList:true,subtree:true,attributes:true,attributeFilter:['class','disabled']});
+    this._nativeBinding=binding;player.addEventListener('click',binding.listener,true);
+    this.shadowRoot.querySelector('.entry').hidden=true;
+  }
+  _refreshNativePlayer(player){
+    player.hass=this.hass;this._reconcileNativeRoute();
+    // Lit may add/remove the native button after the synchronous hass setter.
+    Promise.resolve(player.updateComplete).then(()=>{if(this._player===player)this._reconcileNativeRoute();}).catch(()=>{if(this._player===player)this._dropNativeRoute();});
+  }
+  async _syncPlayer(view,busy){
+    const slot=this.shadowRoot.querySelector('.native-player'),status=this.shadowRoot.querySelector('[data-role=player-status]');
+    const enabled=this._config.presentation==='player'&&!!view&&this.isConnected&&this.hass?.connected!==false;
+    slot.hidden=!enabled;slot.inert=!!busy;slot.setAttribute('aria-busy',String(!!busy));
+    const key=enabled?JSON.stringify([this._entity,view.owner,this._auth()]):null;
+    if(this._playerKey===key){if(this._player)this._refreshNativePlayer(this._player);return;}
+    this._dropNativeRoute();
+    this._playerKey=key;this._playerRequest=null;this._player=null;slot.replaceChildren();status.textContent='';
+    if(!enabled)return;
+    const request={};this._playerRequest=request;let timer;
+    status.textContent='Loading native player… Groups is available below.';
+    try{
+      const player=await Promise.race([
+        (async()=>{
+          if(typeof window.loadCardHelpers!=='function')throw new Error('Card helpers unavailable');
+          const helpers=await window.loadCardHelpers();
+          if(this._playerRequest!==request)return null;
+          const player=helpers.createCardElement({type:'media-control',entity:this._entity});
+          // The helper may return a lazy, not-yet-configured native element.
+          // Let its registered whenDefined callback finish setConfig before
+          // assigning hass or connecting reactive native controllers.
+          await customElements.whenDefined('hui-media-control-card');
+          await Promise.resolve();
+          return player;
+        })(),
+        new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Card helper timeout')),5000);})
+      ]);
+      if(!player||this._playerRequest!==request||!this.isConnected||this._playerKey!==key)return;
+      // Nested lazy-card events belong here, not to the dashboard's wrapper.
+      player.addEventListener('ll-upgrade',event=>event.stopPropagation());
+      player.addEventListener('ll-rebuild',event=>event.stopPropagation());
+      this._player=player;slot.replaceChildren(player);this._refreshNativePlayer(player);status.textContent='';
+    }catch(error){if(this._playerRequest===request){this._playerRequest=null;status.textContent='Native player unavailable. The Groups button still works.';}}
+    finally{clearTimeout(timer);}
+  }
+  _row(id){
+    if(this._rows.has(id))return this._rows.get(id);
+    const row=node('div',null,{'class':'speaker','data-entity':id});
+    const check=node('input',null,{type:'checkbox'}), label=node('div',null,{class:'name'}), name=node('span',null,{class:'speaker-name'}), leader=node('span',null,{'data-role':'leader'});
+    label.append(name,leader);const play=node('button',null,{'data-action':'row-play'});
+    play.append(node('ha-svg-icon',null,{'aria-hidden':'true'}));
+    const controls=node('div',null,{class:'volume-controls'}),minus=node('button',null,{'data-action':'volume-minus'}),plus=node('button',null,{'data-action':'volume-plus'});
+    for(const [button,icon] of [[minus,'minus'],[plus,'plus']]){const svg=node('ha-svg-icon',null,{'aria-hidden':'true'});svg.path=ICONS[icon];button.append(svg);}
+    const volume=node('input',null,{type:'range',min:'0',max:'100',step:'1'}), output=node('output','—');
+    volume.oninput=()=>{output.textContent=volume.value+'%';};
+    controls.append(minus,volume,plus,output);row.append(check,label,play,controls);this._rows.set(id,row);return row;
+  }
+  _render(){
+    if(!this._config)return;
+    const h=this._hass,view=project(h,this._entity);this._view=view;
+    const key=view?JSON.stringify([view.owner,view.revision,view.members,view.candidates]):null;
+    if(key!==this._key){
+      if(this._key!==null&&!this._pending)this._notice='Native group or eligibility changed; selection refreshed.';
+      this._key=key;
+    }
+    const busy=this._pending||view?.busy||h?.connected===false||!h?.user?.id;
+    const working=!!(this._pending||view?.busy);this._dialog.setAttribute('aria-busy',String(working));
+    this._syncPlayer(view,busy);
+    const title=this._config.name||h?.states?.[this._entity]?.attributes.friendly_name||this._entity;
+    this.shadowRoot.querySelector('.entry').textContent=title+' · Groups';
+    const select=this.shadowRoot.querySelector('[data-action=context]'),options=contexts(h);
+    const optionKey=JSON.stringify([options.map(id=>[id,nameOf(h.states[id])]),this._entity]);
+    if(this._optionKey!==optionKey){
+      select.replaceChildren();
+      if(!options.includes(this._entity)){const o=node('option',`${title} (unavailable)`,{value:this._entity});o.disabled=true;select.append(o);}
+      for(const id of options)select.append(node('option',nameOf(h.states[id]),{value:id}));
+      this._optionKey=optionKey;
+    }
+    select.value=this._entity;select.disabled=busy;
+    const contextStamp=this._contextStamp();select.onchange=()=>this._choose(select.value,contextStamp);
+    this.shadowRoot.querySelector('[data-role=group]').textContent=view?`${view.group?'Native group':'Independent room'} · Leader: ${nameOf(h.states[view.leader])}`:'Current native group is unavailable. Choose another eligible room. Standard More-info remains available.';
+    this.shadowRoot.querySelector('[role=alert]').textContent=this._error;
+    const status=this.shadowRoot.querySelector('[role=status]');status.dataset.working=String(working);
+    status.textContent=this._pending?this._pendingLabel:view?.busy?'Native audio controls are busy… Please wait.':h?.connected===false?'Connection unavailable. Controls are disabled.':this._notice;
+    const groupButton=this.shadowRoot.querySelector('[data-action=group-play]');
+    const groupAction=h?.states?.[view?.leader]?.state==='playing'?'pause':'play';
+    groupButton.querySelector('span').textContent=groupAction==='pause'?'Pause group':'Play group';
+    groupButton.querySelector('ha-svg-icon').path=ICONS[groupAction];
+    groupButton.title=groupButton.textContent;groupButton.setAttribute('aria-label',groupButton.textContent);
+    groupButton.disabled=!view||busy||!transportAction(h?.states?.[view?.leader]);
+    const stamp=this._stamp(view);
+    groupButton.onclick=()=>{if(this._valid(stamp))this._groupPlay();};
+    this.shadowRoot.querySelector('[data-action=close]').disabled=this._pending;
+    const active=this.shadowRoot.activeElement;
+    const wanted=new Set(view?.candidates||[]);
+    for(const [id,row] of this._rows){if(!wanted.has(id)){row.remove();this._rows.delete(id);}}
+    for(const [section,ids] of [['members',view?.top||[]],['others',view?.other||[]]]){
+      const container=this.shadowRoot.querySelector(`[data-section=${section}]`);
+      for(const [index,id] of ids.entries()){
+        const row=this._row(id),s=h.states[id],name=nameOf(s),[check,label,play,controls]=row.children,[minus,volume,plus,output]=controls.children;
+        check.onchange=()=>{if(this._valid(stamp,id,row))this._membership(id,check.checked,row);else this._render();};
+        play.onclick=()=>{if(this._valid(stamp,id,row))this._roomPlay(id,row);};
+        volume.onchange=()=>{if(this._valid(stamp,id,row))this._volume(id,Number(volume.value),row);};
+        minus.onclick=()=>{if(this._valid(stamp,id,row))this._nudge(id,-1,row);};
+        plus.onclick=()=>{if(this._valid(stamp,id,row))this._nudge(id,1,row);};
+        label.querySelector('.speaker-name').textContent=name;
+        label.querySelector('[data-role=leader]').textContent=id===view.leader?'Leader':'';
+        check.checked=view.members.includes(id);check.disabled=busy||id===this._entity;
+        check.setAttribute('aria-label',`Include ${name} in group`);
+        const action=transportAction(s);
+        play.querySelector('ha-svg-icon').path=ICONS[action==='pause'?'pause':'play'];
+        play.disabled=busy||!action;play.title=`${action==='pause'?'Pause':'Play'} only this room`;
+        play.setAttribute('aria-label',`${action==='pause'?'Pause':'Play'} ${name} only`);
+        row.dataset.owner=view.owner;
+        const percent=percentOf(s),known=percent!==null;
+        if(active!==volume)volume.value=known?String(percent):'0';
+        volume.disabled=busy||!known||!(s.attributes.supported_features&FEATURES.volume);
+        volume.setAttribute('aria-label',`${name} volume`);output.textContent=known?percent+'%':'—';
+        for(const [button,direction,limit] of [[minus,'Decrease',0],[plus,'Increase',100]]){
+          button.disabled=volume.disabled||percent===limit;button.title=`${direction} ${name} volume by 1 percentage point`;
+          button.setAttribute('aria-label',button.title);
+        }
+        if(container.children[index]!==row)container.insertBefore(row,container.children[index]||null);
+      }
+    }
+    if(active?.isConnected&&this.shadowRoot.activeElement!==active)active.focus({preventScroll:true});
+
+  }
+  async _run(work,expected=null,nudge=null){
+    if(this._pending)return;
+    const original=project(this.hass,this._entity),auth=this._auth(),entity=this._entity;
+    if(!original||!this.isConnected)return;
+    const token={};this._token=token;
+    this._pending=true;this._pendingLabel=expected?'Updating group… Please wait.':'Updating audio… Please wait.';this._error='';this._notice='';this._render();
+    let timer;
+    const deadline=Date.now()+8000;
+    const ensure=()=>{
+      const now=project(this.hass,entity);
+      if(!this.isConnected||this._token!==token||this._entity!==entity||this._auth()!==auth||!now||now.owner!==original.owner||!same(now.candidates,original.candidates))
+        throw new Error('Native group eligibility, context or authentication changed; no further commands sent.');
+      if(expected&&!same(now.members,original.members)&&!same(now.members,expected))
+        throw new Error('Native membership changed externally; no further commands sent.');
+      if(nudge&&(!same(now.members,original.members)||!nudge.row.isConnected||this._rows.get(nudge.id)!==nudge.row
+        ||percentOf(this.hass.states[nudge.id])===null||!(this.hass.states[nudge.id]?.attributes.supported_features&FEATURES.volume)))
+        throw new Error('Room volume capability or native membership changed; no further commands sent.');
+      if(Date.now()>=deadline)throw new Error('Membership or request not confirmed by native feedback; no retry or rollback sent.');
+    };
+    const guard=new Promise((_,reject)=>{
+      token.reject=reject;
+      timer=setInterval(()=>{
+        try{ensure();}catch(error){reject(error);}
+      },40);
+    });
+    try{
+      await Promise.race([guard,(async()=>{
+        await work();ensure();
+        if(expected)while(this._token===token&&!same(project(this.hass,entity)?.members,expected))await new Promise(resolve=>setTimeout(resolve,40));
+        if(nudge)while(this._token===token&&percentOf(this.hass.states[nudge.id])!==nudge.percent)await new Promise(resolve=>setTimeout(resolve,40));
+        ensure();
+      })()]);
+      if(this._token===token)this._notice='Request accepted. Displayed values follow native feedback.';
+    }
+    catch(error){if(this._token===token)this._error=error?.message||'Native operation failed; refresh current state before retrying.';}
+    finally{clearInterval(timer);if(this._token===token){this._token=null;this._pending=false;this._render();}}
+  }
+  _volume(id,value,row){
+    const view=project(this.hass,this._entity),state=this.hass?.states?.[id];
+    if(row&&(!row.isConnected||this._rows.get(id)!==row||row.dataset.owner!==view?.owner))return;
+    if(!view||view.busy||!view.candidates.includes(id)||!(state.attributes.supported_features&FEATURES.volume)||!Number.isInteger(value)||value<0||value>100)return;
+    return this._run(()=>this.hass.callService('media_player','volume_set',{volume_level:value/100},{entity_id:id}));
+  }
+  _nudge(id,direction,row){
+    const view=project(this.hass,this._entity),state=this.hass?.states?.[id],percent=percentOf(state);
+    if(!this._valid(this._stamp(view),id,row)||percent===null||![-1,1].includes(direction)
+      ||!(state.attributes.supported_features&FEATURES.volume))return;
+    const requested=Math.min(100,Math.max(0,percent+direction));if(requested===percent)return;
+    return this._run(()=>this.hass.callService('media_player','volume_set',{volume_level:nudgePercentLevel(requested)},{entity_id:id}),null,{id,percent:requested,row});
+  }
+  _roomPlay(id,row){
+    const view=project(this.hass,this._entity),state=this.hass?.states?.[id];
+    if(!row.isConnected||this._rows.get(id)!==row||!view||view.busy||row.dataset.owner!==view.owner||!view.candidates.includes(id))return;
+    const action=transportAction(state);if(!action)return;
+    return this._run(()=>this.hass.callService('loxone','audio_room_transport',{action},{entity_id:id}));
+  }
+  _groupPlay(){
+    const view=project(this.hass,this._entity);if(!view||view.busy)return;
+    const action=transportAction(this.hass.states[view.leader]);if(!action)return;
+    const service='media_'+action;
+    return this._run(()=>this.hass.callService('media_player',service,{}, {entity_id:view.leader}));
+  }
+  async _membership(id,included,row){
+    const original=project(this.hass,this._entity);if(!original||original.busy)return;
+    if(!row.isConnected||this._rows.get(id)!==row||row.dataset.owner!==original.owner||!original.candidates.includes(id)||id===this._entity||this._pending){this._render();return;}
+    if(included===original.members.includes(id)){this._render();return;}
+    const expected=included?[...original.members,id]:original.members.filter(x=>x!==id);
+    return this._run(()=>included
+      ?this.hass.callService('media_player','join',{group_members:[id]},{entity_id:this._entity})
+      :this.hass.callService('media_player','unjoin',{}, {entity_id:id}),expected);
+  }
+}
+
+class LoxoneGroupControlEditor extends HTMLElement {
+  constructor(){super();this.attachShadow({mode:'open'});}
+  setConfig(config){this._config={...config};this._render();}
+  set hass(value){this._hass=value;this._render();}
+  _render(){
+    if(!this._hass||!this._config)return;
+    this.shadowRoot.replaceChildren();const label=node('label','Loxone speaker '),select=node('select',null,{'aria-label':'Loxone speaker'});
+    for(const id of Object.keys(this._hass.states).filter(id=>project(this._hass,id)).sort()){
+      const option=node('option',nameOf(this._hass.states[id]),{value:id});select.append(option);
+    }
+    select.value=this._config.entity;select.onchange=()=>{this._config={...this._config,entity:select.value};this.dispatchEvent(new CustomEvent('config-changed',{detail:{config:this._config},bubbles:true,composed:true}));};
+    label.append(select);this.shadowRoot.append(label);
+    const presentationLabel=node('label','Presentation '),presentation=node('select',null,{'aria-label':'Presentation'});
+    presentation.append(node('option','Groups button',{value:'button'}),node('option','Native media player + Groups',{value:'player'}));
+    presentation.value=this._config.presentation||'button';
+    presentation.onchange=()=>{this._config={...this._config,presentation:presentation.value};this.dispatchEvent(new CustomEvent('config-changed',{detail:{config:this._config},bubbles:true,composed:true}));};
+    presentationLabel.append(presentation);this.shadowRoot.append(presentationLabel);
+  }
+}
+if(!customElements.get('loxone-group-control-card'))customElements.define('loxone-group-control-card',LoxoneGroupControlCard);
+if(!customElements.get('loxone-group-control-editor'))customElements.define('loxone-group-control-editor',LoxoneGroupControlEditor);
+window.customCards=window.customCards||[];
+if(!window.customCards.some(c=>c.type==='loxone-group-control-card'))window.customCards.push({type:'loxone-group-control-card',name:'Loxone group controls',description:'Native group membership, transport and independent room volumes',preview:true});

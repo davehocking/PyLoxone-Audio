@@ -13,7 +13,7 @@ from unittest.mock import AsyncMock
 import pytest
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.common import async_fire_time_changed
+from pytest_homeassistant.common import async_fire_time_changed
 
 from custom_components.loxone import media_player
 from test_audio_artwork_ha import cover_bytes, publish

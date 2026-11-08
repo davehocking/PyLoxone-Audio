@@ -1,0 +1,4241 @@
+[
+  {
+    "domain": "media_player",
+    "service": "volume_set",
+    "data": {
+      "entity_id": "media_player.synthetic_speaker_2",
+      "volume_level": 0.45
+    },
+    "states": {
+      "media_player.synthetic_speaker_1": {
+        "entity_id": "media_player.synthetic_speaker_1",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.25,
+          "uuid": "00000001-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.1,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_1?token=f1fad6928f05fedc2ca9f3b6a275f8e862abd47ec4044d8519311e76c87a289d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-ac9ece961a984401bde505a35dfc65e9",
+          "friendly_name": "Synthetic speaker 1",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.630864+00:00",
+        "last_reported": "2026-11-02T00:43:39.899027+00:00",
+        "last_updated": "2026-11-02T00:43:39.649099+00:00",
+        "context": {
+          "id": "01M6CVCF81SMFNVQRTQA2QPN01",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_2": {
+        "entity_id": "media_player.synthetic_speaker_2",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.25,
+          "uuid": "00000002-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.4,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_2?token=c1296147d7ba902b2164d01848e6ae3f7e72a152885f6c9f75758e4c9a3b9d98&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-15366e4e641f4e7ea5f1aecee7e45fbd",
+          "friendly_name": "Synthetic speaker 2",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_3": {
+        "entity_id": "media_player.synthetic_speaker_3",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000003-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_3?token=44395990f8a0fe4c8fa7d46535367d53c9231aaf8a32753a168b21adbd21f6d6&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-72a9688eb71c437da4212c3a8311f8e2",
+          "friendly_name": "Synthetic speaker 3",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.754847+00:00",
+        "last_reported": "2026-11-02T00:43:39.913614+00:00",
+        "last_updated": "2026-11-02T00:43:39.782677+00:00",
+        "context": {
+          "id": "01M6CVCFC6DRQNCAZ2FWV08563",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_4": {
+        "entity_id": "media_player.synthetic_speaker_4",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000004-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.9,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_4?token=11d39d2d741bfebdfb966559f698d5728864c5ebc2d8555b1a6c28ce92c43390&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-6c48197fa2664017816f070e9f5abbbc",
+          "friendly_name": "Synthetic speaker 4",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.815465+00:00",
+        "last_reported": "2026-11-02T00:43:39.919803+00:00",
+        "last_updated": "2026-11-02T00:43:39.815465+00:00",
+        "context": {
+          "id": "01M6CVCFD7PPVTQGNVDBWGDKAB",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_5": {
+        "entity_id": "media_player.synthetic_speaker_5",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_5"
+          ],
+          "volume_level": 0.2,
+          "uuid": "00000005-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_5"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.2,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_5?token=82d512f355f7b1f0e9811a34f1d7d329ef9d3114f98ef0a1dce1800e89ba4b1d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-7687bd6d36374502b5b5600cc65e09ee",
+          "friendly_name": "Synthetic speaker 5",
+          "supported_features": 5920309
+        },
+        "last_changed": "2026-11-02T00:43:39.881232+00:00",
+        "last_reported": "2026-11-02T00:43:39.925496+00:00",
+        "last_updated": "2026-11-02T00:43:39.881232+00:00",
+        "context": {
+          "id": "01M6CVCFF9CJDCWDNBNBSER6TJ",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_6": {
+        "entity_id": "media_player.synthetic_speaker_6",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.3,
+          "uuid": "00000006-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_6?token=25e565f4b2c0659872cf7d6886f28be977f644bc9166694a433214a5618b27c4&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-e9713a56bcd64362a079584647742cd9",
+          "friendly_name": "Synthetic speaker 6",
+          "supported_features": 5920309
+        },
+        "last_changed": "2026-11-02T00:43:39.944341+00:00",
+        "last_reported": "2026-11-02T00:43:39.950101+00:00",
+        "last_updated": "2026-11-02T00:43:39.944341+00:00",
+        "context": {
+          "id": "01M6CVCFH8VCFGY4CE21C97T1W",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_foreign": {
+        "entity_id": "media_player.synthetic_foreign",
+        "state": "paused",
+        "attributes": {
+          "friendly_name": "Synthetic foreign integration",
+          "supported_features": 545845,
+          "volume_level": 0.5,
+          "group_members": [
+            "media_player.synthetic_foreign"
+          ]
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      }
+    },
+    "label": "group-volume"
+  },
+  {
+    "domain": "media_player",
+    "service": "volume_set",
+    "data": {
+      "volume_level": 0.55
+    },
+    "target": {
+      "entity_id": "media_player.synthetic_speaker_1"
+    },
+    "states": {
+      "media_player.synthetic_speaker_1": {
+        "entity_id": "media_player.synthetic_speaker_1",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.45,
+          "uuid": "00000001-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_1?token=f1fad6928f05fedc2ca9f3b6a275f8e862abd47ec4044d8519311e76c87a289d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-ac9ece961a984401bde505a35dfc65e9",
+          "friendly_name": "Synthetic speaker 1",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.630864+00:00",
+        "last_reported": "2026-11-02T00:43:40.191598+00:00",
+        "last_updated": "2026-11-02T00:43:40.191598+00:00",
+        "context": {
+          "id": "01M6CVCFRZR16YBAEPB2YJSXH4",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_2": {
+        "entity_id": "media_player.synthetic_speaker_2",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.45,
+          "uuid": "00000002-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_2?token=c1296147d7ba902b2164d01848e6ae3f7e72a152885f6c9f75758e4c9a3b9d98&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-15366e4e641f4e7ea5f1aecee7e45fbd",
+          "friendly_name": "Synthetic speaker 2",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:40.240449+00:00",
+        "last_updated": "2026-11-02T00:43:40.203180+00:00",
+        "context": {
+          "id": "01M6CVCFHF9ZKFM6YEW3C05ADW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_3": {
+        "entity_id": "media_player.synthetic_speaker_3",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000003-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_3?token=44395990f8a0fe4c8fa7d46535367d53c9231aaf8a32753a168b21adbd21f6d6&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-72a9688eb71c437da4212c3a8311f8e2",
+          "friendly_name": "Synthetic speaker 3",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.754847+00:00",
+        "last_reported": "2026-11-02T00:43:40.209399+00:00",
+        "last_updated": "2026-11-02T00:43:40.209399+00:00",
+        "context": {
+          "id": "01M6CVCFSH14HXFPSXJ45YC8R9",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_4": {
+        "entity_id": "media_player.synthetic_speaker_4",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000004-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.9,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_4?token=11d39d2d741bfebdfb966559f698d5728864c5ebc2d8555b1a6c28ce92c43390&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-6c48197fa2664017816f070e9f5abbbc",
+          "friendly_name": "Synthetic speaker 4",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.815465+00:00",
+        "last_reported": "2026-11-02T00:43:40.216038+00:00",
+        "last_updated": "2026-11-02T00:43:40.216038+00:00",
+        "context": {
+          "id": "01M6CVCFSR6C83DZ02J92K89ZS",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_5": {
+        "entity_id": "media_player.synthetic_speaker_5",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_5"
+          ],
+          "volume_level": 0.2,
+          "uuid": "00000005-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_5"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.2,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_5?token=82d512f355f7b1f0e9811a34f1d7d329ef9d3114f98ef0a1dce1800e89ba4b1d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-7687bd6d36374502b5b5600cc65e09ee",
+          "friendly_name": "Synthetic speaker 5",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.881232+00:00",
+        "last_reported": "2026-11-02T00:43:40.221808+00:00",
+        "last_updated": "2026-11-02T00:43:40.221808+00:00",
+        "context": {
+          "id": "01M6CVCFSXSNJR3SRJN8KQT6TC",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_6": {
+        "entity_id": "media_player.synthetic_speaker_6",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.3,
+          "uuid": "00000006-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_6?token=25e565f4b2c0659872cf7d6886f28be977f644bc9166694a433214a5618b27c4&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-e9713a56bcd64362a079584647742cd9",
+          "friendly_name": "Synthetic speaker 6",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.944341+00:00",
+        "last_reported": "2026-11-02T00:43:40.230165+00:00",
+        "last_updated": "2026-11-02T00:43:40.230165+00:00",
+        "context": {
+          "id": "01M6CVCFT6CNW8N9XW3EJSSTNF",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_foreign": {
+        "entity_id": "media_player.synthetic_foreign",
+        "state": "paused",
+        "attributes": {
+          "friendly_name": "Synthetic foreign integration",
+          "supported_features": 545845,
+          "volume_level": 0.5,
+          "group_members": [
+            "media_player.synthetic_foreign"
+          ]
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      }
+    },
+    "label": "manager-group-volume"
+  },
+  {
+    "domain": "loxone",
+    "service": "audio_room_volume",
+    "data": {
+      "volume_percent": 29
+    },
+    "target": {
+      "entity_id": "media_player.synthetic_speaker_1"
+    },
+    "states": {
+      "media_player.synthetic_speaker_1": {
+        "entity_id": "media_player.synthetic_speaker_1",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.55,
+          "uuid": "00000001-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.4,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_1?token=f1fad6928f05fedc2ca9f3b6a275f8e862abd47ec4044d8519311e76c87a289d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-ac9ece961a984401bde505a35dfc65e9",
+          "friendly_name": "Synthetic speaker 1",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.630864+00:00",
+        "last_reported": "2026-11-02T00:43:40.520116+00:00",
+        "last_updated": "2026-11-02T00:43:40.472432+00:00",
+        "context": {
+          "id": "01M6CVCFTH2SZXNC1FMK9QSJWK",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_2": {
+        "entity_id": "media_player.synthetic_speaker_2",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.55,
+          "uuid": "00000002-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.7,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_2?token=c1296147d7ba902b2164d01848e6ae3f7e72a152885f6c9f75758e4c9a3b9d98&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-15366e4e641f4e7ea5f1aecee7e45fbd",
+          "friendly_name": "Synthetic speaker 2",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:40.482438+00:00",
+        "last_updated": "2026-11-02T00:43:40.482438+00:00",
+        "context": {
+          "id": "01M6CVCFHF9ZKFM6YEW3C05ADW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_3": {
+        "entity_id": "media_player.synthetic_speaker_3",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000003-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_3?token=44395990f8a0fe4c8fa7d46535367d53c9231aaf8a32753a168b21adbd21f6d6&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-72a9688eb71c437da4212c3a8311f8e2",
+          "friendly_name": "Synthetic speaker 3",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.754847+00:00",
+        "last_reported": "2026-11-02T00:43:40.495250+00:00",
+        "last_updated": "2026-11-02T00:43:40.495250+00:00",
+        "context": {
+          "id": "01M6CVCG2FB6CP520KVARJ7HZV",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_4": {
+        "entity_id": "media_player.synthetic_speaker_4",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000004-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.9,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_4?token=11d39d2d741bfebdfb966559f698d5728864c5ebc2d8555b1a6c28ce92c43390&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-6c48197fa2664017816f070e9f5abbbc",
+          "friendly_name": "Synthetic speaker 4",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.815465+00:00",
+        "last_reported": "2026-11-02T00:43:40.502541+00:00",
+        "last_updated": "2026-11-02T00:43:40.502541+00:00",
+        "context": {
+          "id": "01M6CVCG2PWQAN6R840FSG95J2",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_5": {
+        "entity_id": "media_player.synthetic_speaker_5",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_5"
+          ],
+          "volume_level": 0.2,
+          "uuid": "00000005-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_5"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.2,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_5?token=82d512f355f7b1f0e9811a34f1d7d329ef9d3114f98ef0a1dce1800e89ba4b1d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-7687bd6d36374502b5b5600cc65e09ee",
+          "friendly_name": "Synthetic speaker 5",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.881232+00:00",
+        "last_reported": "2026-11-02T00:43:40.508216+00:00",
+        "last_updated": "2026-11-02T00:43:40.508216+00:00",
+        "context": {
+          "id": "01M6CVCG2WQVS9WHCXWFFXM49P",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_6": {
+        "entity_id": "media_player.synthetic_speaker_6",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.3,
+          "uuid": "00000006-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_6?token=25e565f4b2c0659872cf7d6886f28be977f644bc9166694a433214a5618b27c4&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-e9713a56bcd64362a079584647742cd9",
+          "friendly_name": "Synthetic speaker 6",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.944341+00:00",
+        "last_reported": "2026-11-02T00:43:40.513679+00:00",
+        "last_updated": "2026-11-02T00:43:40.513679+00:00",
+        "context": {
+          "id": "01M6CVCG31MDVVZQZW2V9MVP64",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_foreign": {
+        "entity_id": "media_player.synthetic_foreign",
+        "state": "paused",
+        "attributes": {
+          "friendly_name": "Synthetic foreign integration",
+          "supported_features": 545845,
+          "volume_level": 0.5,
+          "group_members": [
+            "media_player.synthetic_foreign"
+          ]
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      }
+    },
+    "label": "room-volume"
+  },
+  {
+    "domain": "loxone",
+    "service": "audio_room_volume",
+    "data": {
+      "volume_percent": 30
+    },
+    "target": {
+      "entity_id": "media_player.synthetic_speaker_1"
+    },
+    "states": {
+      "media_player.synthetic_speaker_1": {
+        "entity_id": "media_player.synthetic_speaker_1",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.5,
+          "uuid": "00000001-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.29,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_1?token=f1fad6928f05fedc2ca9f3b6a275f8e862abd47ec4044d8519311e76c87a289d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-ac9ece961a984401bde505a35dfc65e9",
+          "friendly_name": "Synthetic speaker 1",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.630864+00:00",
+        "last_reported": "2026-11-02T00:43:40.692307+00:00",
+        "last_updated": "2026-11-02T00:43:40.646764+00:00",
+        "context": {
+          "id": "01M6CVCG38Q7YFMZF9KEBPME24",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_2": {
+        "entity_id": "media_player.synthetic_speaker_2",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.5,
+          "uuid": "00000002-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.7,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_2?token=c1296147d7ba902b2164d01848e6ae3f7e72a152885f6c9f75758e4c9a3b9d98&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-15366e4e641f4e7ea5f1aecee7e45fbd",
+          "friendly_name": "Synthetic speaker 2",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:40.653915+00:00",
+        "last_updated": "2026-11-02T00:43:40.653915+00:00",
+        "context": {
+          "id": "01M6CVCFHF9ZKFM6YEW3C05ADW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_3": {
+        "entity_id": "media_player.synthetic_speaker_3",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000003-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_3?token=44395990f8a0fe4c8fa7d46535367d53c9231aaf8a32753a168b21adbd21f6d6&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-72a9688eb71c437da4212c3a8311f8e2",
+          "friendly_name": "Synthetic speaker 3",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.754847+00:00",
+        "last_reported": "2026-11-02T00:43:40.660290+00:00",
+        "last_updated": "2026-11-02T00:43:40.660290+00:00",
+        "context": {
+          "id": "01M6CVCG7M4M6BYCCEFT7C3VAN",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_4": {
+        "entity_id": "media_player.synthetic_speaker_4",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000004-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.9,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_4?token=11d39d2d741bfebdfb966559f698d5728864c5ebc2d8555b1a6c28ce92c43390&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-6c48197fa2664017816f070e9f5abbbc",
+          "friendly_name": "Synthetic speaker 4",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.815465+00:00",
+        "last_reported": "2026-11-02T00:43:40.666376+00:00",
+        "last_updated": "2026-11-02T00:43:40.666376+00:00",
+        "context": {
+          "id": "01M6CVCG7TQA292HSSWWSAKCAD",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_5": {
+        "entity_id": "media_player.synthetic_speaker_5",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_5"
+          ],
+          "volume_level": 0.2,
+          "uuid": "00000005-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_5"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.2,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_5?token=82d512f355f7b1f0e9811a34f1d7d329ef9d3114f98ef0a1dce1800e89ba4b1d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-7687bd6d36374502b5b5600cc65e09ee",
+          "friendly_name": "Synthetic speaker 5",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.881232+00:00",
+        "last_reported": "2026-11-02T00:43:40.675855+00:00",
+        "last_updated": "2026-11-02T00:43:40.675855+00:00",
+        "context": {
+          "id": "01M6CVCG83T8F9QG7KAFE970KB",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_6": {
+        "entity_id": "media_player.synthetic_speaker_6",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.3,
+          "uuid": "00000006-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_6?token=25e565f4b2c0659872cf7d6886f28be977f644bc9166694a433214a5618b27c4&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-e9713a56bcd64362a079584647742cd9",
+          "friendly_name": "Synthetic speaker 6",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.944341+00:00",
+        "last_reported": "2026-11-02T00:43:40.685484+00:00",
+        "last_updated": "2026-11-02T00:43:40.685484+00:00",
+        "context": {
+          "id": "01M6CVCG8DVCVHV956CA61X3D0",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_foreign": {
+        "entity_id": "media_player.synthetic_foreign",
+        "state": "paused",
+        "attributes": {
+          "friendly_name": "Synthetic foreign integration",
+          "supported_features": 545845,
+          "volume_level": 0.5,
+          "group_members": [
+            "media_player.synthetic_foreign"
+          ]
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      }
+    },
+    "label": "room-nudge"
+  },
+  {
+    "domain": "loxone",
+    "service": "audio_group_manage",
+    "data": {
+      "action": "create",
+      "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+      "members": [
+        "media_player.synthetic_speaker_6"
+      ]
+    },
+    "target": {
+      "entity_id": "media_player.synthetic_speaker_5"
+    },
+    "states": {
+      "media_player.synthetic_speaker_1": {
+        "entity_id": "media_player.synthetic_speaker_1",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.5,
+          "uuid": "00000001-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_1?token=f1fad6928f05fedc2ca9f3b6a275f8e862abd47ec4044d8519311e76c87a289d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-ac9ece961a984401bde505a35dfc65e9",
+          "friendly_name": "Synthetic speaker 1",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.630864+00:00",
+        "last_reported": "2026-11-02T00:43:40.862690+00:00",
+        "last_updated": "2026-11-02T00:43:40.810646+00:00",
+        "context": {
+          "id": "01M6CVCG8NDAXG768WJ9EWKSPT",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_2": {
+        "entity_id": "media_player.synthetic_speaker_2",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.5,
+          "uuid": "00000002-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.7,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_2?token=c1296147d7ba902b2164d01848e6ae3f7e72a152885f6c9f75758e4c9a3b9d98&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-15366e4e641f4e7ea5f1aecee7e45fbd",
+          "friendly_name": "Synthetic speaker 2",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:40.818764+00:00",
+        "last_updated": "2026-11-02T00:43:40.818764+00:00",
+        "context": {
+          "id": "01M6CVCFHF9ZKFM6YEW3C05ADW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_3": {
+        "entity_id": "media_player.synthetic_speaker_3",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000003-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_3?token=44395990f8a0fe4c8fa7d46535367d53c9231aaf8a32753a168b21adbd21f6d6&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-72a9688eb71c437da4212c3a8311f8e2",
+          "friendly_name": "Synthetic speaker 3",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.754847+00:00",
+        "last_reported": "2026-11-02T00:43:40.828178+00:00",
+        "last_updated": "2026-11-02T00:43:40.828178+00:00",
+        "context": {
+          "id": "01M6CVCGCWPBYHPD74BB46P30R",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_4": {
+        "entity_id": "media_player.synthetic_speaker_4",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000004-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.9,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_4?token=11d39d2d741bfebdfb966559f698d5728864c5ebc2d8555b1a6c28ce92c43390&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-6c48197fa2664017816f070e9f5abbbc",
+          "friendly_name": "Synthetic speaker 4",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.815465+00:00",
+        "last_reported": "2026-11-02T00:43:40.834378+00:00",
+        "last_updated": "2026-11-02T00:43:40.834378+00:00",
+        "context": {
+          "id": "01M6CVCGD2GWE06T2D6J9KTD5H",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_5": {
+        "entity_id": "media_player.synthetic_speaker_5",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_5"
+          ],
+          "volume_level": 0.2,
+          "uuid": "00000005-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_5"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.2,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_5?token=82d512f355f7b1f0e9811a34f1d7d329ef9d3114f98ef0a1dce1800e89ba4b1d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-7687bd6d36374502b5b5600cc65e09ee",
+          "friendly_name": "Synthetic speaker 5",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.881232+00:00",
+        "last_reported": "2026-11-02T00:43:40.841354+00:00",
+        "last_updated": "2026-11-02T00:43:40.841354+00:00",
+        "context": {
+          "id": "01M6CVCGD9X61TYQX0WPMKHPKE",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_6": {
+        "entity_id": "media_player.synthetic_speaker_6",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.3,
+          "uuid": "00000006-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "251dedacf7ac052c114915c6b9ac3a753c7933d66f6f9a60880fe12c29105c12",
+            "members": [
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_6?token=25e565f4b2c0659872cf7d6886f28be977f644bc9166694a433214a5618b27c4&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-e9713a56bcd64362a079584647742cd9",
+          "friendly_name": "Synthetic speaker 6",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.944341+00:00",
+        "last_reported": "2026-11-02T00:43:40.849427+00:00",
+        "last_updated": "2026-11-02T00:43:40.849427+00:00",
+        "context": {
+          "id": "01M6CVCGDH71BA25JA2RFJ8Q9B",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_foreign": {
+        "entity_id": "media_player.synthetic_foreign",
+        "state": "paused",
+        "attributes": {
+          "friendly_name": "Synthetic foreign integration",
+          "supported_features": 545845,
+          "volume_level": 0.5,
+          "group_members": [
+            "media_player.synthetic_foreign"
+          ]
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      }
+    },
+    "label": "created"
+  },
+  {
+    "domain": "loxone",
+    "service": "audio_group_manage",
+    "data": {
+      "action": "destroy",
+      "revision": "6ad1a300ee06ba10000e68b455b5be46085d52337fd1f1475457781e265eae58",
+      "group_id": "outside"
+    },
+    "target": {
+      "entity_id": "media_player.synthetic_speaker_3"
+    },
+    "states": {
+      "media_player.synthetic_speaker_1": {
+        "entity_id": "media_player.synthetic_speaker_1",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.5,
+          "uuid": "00000001-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "6ad1a300ee06ba10000e68b455b5be46085d52337fd1f1475457781e265eae58",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_1?token=f1fad6928f05fedc2ca9f3b6a275f8e862abd47ec4044d8519311e76c87a289d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-ac9ece961a984401bde505a35dfc65e9",
+          "friendly_name": "Synthetic speaker 1",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.630864+00:00",
+        "last_reported": "2026-11-02T00:43:41.002656+00:00",
+        "last_updated": "2026-11-02T00:43:41.002656+00:00",
+        "context": {
+          "id": "01M6CVCG8NDAXG768WJ9EWKSPT",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_2": {
+        "entity_id": "media_player.synthetic_speaker_2",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.5,
+          "uuid": "00000002-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "6ad1a300ee06ba10000e68b455b5be46085d52337fd1f1475457781e265eae58",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.7,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_2?token=c1296147d7ba902b2164d01848e6ae3f7e72a152885f6c9f75758e4c9a3b9d98&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-15366e4e641f4e7ea5f1aecee7e45fbd",
+          "friendly_name": "Synthetic speaker 2",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:41.008967+00:00",
+        "last_updated": "2026-11-02T00:43:41.008967+00:00",
+        "context": {
+          "id": "01M6CVCFHF9ZKFM6YEW3C05ADW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_3": {
+        "entity_id": "media_player.synthetic_speaker_3",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000003-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "6ad1a300ee06ba10000e68b455b5be46085d52337fd1f1475457781e265eae58",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_3?token=44395990f8a0fe4c8fa7d46535367d53c9231aaf8a32753a168b21adbd21f6d6&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-72a9688eb71c437da4212c3a8311f8e2",
+          "friendly_name": "Synthetic speaker 3",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.754847+00:00",
+        "last_reported": "2026-11-02T00:43:41.015341+00:00",
+        "last_updated": "2026-11-02T00:43:41.015341+00:00",
+        "context": {
+          "id": "01M6CVCGJQBCAE3V1BEFZ0GNTY",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_4": {
+        "entity_id": "media_player.synthetic_speaker_4",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000004-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "6ad1a300ee06ba10000e68b455b5be46085d52337fd1f1475457781e265eae58",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.9,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_4?token=11d39d2d741bfebdfb966559f698d5728864c5ebc2d8555b1a6c28ce92c43390&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-6c48197fa2664017816f070e9f5abbbc",
+          "friendly_name": "Synthetic speaker 4",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.815465+00:00",
+        "last_reported": "2026-11-02T00:43:41.022554+00:00",
+        "last_updated": "2026-11-02T00:43:41.022554+00:00",
+        "context": {
+          "id": "01M6CVCGJYTS4WSYVZK6DAE17D",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_5": {
+        "entity_id": "media_player.synthetic_speaker_5",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_5",
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.25,
+          "uuid": "00000005-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "6ad1a300ee06ba10000e68b455b5be46085d52337fd1f1475457781e265eae58",
+            "members": [
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "created",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.2,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_5?token=82d512f355f7b1f0e9811a34f1d7d329ef9d3114f98ef0a1dce1800e89ba4b1d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-7687bd6d36374502b5b5600cc65e09ee",
+          "friendly_name": "Synthetic speaker 5",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.881232+00:00",
+        "last_reported": "2026-11-02T00:43:41.049547+00:00",
+        "last_updated": "2026-11-02T00:43:41.032722+00:00",
+        "context": {
+          "id": "01M6CVCGDZQ86Z386H8JTKRT4C",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_6": {
+        "entity_id": "media_player.synthetic_speaker_6",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_5",
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.25,
+          "uuid": "00000006-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "6ad1a300ee06ba10000e68b455b5be46085d52337fd1f1475457781e265eae58",
+            "members": [
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "created",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_6?token=25e565f4b2c0659872cf7d6886f28be977f644bc9166694a433214a5618b27c4&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-e9713a56bcd64362a079584647742cd9",
+          "friendly_name": "Synthetic speaker 6",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.944341+00:00",
+        "last_reported": "2026-11-02T00:43:41.042643+00:00",
+        "last_updated": "2026-11-02T00:43:41.042643+00:00",
+        "context": {
+          "id": "01M6CVCGKJWMJZT983XRK82K6W",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_foreign": {
+        "entity_id": "media_player.synthetic_foreign",
+        "state": "paused",
+        "attributes": {
+          "friendly_name": "Synthetic foreign integration",
+          "supported_features": 545845,
+          "volume_level": 0.5,
+          "group_members": [
+            "media_player.synthetic_foreign"
+          ]
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      }
+    },
+    "label": "destroyed-outside"
+  },
+  {
+    "domain": "loxone",
+    "service": "audio_group_manage",
+    "data": {
+      "action": "remove",
+      "revision": "713282bd475e3794629bd0c1d23782d827741c95cdf4c721c571e2b8e2932360",
+      "group_id": "one"
+    },
+    "target": {
+      "entity_id": "media_player.synthetic_speaker_1"
+    },
+    "states": {
+      "media_player.synthetic_speaker_1": {
+        "entity_id": "media_player.synthetic_speaker_1",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.5,
+          "uuid": "00000001-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "713282bd475e3794629bd0c1d23782d827741c95cdf4c721c571e2b8e2932360",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_1?token=f1fad6928f05fedc2ca9f3b6a275f8e862abd47ec4044d8519311e76c87a289d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-ac9ece961a984401bde505a35dfc65e9",
+          "friendly_name": "Synthetic speaker 1",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.630864+00:00",
+        "last_reported": "2026-11-02T00:43:41.127030+00:00",
+        "last_updated": "2026-11-02T00:43:41.127030+00:00",
+        "context": {
+          "id": "01M6CVCG8NDAXG768WJ9EWKSPT",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_2": {
+        "entity_id": "media_player.synthetic_speaker_2",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.5,
+          "uuid": "00000002-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "713282bd475e3794629bd0c1d23782d827741c95cdf4c721c571e2b8e2932360",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.7,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_2?token=c1296147d7ba902b2164d01848e6ae3f7e72a152885f6c9f75758e4c9a3b9d98&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-15366e4e641f4e7ea5f1aecee7e45fbd",
+          "friendly_name": "Synthetic speaker 2",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:41.133365+00:00",
+        "last_updated": "2026-11-02T00:43:41.133365+00:00",
+        "context": {
+          "id": "01M6CVCFHF9ZKFM6YEW3C05ADW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_3": {
+        "entity_id": "media_player.synthetic_speaker_3",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3"
+          ],
+          "volume_level": 0.6,
+          "uuid": "00000003-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "713282bd475e3794629bd0c1d23782d827741c95cdf4c721c571e2b8e2932360",
+            "members": [
+              "media_player.synthetic_speaker_3"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_3?token=44395990f8a0fe4c8fa7d46535367d53c9231aaf8a32753a168b21adbd21f6d6&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-72a9688eb71c437da4212c3a8311f8e2",
+          "friendly_name": "Synthetic speaker 3",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.754847+00:00",
+        "last_reported": "2026-11-02T00:43:41.190035+00:00",
+        "last_updated": "2026-11-02T00:43:41.152475+00:00",
+        "context": {
+          "id": "01M6CVCGKSQG5NYQ9Q6SBAEKPW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_4": {
+        "entity_id": "media_player.synthetic_speaker_4",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.9,
+          "uuid": "00000004-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "713282bd475e3794629bd0c1d23782d827741c95cdf4c721c571e2b8e2932360",
+            "members": [
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.9,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_4?token=11d39d2d741bfebdfb966559f698d5728864c5ebc2d8555b1a6c28ce92c43390&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-6c48197fa2664017816f070e9f5abbbc",
+          "friendly_name": "Synthetic speaker 4",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.815465+00:00",
+        "last_reported": "2026-11-02T00:43:41.158258+00:00",
+        "last_updated": "2026-11-02T00:43:41.164491+00:00",
+        "context": {
+          "id": "01M6CVCGQCKPF667WH3EYSX55V",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_5": {
+        "entity_id": "media_player.synthetic_speaker_5",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_5",
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.25,
+          "uuid": "00000005-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "713282bd475e3794629bd0c1d23782d827741c95cdf4c721c571e2b8e2932360",
+            "members": [
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "created",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.2,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_5?token=82d512f355f7b1f0e9811a34f1d7d329ef9d3114f98ef0a1dce1800e89ba4b1d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-7687bd6d36374502b5b5600cc65e09ee",
+          "friendly_name": "Synthetic speaker 5",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.881232+00:00",
+        "last_reported": "2026-11-02T00:43:41.171000+00:00",
+        "last_updated": "2026-11-02T00:43:41.171000+00:00",
+        "context": {
+          "id": "01M6CVCGDZQ86Z386H8JTKRT4C",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_6": {
+        "entity_id": "media_player.synthetic_speaker_6",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_5",
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.25,
+          "uuid": "00000006-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "713282bd475e3794629bd0c1d23782d827741c95cdf4c721c571e2b8e2932360",
+            "members": [
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "created",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_6?token=25e565f4b2c0659872cf7d6886f28be977f644bc9166694a433214a5618b27c4&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-e9713a56bcd64362a079584647742cd9",
+          "friendly_name": "Synthetic speaker 6",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.944341+00:00",
+        "last_reported": "2026-11-02T00:43:41.183296+00:00",
+        "last_updated": "2026-11-02T00:43:41.183296+00:00",
+        "context": {
+          "id": "01M6CVCGQZWCWK4A11W6XAYS8X",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_foreign": {
+        "entity_id": "media_player.synthetic_foreign",
+        "state": "paused",
+        "attributes": {
+          "friendly_name": "Synthetic foreign integration",
+          "supported_features": 545845,
+          "volume_level": 0.5,
+          "group_members": [
+            "media_player.synthetic_foreign"
+          ]
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      }
+    },
+    "label": "dissolved-pair"
+  },
+  {
+    "domain": "loxone",
+    "service": "audio_group_manage",
+    "data": {
+      "action": "destroy",
+      "revision": "0970c7609b445abb5b810abf486bd7b8a917c1abe1dce7cb444ba06a54620155",
+      "group_id": "created"
+    },
+    "target": {
+      "entity_id": "media_player.synthetic_speaker_5"
+    },
+    "states": {
+      "media_player.synthetic_speaker_1": {
+        "entity_id": "media_player.synthetic_speaker_1",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1"
+          ],
+          "volume_level": 0.3,
+          "uuid": "00000001-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "0970c7609b445abb5b810abf486bd7b8a917c1abe1dce7cb444ba06a54620155",
+            "members": [
+              "media_player.synthetic_speaker_1"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_1?token=f1fad6928f05fedc2ca9f3b6a275f8e862abd47ec4044d8519311e76c87a289d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-ac9ece961a984401bde505a35dfc65e9",
+          "friendly_name": "Synthetic speaker 1",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.630864+00:00",
+        "last_reported": "2026-11-02T00:43:41.329541+00:00",
+        "last_updated": "2026-11-02T00:43:41.274112+00:00",
+        "context": {
+          "id": "01M6CVCGR6KY5TQDSMQBBPZZVZ",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_2": {
+        "entity_id": "media_player.synthetic_speaker_2",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.7,
+          "uuid": "00000002-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "0970c7609b445abb5b810abf486bd7b8a917c1abe1dce7cb444ba06a54620155",
+            "members": [
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.7,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_2?token=c1296147d7ba902b2164d01848e6ae3f7e72a152885f6c9f75758e4c9a3b9d98&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-15366e4e641f4e7ea5f1aecee7e45fbd",
+          "friendly_name": "Synthetic speaker 2",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:41.280014+00:00",
+        "last_updated": "2026-11-02T00:43:41.288601+00:00",
+        "context": {
+          "id": "01M6CVCFHF9ZKFM6YEW3C05ADW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_3": {
+        "entity_id": "media_player.synthetic_speaker_3",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3"
+          ],
+          "volume_level": 0.6,
+          "uuid": "00000003-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "0970c7609b445abb5b810abf486bd7b8a917c1abe1dce7cb444ba06a54620155",
+            "members": [
+              "media_player.synthetic_speaker_3"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_3?token=44395990f8a0fe4c8fa7d46535367d53c9231aaf8a32753a168b21adbd21f6d6&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-72a9688eb71c437da4212c3a8311f8e2",
+          "friendly_name": "Synthetic speaker 3",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.754847+00:00",
+        "last_reported": "2026-11-02T00:43:41.299029+00:00",
+        "last_updated": "2026-11-02T00:43:41.299029+00:00",
+        "context": {
+          "id": "01M6CVCGKSQG5NYQ9Q6SBAEKPW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_4": {
+        "entity_id": "media_player.synthetic_speaker_4",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.9,
+          "uuid": "00000004-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "0970c7609b445abb5b810abf486bd7b8a917c1abe1dce7cb444ba06a54620155",
+            "members": [
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.9,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_4?token=11d39d2d741bfebdfb966559f698d5728864c5ebc2d8555b1a6c28ce92c43390&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-6c48197fa2664017816f070e9f5abbbc",
+          "friendly_name": "Synthetic speaker 4",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.815465+00:00",
+        "last_reported": "2026-11-02T00:43:41.305532+00:00",
+        "last_updated": "2026-11-02T00:43:41.305532+00:00",
+        "context": {
+          "id": "01M6CVCGVS4WEEV2CV92S3JB6H",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_5": {
+        "entity_id": "media_player.synthetic_speaker_5",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_5",
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.25,
+          "uuid": "00000005-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "0970c7609b445abb5b810abf486bd7b8a917c1abe1dce7cb444ba06a54620155",
+            "members": [
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "created",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.2,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_5?token=82d512f355f7b1f0e9811a34f1d7d329ef9d3114f98ef0a1dce1800e89ba4b1d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-7687bd6d36374502b5b5600cc65e09ee",
+          "friendly_name": "Synthetic speaker 5",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.881232+00:00",
+        "last_reported": "2026-11-02T00:43:41.311770+00:00",
+        "last_updated": "2026-11-02T00:43:41.311770+00:00",
+        "context": {
+          "id": "01M6CVCGDZQ86Z386H8JTKRT4C",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_6": {
+        "entity_id": "media_player.synthetic_speaker_6",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_5",
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.25,
+          "uuid": "00000006-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "0970c7609b445abb5b810abf486bd7b8a917c1abe1dce7cb444ba06a54620155",
+            "members": [
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "created",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_6?token=25e565f4b2c0659872cf7d6886f28be977f644bc9166694a433214a5618b27c4&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-e9713a56bcd64362a079584647742cd9",
+          "friendly_name": "Synthetic speaker 6",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.944341+00:00",
+        "last_reported": "2026-11-02T00:43:41.318180+00:00",
+        "last_updated": "2026-11-02T00:43:41.318180+00:00",
+        "context": {
+          "id": "01M6CVCGW6R6Z70WCHGF1MT9DJ",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_foreign": {
+        "entity_id": "media_player.synthetic_foreign",
+        "state": "paused",
+        "attributes": {
+          "friendly_name": "Synthetic foreign integration",
+          "supported_features": 545845,
+          "volume_level": 0.5,
+          "group_members": [
+            "media_player.synthetic_foreign"
+          ]
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      }
+    },
+    "label": "empty"
+  },
+  {
+    "domain": "loxone",
+    "service": "audio_group_manage",
+    "data": {
+      "action": "add",
+      "revision": "6a114b167524a08bea5a7af698a4ddb2048c78529b786d97503be8e902fcf4db",
+      "group_id": "one",
+      "members": [
+        "media_player.synthetic_speaker_5"
+      ]
+    },
+    "target": {
+      "entity_id": "media_player.synthetic_speaker_1"
+    },
+    "states": {
+      "media_player.synthetic_speaker_1": {
+        "entity_id": "media_player.synthetic_speaker_1",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.25,
+          "uuid": "00000001-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "6a114b167524a08bea5a7af698a4ddb2048c78529b786d97503be8e902fcf4db",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.1,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_1?token=f1fad6928f05fedc2ca9f3b6a275f8e862abd47ec4044d8519311e76c87a289d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-ac9ece961a984401bde505a35dfc65e9",
+          "friendly_name": "Synthetic speaker 1",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.630864+00:00",
+        "last_reported": "2026-11-02T00:43:41.797813+00:00",
+        "last_updated": "2026-11-02T00:43:41.611747+00:00",
+        "context": {
+          "id": "01M6CVCGR6KY5TQDSMQBBPZZVZ",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_2": {
+        "entity_id": "media_player.synthetic_speaker_2",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2"
+          ],
+          "volume_level": 0.25,
+          "uuid": "00000002-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "6a114b167524a08bea5a7af698a4ddb2048c78529b786d97503be8e902fcf4db",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.4,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_2?token=c1296147d7ba902b2164d01848e6ae3f7e72a152885f6c9f75758e4c9a3b9d98&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-15366e4e641f4e7ea5f1aecee7e45fbd",
+          "friendly_name": "Synthetic speaker 2",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:41.803972+00:00",
+        "last_updated": "2026-11-02T00:43:41.626076+00:00",
+        "context": {
+          "id": "01M6CVCFHF9ZKFM6YEW3C05ADW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_3": {
+        "entity_id": "media_player.synthetic_speaker_3",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000003-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "6a114b167524a08bea5a7af698a4ddb2048c78529b786d97503be8e902fcf4db",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_3?token=44395990f8a0fe4c8fa7d46535367d53c9231aaf8a32753a168b21adbd21f6d6&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-72a9688eb71c437da4212c3a8311f8e2",
+          "friendly_name": "Synthetic speaker 3",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.754847+00:00",
+        "last_reported": "2026-11-02T00:43:41.810760+00:00",
+        "last_updated": "2026-11-02T00:43:41.514337+00:00",
+        "context": {
+          "id": "01M6CVCGKSQG5NYQ9Q6SBAEKPW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_4": {
+        "entity_id": "media_player.synthetic_speaker_4",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000004-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "6a114b167524a08bea5a7af698a4ddb2048c78529b786d97503be8e902fcf4db",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.9,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_4?token=11d39d2d741bfebdfb966559f698d5728864c5ebc2d8555b1a6c28ce92c43390&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-6c48197fa2664017816f070e9f5abbbc",
+          "friendly_name": "Synthetic speaker 4",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.815465+00:00",
+        "last_reported": "2026-11-02T00:43:41.817435+00:00",
+        "last_updated": "2026-11-02T00:43:41.529087+00:00",
+        "context": {
+          "id": "01M6CVCH2SDNDGDFHE6DP0JC4W",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_5": {
+        "entity_id": "media_player.synthetic_speaker_5",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_5"
+          ],
+          "volume_level": 0.2,
+          "uuid": "00000005-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "6a114b167524a08bea5a7af698a4ddb2048c78529b786d97503be8e902fcf4db",
+            "members": [
+              "media_player.synthetic_speaker_5"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.2,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_5?token=82d512f355f7b1f0e9811a34f1d7d329ef9d3114f98ef0a1dce1800e89ba4b1d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-7687bd6d36374502b5b5600cc65e09ee",
+          "friendly_name": "Synthetic speaker 5",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.881232+00:00",
+        "last_reported": "2026-11-02T00:43:41.824271+00:00",
+        "last_updated": "2026-11-02T00:43:41.535270+00:00",
+        "context": {
+          "id": "01M6CVCGWJ2BA9HC3YDBY7J027",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_6": {
+        "entity_id": "media_player.synthetic_speaker_6",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.3,
+          "uuid": "00000006-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "6a114b167524a08bea5a7af698a4ddb2048c78529b786d97503be8e902fcf4db",
+            "members": [
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_6?token=25e565f4b2c0659872cf7d6886f28be977f644bc9166694a433214a5618b27c4&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-e9713a56bcd64362a079584647742cd9",
+          "friendly_name": "Synthetic speaker 6",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.944341+00:00",
+        "last_reported": "2026-11-02T00:43:41.836949+00:00",
+        "last_updated": "2026-11-02T00:43:41.542811+00:00",
+        "context": {
+          "id": "01M6CVCH36Z6DM6AYJVGGAC466",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_foreign": {
+        "entity_id": "media_player.synthetic_foreign",
+        "state": "paused",
+        "attributes": {
+          "friendly_name": "Synthetic foreign integration",
+          "supported_features": 545845,
+          "volume_level": 0.5,
+          "group_members": [
+            "media_player.synthetic_foreign"
+          ]
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      }
+    },
+    "label": "added-five"
+  },
+  {
+    "domain": "loxone",
+    "service": "audio_group_manage",
+    "data": {
+      "action": "remove",
+      "revision": "48afb6c837323f5871c7745abb49f21b9923427766fbbf15302eba2c7a6eba24",
+      "group_id": "one"
+    },
+    "target": {
+      "entity_id": "media_player.synthetic_speaker_1"
+    },
+    "states": {
+      "media_player.synthetic_speaker_1": {
+        "entity_id": "media_player.synthetic_speaker_1",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2",
+            "media_player.synthetic_speaker_5"
+          ],
+          "volume_level": 0.23,
+          "uuid": "00000001-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "48afb6c837323f5871c7745abb49f21b9923427766fbbf15302eba2c7a6eba24",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_5"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.1,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_1?token=f1fad6928f05fedc2ca9f3b6a275f8e862abd47ec4044d8519311e76c87a289d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-ac9ece961a984401bde505a35dfc65e9",
+          "friendly_name": "Synthetic speaker 1",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.630864+00:00",
+        "last_reported": "2026-11-02T00:43:41.921840+00:00",
+        "last_updated": "2026-11-02T00:43:41.921840+00:00",
+        "context": {
+          "id": "01M6CVCGR6KY5TQDSMQBBPZZVZ",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_2": {
+        "entity_id": "media_player.synthetic_speaker_2",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2",
+            "media_player.synthetic_speaker_5"
+          ],
+          "volume_level": 0.23,
+          "uuid": "00000002-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "48afb6c837323f5871c7745abb49f21b9923427766fbbf15302eba2c7a6eba24",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_5"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.4,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_2?token=c1296147d7ba902b2164d01848e6ae3f7e72a152885f6c9f75758e4c9a3b9d98&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-15366e4e641f4e7ea5f1aecee7e45fbd",
+          "friendly_name": "Synthetic speaker 2",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:41.970025+00:00",
+        "last_updated": "2026-11-02T00:43:41.928259+00:00",
+        "context": {
+          "id": "01M6CVCHCD96D8DX9174Y9MNVW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_3": {
+        "entity_id": "media_player.synthetic_speaker_3",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000003-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "48afb6c837323f5871c7745abb49f21b9923427766fbbf15302eba2c7a6eba24",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_3?token=44395990f8a0fe4c8fa7d46535367d53c9231aaf8a32753a168b21adbd21f6d6&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-72a9688eb71c437da4212c3a8311f8e2",
+          "friendly_name": "Synthetic speaker 3",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.754847+00:00",
+        "last_reported": "2026-11-02T00:43:41.941616+00:00",
+        "last_updated": "2026-11-02T00:43:41.941616+00:00",
+        "context": {
+          "id": "01M6CVCGKSQG5NYQ9Q6SBAEKPW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_4": {
+        "entity_id": "media_player.synthetic_speaker_4",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000004-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "48afb6c837323f5871c7745abb49f21b9923427766fbbf15302eba2c7a6eba24",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.9,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_4?token=11d39d2d741bfebdfb966559f698d5728864c5ebc2d8555b1a6c28ce92c43390&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-6c48197fa2664017816f070e9f5abbbc",
+          "friendly_name": "Synthetic speaker 4",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.815465+00:00",
+        "last_reported": "2026-11-02T00:43:41.947808+00:00",
+        "last_updated": "2026-11-02T00:43:41.947808+00:00",
+        "context": {
+          "id": "01M6CVCHFVRZ7ZMXS1K60B76YX",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_5": {
+        "entity_id": "media_player.synthetic_speaker_5",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1",
+            "media_player.synthetic_speaker_2",
+            "media_player.synthetic_speaker_5"
+          ],
+          "volume_level": 0.23,
+          "uuid": "00000005-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "48afb6c837323f5871c7745abb49f21b9923427766fbbf15302eba2c7a6eba24",
+            "members": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_5"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.2,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_5?token=82d512f355f7b1f0e9811a34f1d7d329ef9d3114f98ef0a1dce1800e89ba4b1d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-7687bd6d36374502b5b5600cc65e09ee",
+          "friendly_name": "Synthetic speaker 5",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.881232+00:00",
+        "last_reported": "2026-11-02T00:43:41.954115+00:00",
+        "last_updated": "2026-11-02T00:43:41.954115+00:00",
+        "context": {
+          "id": "01M6CVCGWJ2BA9HC3YDBY7J027",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_6": {
+        "entity_id": "media_player.synthetic_speaker_6",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.3,
+          "uuid": "00000006-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "48afb6c837323f5871c7745abb49f21b9923427766fbbf15302eba2c7a6eba24",
+            "members": [
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_6?token=25e565f4b2c0659872cf7d6886f28be977f644bc9166694a433214a5618b27c4&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-e9713a56bcd64362a079584647742cd9",
+          "friendly_name": "Synthetic speaker 6",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.944341+00:00",
+        "last_reported": "2026-11-02T00:43:41.959844+00:00",
+        "last_updated": "2026-11-02T00:43:41.959844+00:00",
+        "context": {
+          "id": "01M6CVCHG7ZW356W8NA3GYHEVY",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_foreign": {
+        "entity_id": "media_player.synthetic_foreign",
+        "state": "paused",
+        "attributes": {
+          "friendly_name": "Synthetic foreign integration",
+          "supported_features": 545845,
+          "volume_level": 0.5,
+          "group_members": [
+            "media_player.synthetic_foreign"
+          ]
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      }
+    },
+    "label": "removed-leader-picker"
+  },
+  {
+    "domain": "loxone",
+    "service": "audio_group_manage",
+    "data": {
+      "action": "add",
+      "revision": "0b4d707c926c23eb86ec06d8e170d4b1b74527fdb856706ae3a7094deae60f80",
+      "group_id": "one",
+      "members": [
+        "media_player.synthetic_speaker_1"
+      ]
+    },
+    "target": {
+      "entity_id": "media_player.synthetic_speaker_2"
+    },
+    "states": {
+      "media_player.synthetic_speaker_1": {
+        "entity_id": "media_player.synthetic_speaker_1",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_1"
+          ],
+          "volume_level": 0.1,
+          "uuid": "00000001-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "0b4d707c926c23eb86ec06d8e170d4b1b74527fdb856706ae3a7094deae60f80",
+            "members": [
+              "media_player.synthetic_speaker_1"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.1,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_1?token=f1fad6928f05fedc2ca9f3b6a275f8e862abd47ec4044d8519311e76c87a289d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-ac9ece961a984401bde505a35dfc65e9",
+          "friendly_name": "Synthetic speaker 1",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.630864+00:00",
+        "last_reported": "2026-11-02T00:43:42.102545+00:00",
+        "last_updated": "2026-11-02T00:43:42.056833+00:00",
+        "context": {
+          "id": "01M6CVCHGJDCK5ZY5H71YFFYHA",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_2": {
+        "entity_id": "media_player.synthetic_speaker_2",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_2",
+            "media_player.synthetic_speaker_5"
+          ],
+          "volume_level": 0.3,
+          "uuid": "00000002-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "0b4d707c926c23eb86ec06d8e170d4b1b74527fdb856706ae3a7094deae60f80",
+            "members": [
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_5"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.4,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_2?token=c1296147d7ba902b2164d01848e6ae3f7e72a152885f6c9f75758e4c9a3b9d98&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-15366e4e641f4e7ea5f1aecee7e45fbd",
+          "friendly_name": "Synthetic speaker 2",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:42.063730+00:00",
+        "last_updated": "2026-11-02T00:43:42.063730+00:00",
+        "context": {
+          "id": "01M6CVCHCD96D8DX9174Y9MNVW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_3": {
+        "entity_id": "media_player.synthetic_speaker_3",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000003-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "0b4d707c926c23eb86ec06d8e170d4b1b74527fdb856706ae3a7094deae60f80",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_3?token=44395990f8a0fe4c8fa7d46535367d53c9231aaf8a32753a168b21adbd21f6d6&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-72a9688eb71c437da4212c3a8311f8e2",
+          "friendly_name": "Synthetic speaker 3",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.754847+00:00",
+        "last_reported": "2026-11-02T00:43:42.070038+00:00",
+        "last_updated": "2026-11-02T00:43:42.070038+00:00",
+        "context": {
+          "id": "01M6CVCGKSQG5NYQ9Q6SBAEKPW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_4": {
+        "entity_id": "media_player.synthetic_speaker_4",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000004-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "0b4d707c926c23eb86ec06d8e170d4b1b74527fdb856706ae3a7094deae60f80",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.9,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_4?token=11d39d2d741bfebdfb966559f698d5728864c5ebc2d8555b1a6c28ce92c43390&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-6c48197fa2664017816f070e9f5abbbc",
+          "friendly_name": "Synthetic speaker 4",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.815465+00:00",
+        "last_reported": "2026-11-02T00:43:42.076470+00:00",
+        "last_updated": "2026-11-02T00:43:42.076470+00:00",
+        "context": {
+          "id": "01M6CVCHKWM7BR54BVAE3MW15H",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_5": {
+        "entity_id": "media_player.synthetic_speaker_5",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_2",
+            "media_player.synthetic_speaker_5"
+          ],
+          "volume_level": 0.3,
+          "uuid": "00000005-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "0b4d707c926c23eb86ec06d8e170d4b1b74527fdb856706ae3a7094deae60f80",
+            "members": [
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_5"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.2,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_5?token=82d512f355f7b1f0e9811a34f1d7d329ef9d3114f98ef0a1dce1800e89ba4b1d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-7687bd6d36374502b5b5600cc65e09ee",
+          "friendly_name": "Synthetic speaker 5",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.881232+00:00",
+        "last_reported": "2026-11-02T00:43:42.090412+00:00",
+        "last_updated": "2026-11-02T00:43:42.090412+00:00",
+        "context": {
+          "id": "01M6CVCGWJ2BA9HC3YDBY7J027",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_6": {
+        "entity_id": "media_player.synthetic_speaker_6",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.3,
+          "uuid": "00000006-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "0b4d707c926c23eb86ec06d8e170d4b1b74527fdb856706ae3a7094deae60f80",
+            "members": [
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_6?token=25e565f4b2c0659872cf7d6886f28be977f644bc9166694a433214a5618b27c4&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-e9713a56bcd64362a079584647742cd9",
+          "friendly_name": "Synthetic speaker 6",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.944341+00:00",
+        "last_reported": "2026-11-02T00:43:42.096238+00:00",
+        "last_updated": "2026-11-02T00:43:42.096238+00:00",
+        "context": {
+          "id": "01M6CVCHMGRR20Y2SE2EFRT3YF",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_foreign": {
+        "entity_id": "media_player.synthetic_foreign",
+        "state": "paused",
+        "attributes": {
+          "friendly_name": "Synthetic foreign integration",
+          "supported_features": 545845,
+          "volume_level": 0.5,
+          "group_members": [
+            "media_player.synthetic_foreign"
+          ]
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      }
+    },
+    "label": "readded-leader"
+  },
+  {
+    "domain": "loxone",
+    "service": "audio_group_manage",
+    "data": {
+      "action": "remove",
+      "revision": "e805579b48d5ae234e946e308e45590803472b69328e78b0a22d0316206fccad",
+      "group_id": "one"
+    },
+    "target": {
+      "entity_id": "media_player.synthetic_speaker_5"
+    },
+    "states": {
+      "media_player.synthetic_speaker_1": {
+        "entity_id": "media_player.synthetic_speaker_1",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_2",
+            "media_player.synthetic_speaker_5",
+            "media_player.synthetic_speaker_1"
+          ],
+          "volume_level": 0.23,
+          "uuid": "00000001-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "e805579b48d5ae234e946e308e45590803472b69328e78b0a22d0316206fccad",
+            "members": [
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_1"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.1,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_1?token=f1fad6928f05fedc2ca9f3b6a275f8e862abd47ec4044d8519311e76c87a289d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-ac9ece961a984401bde505a35dfc65e9",
+          "friendly_name": "Synthetic speaker 1",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.630864+00:00",
+        "last_reported": "2026-11-02T00:43:42.186373+00:00",
+        "last_updated": "2026-11-02T00:43:42.186373+00:00",
+        "context": {
+          "id": "01M6CVCHGJDCK5ZY5H71YFFYHA",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_2": {
+        "entity_id": "media_player.synthetic_speaker_2",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_2",
+            "media_player.synthetic_speaker_5",
+            "media_player.synthetic_speaker_1"
+          ],
+          "volume_level": 0.23,
+          "uuid": "00000002-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "e805579b48d5ae234e946e308e45590803472b69328e78b0a22d0316206fccad",
+            "members": [
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_1"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.4,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_2?token=c1296147d7ba902b2164d01848e6ae3f7e72a152885f6c9f75758e4c9a3b9d98&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-15366e4e641f4e7ea5f1aecee7e45fbd",
+          "friendly_name": "Synthetic speaker 2",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:42.240374+00:00",
+        "last_updated": "2026-11-02T00:43:42.199582+00:00",
+        "context": {
+          "id": "01M6CVCHMP3ECCM7N2WW50HAJZ",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_3": {
+        "entity_id": "media_player.synthetic_speaker_3",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000003-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "e805579b48d5ae234e946e308e45590803472b69328e78b0a22d0316206fccad",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_3?token=44395990f8a0fe4c8fa7d46535367d53c9231aaf8a32753a168b21adbd21f6d6&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-72a9688eb71c437da4212c3a8311f8e2",
+          "friendly_name": "Synthetic speaker 3",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.754847+00:00",
+        "last_reported": "2026-11-02T00:43:42.206138+00:00",
+        "last_updated": "2026-11-02T00:43:42.206138+00:00",
+        "context": {
+          "id": "01M6CVCGKSQG5NYQ9Q6SBAEKPW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_4": {
+        "entity_id": "media_player.synthetic_speaker_4",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000004-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "e805579b48d5ae234e946e308e45590803472b69328e78b0a22d0316206fccad",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.9,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_4?token=11d39d2d741bfebdfb966559f698d5728864c5ebc2d8555b1a6c28ce92c43390&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-6c48197fa2664017816f070e9f5abbbc",
+          "friendly_name": "Synthetic speaker 4",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.815465+00:00",
+        "last_reported": "2026-11-02T00:43:42.213730+00:00",
+        "last_updated": "2026-11-02T00:43:42.213730+00:00",
+        "context": {
+          "id": "01M6CVCHR5N1GYSP2GV2XHM6AG",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_5": {
+        "entity_id": "media_player.synthetic_speaker_5",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_2",
+            "media_player.synthetic_speaker_5",
+            "media_player.synthetic_speaker_1"
+          ],
+          "volume_level": 0.23,
+          "uuid": "00000005-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "e805579b48d5ae234e946e308e45590803472b69328e78b0a22d0316206fccad",
+            "members": [
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_1"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.2,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_5?token=82d512f355f7b1f0e9811a34f1d7d329ef9d3114f98ef0a1dce1800e89ba4b1d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-7687bd6d36374502b5b5600cc65e09ee",
+          "friendly_name": "Synthetic speaker 5",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.881232+00:00",
+        "last_reported": "2026-11-02T00:43:42.220650+00:00",
+        "last_updated": "2026-11-02T00:43:42.220650+00:00",
+        "context": {
+          "id": "01M6CVCGWJ2BA9HC3YDBY7J027",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_6": {
+        "entity_id": "media_player.synthetic_speaker_6",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.3,
+          "uuid": "00000006-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "e805579b48d5ae234e946e308e45590803472b69328e78b0a22d0316206fccad",
+            "members": [
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_6?token=25e565f4b2c0659872cf7d6886f28be977f644bc9166694a433214a5618b27c4&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-e9713a56bcd64362a079584647742cd9",
+          "friendly_name": "Synthetic speaker 6",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.944341+00:00",
+        "last_reported": "2026-11-02T00:43:42.229474+00:00",
+        "last_updated": "2026-11-02T00:43:42.229474+00:00",
+        "context": {
+          "id": "01M6CVCHRN3GGFEXWP488RD0S4",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_foreign": {
+        "entity_id": "media_player.synthetic_foreign",
+        "state": "paused",
+        "attributes": {
+          "friendly_name": "Synthetic foreign integration",
+          "supported_features": 545845,
+          "volume_level": 0.5,
+          "group_members": [
+            "media_player.synthetic_foreign"
+          ]
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      }
+    },
+    "label": "removed-five"
+  },
+  {
+    "domain": "loxone",
+    "service": "audio_group_manage",
+    "data": {
+      "action": "destroy",
+      "revision": "24b9fdb4173790c6902a404a008402f8250508c7dedfcc7eb19d3cad0db29b43",
+      "group_id": "one"
+    },
+    "target": {
+      "entity_id": "media_player.synthetic_speaker_2"
+    },
+    "states": {
+      "media_player.synthetic_speaker_1": {
+        "entity_id": "media_player.synthetic_speaker_1",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_2",
+            "media_player.synthetic_speaker_1"
+          ],
+          "volume_level": 0.25,
+          "uuid": "00000001-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "24b9fdb4173790c6902a404a008402f8250508c7dedfcc7eb19d3cad0db29b43",
+            "members": [
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_1"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.1,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_1?token=f1fad6928f05fedc2ca9f3b6a275f8e862abd47ec4044d8519311e76c87a289d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-ac9ece961a984401bde505a35dfc65e9",
+          "friendly_name": "Synthetic speaker 1",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.630864+00:00",
+        "last_reported": "2026-11-02T00:43:42.317618+00:00",
+        "last_updated": "2026-11-02T00:43:42.317618+00:00",
+        "context": {
+          "id": "01M6CVCHGJDCK5ZY5H71YFFYHA",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_2": {
+        "entity_id": "media_player.synthetic_speaker_2",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_2",
+            "media_player.synthetic_speaker_1"
+          ],
+          "volume_level": 0.25,
+          "uuid": "00000002-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "24b9fdb4173790c6902a404a008402f8250508c7dedfcc7eb19d3cad0db29b43",
+            "members": [
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_1"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "one",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.4,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_2?token=c1296147d7ba902b2164d01848e6ae3f7e72a152885f6c9f75758e4c9a3b9d98&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-15366e4e641f4e7ea5f1aecee7e45fbd",
+          "friendly_name": "Synthetic speaker 2",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:42.324280+00:00",
+        "last_updated": "2026-11-02T00:43:42.324280+00:00",
+        "context": {
+          "id": "01M6CVCHMP3ECCM7N2WW50HAJZ",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_3": {
+        "entity_id": "media_player.synthetic_speaker_3",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000003-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "24b9fdb4173790c6902a404a008402f8250508c7dedfcc7eb19d3cad0db29b43",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.6,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_3?token=44395990f8a0fe4c8fa7d46535367d53c9231aaf8a32753a168b21adbd21f6d6&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-72a9688eb71c437da4212c3a8311f8e2",
+          "friendly_name": "Synthetic speaker 3",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.754847+00:00",
+        "last_reported": "2026-11-02T00:43:42.331334+00:00",
+        "last_updated": "2026-11-02T00:43:42.331334+00:00",
+        "context": {
+          "id": "01M6CVCGKSQG5NYQ9Q6SBAEKPW",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_4": {
+        "entity_id": "media_player.synthetic_speaker_4",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_3",
+            "media_player.synthetic_speaker_4"
+          ],
+          "volume_level": 0.75,
+          "uuid": "00000004-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "24b9fdb4173790c6902a404a008402f8250508c7dedfcc7eb19d3cad0db29b43",
+            "members": [
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": "outside",
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.9,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_4?token=11d39d2d741bfebdfb966559f698d5728864c5ebc2d8555b1a6c28ce92c43390&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-6c48197fa2664017816f070e9f5abbbc",
+          "friendly_name": "Synthetic speaker 4",
+          "supported_features": 545845
+        },
+        "last_changed": "2026-11-02T00:43:39.815465+00:00",
+        "last_reported": "2026-11-02T00:43:42.339858+00:00",
+        "last_updated": "2026-11-02T00:43:42.339858+00:00",
+        "context": {
+          "id": "01M6CVCHW3B8D7JAYKWMAH2G76",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_5": {
+        "entity_id": "media_player.synthetic_speaker_5",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_5"
+          ],
+          "volume_level": 0.2,
+          "uuid": "00000005-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "24b9fdb4173790c6902a404a008402f8250508c7dedfcc7eb19d3cad0db29b43",
+            "members": [
+              "media_player.synthetic_speaker_5"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.2,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_5?token=82d512f355f7b1f0e9811a34f1d7d329ef9d3114f98ef0a1dce1800e89ba4b1d&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-7687bd6d36374502b5b5600cc65e09ee",
+          "friendly_name": "Synthetic speaker 5",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.881232+00:00",
+        "last_reported": "2026-11-02T00:43:42.368176+00:00",
+        "last_updated": "2026-11-02T00:43:42.356229+00:00",
+        "context": {
+          "id": "01M6CVCHS031R3CZSS0GCWPMZM",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_speaker_6": {
+        "entity_id": "media_player.synthetic_speaker_6",
+        "state": "paused",
+        "attributes": {
+          "group_members": [
+            "media_player.synthetic_speaker_6"
+          ],
+          "volume_level": 0.3,
+          "uuid": "00000006-2222-3333-4444555555555555",
+          "platform": "loxone",
+          "audio_event": null,
+          "audio_event_active": null,
+          "loxone_group_control": {
+            "version": 2,
+            "owner": "530541f1920184e2da13abd6a71bd89156163be25a14ed69a22bd65078f5660e",
+            "revision": "24b9fdb4173790c6902a404a008402f8250508c7dedfcc7eb19d3cad0db29b43",
+            "members": [
+              "media_player.synthetic_speaker_6"
+            ],
+            "candidates": [
+              "media_player.synthetic_speaker_1",
+              "media_player.synthetic_speaker_2",
+              "media_player.synthetic_speaker_3",
+              "media_player.synthetic_speaker_4",
+              "media_player.synthetic_speaker_5",
+              "media_player.synthetic_speaker_6"
+            ],
+            "group_id": null,
+            "busy": false
+          },
+          "loxone_room_volume_level": 0.3,
+          "audio_track_id": null,
+          "audio_position_frozen": null,
+          "device_class": "speaker",
+          "entity_picture": "/api/media_player_proxy/media_player.synthetic_speaker_6?token=25e565f4b2c0659872cf7d6886f28be977f644bc9166694a433214a5618b27c4&cache=dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91-e9713a56bcd64362a079584647742cd9",
+          "friendly_name": "Synthetic speaker 6",
+          "supported_features": 5922357
+        },
+        "last_changed": "2026-11-02T00:43:39.944341+00:00",
+        "last_reported": "2026-11-02T00:43:42.362005+00:00",
+        "last_updated": "2026-11-02T00:43:42.362005+00:00",
+        "context": {
+          "id": "01M6CVCHWTZTSBQ9VAM4TQNZEH",
+          "parent_id": null,
+          "user_id": null
+        }
+      },
+      "media_player.synthetic_foreign": {
+        "entity_id": "media_player.synthetic_foreign",
+        "state": "paused",
+        "attributes": {
+          "friendly_name": "Synthetic foreign integration",
+          "supported_features": 545845,
+          "volume_level": 0.5,
+          "group_members": [
+            "media_player.synthetic_foreign"
+          ]
+        },
+        "last_changed": "2026-11-02T00:43:39.692684+00:00",
+        "last_reported": "2026-11-02T00:43:39.907368+00:00",
+        "last_updated": "2026-11-02T00:43:39.692684+00:00",
+        "context": {
+          "id": "01M6CVCF9CH1F59GHPNPDMJR5D",
+          "parent_id": null,
+          "user_id": null
+        }
+      }
+    },
+    "label": "destroyed-one"
+  }
+]

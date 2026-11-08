@@ -3,6 +3,7 @@
 import pytest
 import asyncio
 import json
+import hashlib
 from pyloxone_audio import native
 
 
@@ -272,7 +273,7 @@ async def test_real_unix_native_mode_framing_and_independent_authentication(
     with tempfile.TemporaryDirectory(
         prefix="mode-wire-", dir=os.environ["TMPDIR"]
     ) as folder:
-        path = str(Path(folder) / "ws.sock")
+        path = "\0r1-mode-" + hashlib.sha256(folder.encode()).hexdigest()
         async with await unix_serve(
             server, path, subprotocols=["remotecontrol"], ping_interval=None
         ):

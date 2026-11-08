@@ -56,7 +56,13 @@ async def test_actual_send_evidence_preserves_commands_and_failure_semantics(
         except (native.AudioCommandError, asyncio.CancelledError) as exc:
             error = type(exc).__name__
         results.append(([c.args for c in socket.send.await_args_list], error))
-        stages = [r["stage"] for r in rows]
+        # New completion marker follows socket cleanup; preserve all original
+        # decision/send/error assertions against the decision-stage sequence.
+        stages = [r["stage"] for r in rows if r["stage"] != "request_finished"]
+        if enabled:
+            completed = [r for r in rows if r["stage"] == "request_finished"]
+            expected = "cancelled" if outcome == "cancelled" else "timeout" if outcome == "timeout" else "error" if outcome in {"stale", "send_error"} else "returned"
+            assert len(completed) == 1 and completed[0]["outcome"] == expected
         if not enabled:
             assert rows == []
             continue

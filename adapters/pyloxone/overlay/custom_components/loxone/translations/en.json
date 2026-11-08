@@ -31,6 +31,15 @@
           "overridden_by_source": "Overridden by source",
           "fixed": "Fixed Setpoint"
         }
+      },
+      "window_state": {
+        "state": {
+          "closed": "Closed",
+          "tilted": "Tilted",
+          "open": "Open",
+          "locked": "Locked",
+          "unlocked": "Unlocked"
+        }
       }
     }
   },
@@ -98,6 +107,16 @@
     }
   },
   "services": {
+    "audio_room_transport": {
+      "name": "Play or pause one audio room",
+      "description": "Resume or pause only the selected room, including a room in a dynamic group. Does not change membership, volume or source. Standard media player play/pause controls the whole group.",
+      "fields": {
+        "action": {
+          "name": "Action",
+          "description": "Resume the current session (play) or pause this room only."
+        }
+      }
+    },
     "reload": {
       "name": "Pyloxone Reload",
       "description": "Reloads the Loxone integration by reconnecting to the Miniserver and refreshing all entities. This is useful after making configuration changes in Loxone Config or when connection issues occur. All current entity states will be re\\-synchronized from the Miniserver."
@@ -176,6 +195,15 @@
     }
   },
   "exceptions": {
+    "audioserver_grouping_unavailable": {
+      "message": "Grouping is unavailable. Wait for current native group state and select supported rooms from this Loxone entry."
+    },
+    "audioserver_grouping_failed": {
+      "message": "The native group change was not confirmed. Check the current groups before trying again."
+    },
+    "audioserver_grouping_busy": {
+      "message": "This room has a group change in progress. Wait for it to finish."
+    },
     "audioserver_announcement_unavailable": {
       "message": "Audio Server announcements are unavailable or a previous request is still unresolved. No new announcement was sent."
     },

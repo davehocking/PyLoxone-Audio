@@ -1,0 +1,211 @@
+// SPDX-License-Identifier: Apache-2.0
+// Optional PyLoxone-Audio card. Uses only the owning HA entity/state/services.
+const FEATURES = {volume: 4, pause: 1, play: 16384, grouping: 524288};
+const entityId = value => typeof value === 'string' && /^media_player\.[a-z0-9_]+$/.test(value);
+const same = (a,b) => JSON.stringify(a) === JSON.stringify(b);
+const nameOf = state => state.attributes.friendly_name || state.entity_id;
+const transportAction = state => {
+  if(!state||!['playing','paused','idle','off','on','standby'].includes(state.state))return null;
+  const action=state.state==='playing'?'pause':'play';
+  return state.attributes.supported_features&FEATURES[action]?action:null;
+};
+const node = (tag, text, attrs={}) => {
+  const element=document.createElement(tag); if(text!==null)element.textContent=text;
+  for(const [key,value] of Object.entries(attrs))element.setAttribute(key,value);
+  return element;
+};
+
+export function project(hass, target) {
+  const state=hass?.states?.[target], d=state?.attributes?.loxone_group_control;
+  const available=s=>s && !['unknown','unavailable'].includes(s.state);
+  const ids=list=>Array.isArray(list)&&list.length>0&&list.length<=256&&list.every(entityId)&&new Set(list).size===list.length;
+  if(!available(state)||!d||d.version!==1||typeof d.owner!=='string'||typeof d.revision!=='string'
+    ||!ids(d.members)||!ids(d.candidates)||!d.members.includes(target)||!same(d.members,state.attributes.group_members))return null;
+  const candidates=d.candidates.filter(id=>{
+    const s=hass.states[id], other=s?.attributes?.loxone_group_control;
+    return available(s)&&hass.entities?.[id]?.platform==='loxone'&&other?.owner===d.owner
+      &&other.version===1&&other.revision===d.revision&&other.candidates?.includes(id)
+      &&!!(s.attributes.supported_features&FEATURES.grouping);
+  });
+  if(!d.members.every(id=>candidates.includes(id)))return null;
+  const compare=(a,b)=>{
+    const x=nameOf(hass.states[a]).toLocaleLowerCase('en'), y=nameOf(hass.states[b]).toLocaleLowerCase('en');
+    return x<y?-1:x>y?1:a<b?-1:a>b?1:0;
+  };
+  return {owner:d.owner,revision:d.revision,members:[...d.members],leader:d.members[0],group:d.group_id,
+    busy:!!d.busy,candidates,top:candidates.filter(id=>d.members.includes(id)).sort(compare),
+    other:candidates.filter(id=>!d.members.includes(id)).sort(compare)};
+}
+
+export class LoxoneGroupControlCard extends HTMLElement {
+  constructor(){
+    super();this.attachShadow({mode:'open'});this._rows=new Map();this._desired=new Set();this._pending=false;this._error='';this._notice='';
+    this.shadowRoot.innerHTML=`<style>
+      :host{display:block;color:var(--primary-text-color,#212121);font-family:var(--paper-font-body1_-_font-family,Roboto,Arial,sans-serif)}
+      button,input{font:inherit;accent-color:var(--primary-color,#03a9f4)}
+      button{min-height:44px;border:1px solid var(--divider-color,#aaa);border-radius:var(--ha-card-border-radius,12px);background:var(--card-background-color,#fff);color:inherit;padding:8px 12px;cursor:pointer}
+      button:disabled,input:disabled{opacity:.5;cursor:default}button:focus-visible,input:focus-visible{outline:3px solid var(--primary-color,#03a9f4);outline-offset:2px}
+      .entry{width:100%;text-align:left;box-shadow:var(--ha-card-box-shadow,none)}
+      dialog{box-sizing:border-box;width:min(660px,calc(100vw - 16px));max-height:calc(100dvh - 24px);padding:16px;border:1px solid var(--divider-color,#aaa);border-radius:var(--ha-dialog-border-radius,16px);background:var(--card-background-color,#fff);color:inherit;overflow:auto}
+      dialog::backdrop{background:#0008}header,.actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}header h2{flex:1;margin:0;font-size:1.2rem}h3{font-size:1rem;margin:20px 0 6px}
+      .speaker{display:grid;grid-template-columns:28px minmax(60px,1fr) 48px minmax(72px,1fr) 4ch;align-items:center;gap:8px;min-height:64px;border-bottom:1px solid var(--divider-color,#ddd)}
+      .speaker-name{overflow-wrap:anywhere}.name{min-width:0}[data-role=leader]{display:block;font-size:.75rem;color:var(--secondary-text-color,#666)}
+      input[type=checkbox]{width:22px;height:22px}input[type=range]{width:100%;min-width:0;min-height:44px;margin:0}output{font-variant-numeric:tabular-nums;text-align:right}
+      [role=alert]{color:var(--error-color,#db4437);white-space:pre-wrap}.status{font-size:.9rem;color:var(--secondary-text-color,#666);min-height:1.2em}
+      .actions{position:sticky;bottom:-16px;background:var(--card-background-color,#fff);padding:12px 0}p{overflow-wrap:anywhere}
+      @media(max-width:380px){dialog{padding:10px}.speaker{gap:4px;grid-template-columns:24px minmax(54px,1fr) 44px minmax(62px,1fr) 4ch}.actions{bottom:-10px}}
+    </style><button class="entry" data-action="open"></button><dialog aria-labelledby="title"><header><h2 id="title">Audio group</h2><button data-action="close" aria-label="Close group controls">Close</button></header><p data-role="group"></p><button data-action="group-play"></button><div class="status" role="status" aria-live="polite"></div><p role="alert" aria-live="assertive"></p><h3>In this group</h3><section data-section="members" aria-label="In this group"></section><h3>Other speakers</h3><section data-section="others" aria-label="Other speakers"></section><div class="actions"><button data-action="apply">Apply membership</button><button data-action="reset">Reset selection</button></div></dialog>`;
+    this._dialog=this.shadowRoot.querySelector('dialog');
+    this.shadowRoot.querySelector('[data-action=open]').onclick=()=>this.open();
+    this.shadowRoot.querySelector('[data-action=close]').onclick=()=>this._dialog.close();
+    this.shadowRoot.querySelector('[data-action=reset]').onclick=()=>{this._desired=new Set(this._view?.members||[]);this._error='';this._render();};
+    this.shadowRoot.querySelector('[data-action=apply]').onclick=()=>this._apply();
+    this.shadowRoot.querySelector('[data-action=group-play]').onclick=()=>this._groupPlay();
+  }
+  setConfig(config){
+    if(!config||!entityId(config.entity))throw new Error('Select an existing Loxone media_player entity');
+    if(this._pending)throw new Error('Wait for the pending operation before changing this card');
+    this._config={...config};this._key=null;this._render();
+  }
+  get hass(){return this._hass;}
+  set hass(value){this._hass=value;this._render();}
+  getCardSize(){return 1;}
+  static getConfigElement(){return document.createElement('loxone-group-control-editor');}
+  static getStubConfig(hass){return {entity:Object.keys(hass.states).find(id=>hass.states[id].attributes?.loxone_group_control)||''};}
+  open(){this._error='';this._notice='';this._render();if(!this._dialog.open)this._dialog.showModal();}
+  _row(id){
+    if(this._rows.has(id))return this._rows.get(id);
+    const row=node('div',null,{'class':'speaker','data-entity':id});
+    const check=node('input',null,{type:'checkbox'}), label=node('div',null,{class:'name'}), name=node('span',null,{class:'speaker-name'}), leader=node('span',null,{'data-role':'leader'});
+    label.append(name,leader);const play=node('button','▶',{'data-action':'row-play'});
+    play.onclick=()=>this._roomPlay(id,row);
+    const volume=node('input',null,{type:'range',min:'0',max:'100',step:'1'}), output=node('output','—');
+    check.onchange=()=>{if(check.checked)this._desired.add(id);else this._desired.delete(id);this._render();};
+    volume.oninput=()=>{output.textContent=volume.value+'%';};
+    volume.onchange=()=>this._volume(id,Number(volume.value),row);
+    row.append(check,label,play,volume,output);this._rows.set(id,row);return row;
+  }
+  _render(){
+    if(!this._config)return;
+    const h=this._hass,view=project(h,this._config.entity);this._view=view;
+    const key=view?JSON.stringify([view.owner,view.revision,view.members,view.candidates]):null;
+    if(key!==this._key){
+      if(this._key!==null&&!this._pending)this._notice='Native group or eligibility changed; selection refreshed.';
+      this._desired=new Set(view?.members||[]);this._key=key;
+    }
+    const busy=this._pending||view?.busy;
+    const title=this._config.name||h?.states?.[this._config.entity]?.attributes.friendly_name||this._config.entity;
+    this.shadowRoot.querySelector('.entry').textContent=title+' · Group controls';
+    this.shadowRoot.querySelector('[data-role=group]').textContent=view?`Leader: ${nameOf(h.states[view.leader])}`:'Current native group is unavailable. Standard More-info remains available.';
+    this.shadowRoot.querySelector('[role=alert]').textContent=this._error;
+    this.shadowRoot.querySelector('[role=status]').textContent=this._pending?'Pending native confirmation…':this._notice;
+    const groupButton=this.shadowRoot.querySelector('[data-action=group-play]');
+    groupButton.textContent=h?.states?.[view?.leader]?.state==='playing'?'Pause group':'Play group';
+    groupButton.disabled=!view||busy||!transportAction(h?.states?.[view?.leader]);
+    const active=this.shadowRoot.activeElement;
+    const wanted=new Set(view?.candidates||[]);
+    for(const [id,row] of this._rows){if(!wanted.has(id)){row.remove();this._rows.delete(id);}}
+    for(const [section,ids] of [['members',view?.top||[]],['others',view?.other||[]]]){
+      const container=this.shadowRoot.querySelector(`[data-section=${section}]`);
+      for(const [index,id] of ids.entries()){
+        const row=this._row(id),s=h.states[id],name=nameOf(s),[check,label,play,volume,output]=row.children;
+        label.querySelector('.speaker-name').textContent=name;
+        label.querySelector('[data-role=leader]').textContent=id===view.leader?'Leader':'';
+        check.checked=this._desired.has(id);check.disabled=busy||id===this._config.entity;
+        check.setAttribute('aria-label',`Include ${name} in group`);
+        const action=transportAction(s);
+        play.textContent=action==='pause'?'⏸':'▶';
+        play.disabled=busy||!action;play.title=`${action==='pause'?'Pause':'Play'} only this room`;
+        play.setAttribute('aria-label',`${action==='pause'?'Pause':'Play'} ${name} only`);
+        row.dataset.owner=view.owner;
+        const value=s.attributes.volume_level;
+        const known=typeof value==='number'&&Number.isFinite(value)&&value>=0&&value<=1;
+        if(active!==volume)volume.value=known?String(Math.round(value*100)):'0';
+        volume.disabled=busy||!known||!(s.attributes.supported_features&FEATURES.volume);
+        volume.setAttribute('aria-label',`${name} volume`);output.textContent=known?Math.round(value*100)+'%':'—';
+        if(container.children[index]!==row)container.insertBefore(row,container.children[index]||null);
+      }
+    }
+    if(active?.isConnected&&this.shadowRoot.activeElement!==active)active.focus({preventScroll:true});
+    this.shadowRoot.querySelector('[data-action=apply]').disabled=!view||busy||same([...this._desired].sort(),[...view.members].sort());
+    this.shadowRoot.querySelector('[data-action=reset]').disabled=!view||busy;
+  }
+  async _run(work){
+    if(this._pending)return;
+    this._pending=true;this._error='';this._notice='';this._render();
+    try{await work();this._notice='Request accepted. Displayed values follow native feedback.';}
+    catch(error){this._error=error?.message||'Native operation failed; refresh current state before retrying.';}
+    finally{this._pending=false;this._render();}
+  }
+  _volume(id,value,row){
+    const view=project(this.hass,this._config.entity),state=this.hass?.states?.[id];
+    if(row&&(!row.isConnected||this._rows.get(id)!==row||row.dataset.owner!==view?.owner))return;
+    if(!view||view.busy||!view.candidates.includes(id)||!(state.attributes.supported_features&FEATURES.volume)||!Number.isInteger(value)||value<0||value>100)return;
+    return this._run(()=>this.hass.callService('media_player','volume_set',{volume_level:value/100},{entity_id:id}));
+  }
+  _roomPlay(id,row){
+    const view=project(this.hass,this._config.entity),state=this.hass?.states?.[id];
+    if(!row.isConnected||this._rows.get(id)!==row||!view||view.busy||row.dataset.owner!==view.owner||!view.candidates.includes(id))return;
+    const action=transportAction(state);if(!action)return;
+    return this._run(()=>this.hass.callService('loxone','audio_room_transport',{action},{entity_id:id}));
+  }
+  _groupPlay(){
+    const view=project(this.hass,this._config.entity);if(!view||view.busy)return;
+    const action=transportAction(this.hass.states[view.leader]);if(!action)return;
+    const service='media_'+action;
+    return this._run(()=>this.hass.callService('media_player',service,{}, {entity_id:view.leader}));
+  }
+  async _apply(){
+    const original=project(this.hass,this._config.entity);if(!original||original.busy)return;
+    const desired=[...this._desired];
+    if(!desired.includes(this._config.entity)||desired.some(id=>!original.candidates.includes(id)))return;
+    return this._run(async()=>{
+      const additions=desired.filter(id=>!original.members.includes(id));
+      const removals=original.members.filter(id=>!desired.includes(id));
+      let expected=[...original.members];
+      const requireCurrent=()=>{const now=project(this.hass,this._config.entity);if(!now||now.owner!==original.owner||!same(now.members,expected))throw new Error('Native membership changed; no further membership commands sent.');return now;};
+      requireCurrent();
+      if(additions.length){
+        await this.hass.callService('media_player','join',{group_members:additions},{entity_id:this._config.entity});
+        expected=[...expected,...additions];await this._waitMembers(expected,original.owner);
+      }
+      for(const id of removals){
+        requireCurrent();
+        await this.hass.callService('media_player','unjoin',{}, {entity_id:id});
+        expected=expected.filter(x=>x!==id);
+        // Native dissolution of a pair leaves the selected room independent.
+        if(expected.length===1)expected=[this._config.entity];
+        await this._waitMembers(expected,original.owner);
+      }
+    });
+  }
+  async _waitMembers(expected,owner){
+    const deadline=Date.now()+8000;
+    while(Date.now()<deadline){
+      const now=project(this.hass,this._config.entity);
+      if(!now||now.owner!==owner)throw new Error('Native group eligibility changed; no further commands sent.');
+      if(same(now.members,expected))return;
+      await new Promise(resolve=>setTimeout(resolve,40));
+    }
+    throw new Error('Membership not confirmed by native feedback; no retry or rollback sent.');
+  }
+}
+
+class LoxoneGroupControlEditor extends HTMLElement {
+  constructor(){super();this.attachShadow({mode:'open'});}
+  setConfig(config){this._config={...config};this._render();}
+  set hass(value){this._hass=value;this._render();}
+  _render(){
+    if(!this._hass||!this._config)return;
+    this.shadowRoot.replaceChildren();const label=node('label','Loxone speaker '),select=node('select',null,{'aria-label':'Loxone speaker'});
+    for(const id of Object.keys(this._hass.states).filter(id=>project(this._hass,id)).sort()){
+      const option=node('option',nameOf(this._hass.states[id]),{value:id});select.append(option);
+    }
+    select.value=this._config.entity;select.onchange=()=>{this._config={...this._config,entity:select.value};this.dispatchEvent(new CustomEvent('config-changed',{detail:{config:this._config},bubbles:true,composed:true}));};
+    label.append(select);this.shadowRoot.append(label);
+  }
+}
+if(!customElements.get('loxone-group-control-card'))customElements.define('loxone-group-control-card',LoxoneGroupControlCard);
+if(!customElements.get('loxone-group-control-editor'))customElements.define('loxone-group-control-editor',LoxoneGroupControlEditor);
+window.customCards=window.customCards||[];
+if(!window.customCards.some(c=>c.type==='loxone-group-control-card'))window.customCards.push({type:'loxone-group-control-card',name:'Loxone group controls',description:'Native group membership, transport and independent room volumes',preview:true});

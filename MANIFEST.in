@@ -4,18 +4,18 @@ prune checks
 prune adapters
 prune tools
 prune tests/adapter
+prune tests/frontend
 include API.md
 include NOTICE.md
 include LICENSE
 include README.md
-include SPOTIFY.md
 prune tests/release
 recursive-include tests/library *.py *.ini *.json *.txt *.md
-include POSITION-RESTORE.md
 include DIAGNOSTICS.md
-include NATIVE-MODES.md
-include EXACT-TRACK-RETURN.md
-include METADATA-FRESHNESS.md
 include KNOWN-ISSUES.md
-include RELEASE-NOTES-0.1.2.md
 include CHANGELOG.md
+
+include RELEASE-NOTES-0.1.3.md
+include USER-GUIDE.md
+include DIAGNOSTICS-REFERENCE.md
+include AUTOMATION-GROUPING.md
