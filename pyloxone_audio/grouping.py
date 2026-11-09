@@ -476,7 +476,7 @@ class AudioGroupCoordinator:
             nonlocal sent
             sent = True
         try:
-            async with asyncio.timeout(self.timeout), self._lock:
+            async with asyncio.timeout(self.timeout) as deadline, self._lock:
                 if (
                     not request_current() or self._closed or self.snapshot is None or self.uncertain
                     or generation != self._generation or context != self.context()
@@ -500,11 +500,17 @@ class AudioGroupCoordinator:
                 if not applicable():
                     raise AudioCommandError("Grouped transport is unavailable")
                 if prepare is not None:
-                    # Qualification is request-local, under the unchanged group
-                    # lock/deadline/reservation, never a broadcast-cache repair.
+                    # Keep the original lock-wait bound. Serial qualification
+                    # gets one bounded request (including cleanup) per member,
+                    # then transmission gets its own original bound. A party
+                    # must not spend its command budget closing status sockets.
+                    if action == "play":
+                        deadline.reschedule(asyncio.get_running_loop().time() + self.timeout * len(players))
                     await prepare(players, applicable)
                     if not applicable():
                         raise AudioCommandError("Grouped pre-command qualification was superseded")
+                    if action == "play":
+                        deadline.reschedule(asyncio.get_running_loop().time() + self.timeout)
                 if room_only:
                     await self.commands.async_execute(target, action, is_current=applicable, on_send=on_send, guard_cleanup=True)
                 else:
@@ -558,7 +564,7 @@ class AudioGroupCoordinator:
 
         self._requests.add(current)
         try:
-            async with asyncio.timeout(self.timeout), self._lock:
+            async with asyncio.timeout(self.timeout) as deadline, self._lock:
                 if not current():
                     raise AudioCommandError("Volume request superseded")
                 self._scope, self._context, self._conflict = frozenset(players), self.context(), False
@@ -569,6 +575,10 @@ class AudioGroupCoordinator:
                         raise AudioCommandError("Partial volume request superseded; no rollback")
                     if targets[player] == initial[player]:
                         continue
+                    # Each serial send/feedback pair retains the original8s
+                    # bound. Unrelated feedback cannot renew a stalled member.
+                    if not room_only:
+                        deadline.reschedule(asyncio.get_running_loop().time() + self.timeout)
                     sent_targets[player] = targets[player]
                     sent = True
                     send(player, targets[player])

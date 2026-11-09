@@ -1,6 +1,6 @@
 # Using the audio players
 
-Install the [matching preview](preview-build/README.md) and complete [Required setup](README.md#required-setup) first.
+Install the [matching preview](https://github.com/davehocking/PyLoxone-Audio/blob/main/preview-build/README.md) and complete [Required setup](README.md#required-setup) first.
 
 ## Choose music or return to a source
 
@@ -12,7 +12,7 @@ Returning to Spotify or Local Library can restore the remembered track and try i
 
 ## Create or edit a group
 
-Open the room's expanded player (**More info**) and choose **Join** to open **Audio groups**. The media-control card's grouping entry also opens the manager for supported Loxone rooms. If the ordinary picker appears instead, check [frontend setup](preview-build/README.md#frontend).
+Open the room's expanded player (**More info**) and choose **Join** to open **Audio groups**. The media-control card's grouping entry also opens the manager for supported Loxone rooms. If the ordinary picker appears instead, check [frontend setup](https://github.com/davehocking/PyLoxone-Audio/blob/main/preview-build/README.md#frontend).
 
 - **Create Group:** choose at least two free rooms and select **Create**. The first selected room leads. A preselected room can be unticked.
 - Select a free room to add it immediately; there is no Apply button.
@@ -31,7 +31,7 @@ Only Loxone-managed audio rooms are offered. This manager supports dynamic group
 | Leader Browse, Source or supported seeking | Shared group music |
 | Follower's **Media controls on <leader name>** link | Opens the current leader's player |
 
-Use the leader to change the group's music. Shuffle/Repeat appear where native capability and state support them. Group volume shows the rounded mean of room levels; it is not a command to give every room the same volume. Startup/resume volume behaviour remains native to Loxone.
+Use the leader to change the group's music. Shuffle/Repeat appear where native capability and state support them. Each volume slider occupies its own full-width line, with percentage and −/+ controls above it. Group volume shows the rounded mean of room levels; it is not a command to give every room the same volume. Startup/resume volume behaviour remains native to Loxone.
 
 ## Automations and troubleshooting
 
@@ -39,4 +39,4 @@ Use the leader to change the group's music. Shuffle/Repeat appear where native c
 
 If something fails, check [Required setup](README.md#required-setup), room availability and the matching backend/frontend versions. For Source errors, first play actual content in Browse; for grouped content, use the leader. If the controls look old, refresh the browser before restarting the backend.
 
-[Report a problem](DIAGNOSTICS.md) · [Known issues](KNOWN-ISSUES.md) · [Install, upgrade or roll back](preview-build/README.md)
+[Report a problem](DIAGNOSTICS.md) · [Known issues](KNOWN-ISSUES.md) · [Install, upgrade or roll back](https://github.com/davehocking/PyLoxone-Audio/blob/main/preview-build/README.md)

@@ -1,5 +1,5 @@
 diff --git a/custom_components/loxone/__init__.py b/custom_components/loxone/__init__.py
-index 1b73d74d62e16521f353252d52ed53ed90f1a97f..c2ff276c3867d1ca267ccba727aee8fe47930752 100644
+index 1b73d74..c2ff276 100644
 --- a/custom_components/loxone/__init__.py
 +++ b/custom_components/loxone/__init__.py
 @@ -533,6 +533,13 @@ async def async_setup_entry(hass, config_entry):
@@ -62,7 +62,7 @@ index 1b73d74d62e16521f353252d52ed53ed90f1a97f..c2ff276c3867d1ca267ccba727aee8fe
                  value = event.data.get(ATTR_VALUE, DEFAULT)
 diff --git a/custom_components/loxone/audio.py b/custom_components/loxone/audio.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..10a2865512beaf2dbb30744d8605d5f1e2074730
+index 0000000..10a2865
 --- /dev/null
 +++ b/custom_components/loxone/audio.py
 @@ -0,0 +1,19 @@
@@ -87,7 +87,7 @@ index 0000000000000000000000000000000000000000..10a2865512beaf2dbb30744d8605d5f1
 +        ))
 diff --git a/custom_components/loxone/audio_announcement.py b/custom_components/loxone/audio_announcement.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..2af41f3e00db2917b2fc10c40f581c9e3eaf50c9
+index 0000000..2af41f3
 --- /dev/null
 +++ b/custom_components/loxone/audio_announcement.py
 @@ -0,0 +1,151 @@
@@ -244,7 +244,7 @@ index 0000000000000000000000000000000000000000..2af41f3e00db2917b2fc10c40f581c9e
 +    return output.getvalue(), len(pcm) / 48000
 diff --git a/custom_components/loxone/audio_artwork.py b/custom_components/loxone/audio_artwork.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..b7ad7de1f2e41e6903aff66f4721e913da56cb56
+index 0000000..b7ad7de
 --- /dev/null
 +++ b/custom_components/loxone/audio_artwork.py
 @@ -0,0 +1,29 @@
@@ -279,7 +279,7 @@ index 0000000000000000000000000000000000000000..b7ad7de1f2e41e6903aff66f4721e913
 +        return None
 diff --git a/custom_components/loxone/audio_catalogue.py b/custom_components/loxone/audio_catalogue.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..48bc32659600d1a223ad56e7723d9b62b90b8265
+index 0000000..48bc326
 --- /dev/null
 +++ b/custom_components/loxone/audio_catalogue.py
 @@ -0,0 +1,9 @@
@@ -294,7 +294,7 @@ index 0000000000000000000000000000000000000000..48bc32659600d1a223ad56e7723d9b62
 +sys.modules[__name__] = catalogue
 diff --git a/custom_components/loxone/audio_diagnostics.py b/custom_components/loxone/audio_diagnostics.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..58633c94f8cdec15b3d718b12d95b7323ac6c973
+index 0000000..58633c9
 --- /dev/null
 +++ b/custom_components/loxone/audio_diagnostics.py
 @@ -0,0 +1,1011 @@
@@ -1311,10 +1311,10 @@ index 0000000000000000000000000000000000000000..58633c94f8cdec15b3d718b12d95b732
 +        self.on_change = None
 diff --git a/custom_components/loxone/audio_grouping.py b/custom_components/loxone/audio_grouping.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..efe8b8afcc9800d40f675c67c108ca72e14c9ee9
+index 0000000..858e233
 --- /dev/null
 +++ b/custom_components/loxone/audio_grouping.py
-@@ -0,0 +1,657 @@
+@@ -0,0 +1,658 @@
 +"""Existing-entry adapter for shared native group state (no transport ownership)."""
 +
 +from pyloxone_audio.grouping import (
@@ -1804,7 +1804,8 @@ index 0000000000000000000000000000000000000000..efe8b8afcc9800d40f675c67c108ca72
 +                        continue
 +                    if not is_current():
 +                        raise AudioCommandError("Grouped status qualification was superseded")
-+                    status = await self.native.commands.async_player_status(e._audio_player_id, is_current=is_current)
++                    async with asyncio.timeout(self.native.timeout):
++                        status = await self.native.commands.async_player_status(e._audio_player_id, is_current=is_current)
 +                    observed = tuple(getattr(status, f) for f in ("source", "source_name", "audio_path", "parent_id"))
 +                    if (not is_current() or status.player_id != e._audio_player_id
 +                        or status.event_idle is not True or status.event_active is not False
@@ -1974,7 +1975,7 @@ index 0000000000000000000000000000000000000000..efe8b8afcc9800d40f675c67c108ca72
 +            entity.async_schedule_update_ha_state()
 diff --git a/custom_components/loxone/audio_models.py b/custom_components/loxone/audio_models.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..b46585a375d2a3efc963099229cd3d2564cfccbd
+index 0000000..b46585a
 --- /dev/null
 +++ b/custom_components/loxone/audio_models.py
 @@ -0,0 +1,30 @@
@@ -2010,7 +2011,7 @@ index 0000000000000000000000000000000000000000..b46585a375d2a3efc963099229cd3d25
 +    return SearchMedia(version=result.version, result=[to_ha_browse(node) for node in result.result])
 diff --git a/custom_components/loxone/audio_radio.py b/custom_components/loxone/audio_radio.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..fee54183678fe6f1c0598987e31d0ca2d8a9b68c
+index 0000000..fee5418
 --- /dev/null
 +++ b/custom_components/loxone/audio_radio.py
 @@ -0,0 +1,5 @@
@@ -2021,7 +2022,7 @@ index 0000000000000000000000000000000000000000..fee54183678fe6f1c0598987e31d0ca2
 +sys.modules[__name__] = radio
 diff --git a/custom_components/loxone/audio_sources.py b/custom_components/loxone/audio_sources.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..6ebd1dd5e6a3b676e45c6dcc50f1d42ded6646af
+index 0000000..6ebd1dd
 --- /dev/null
 +++ b/custom_components/loxone/audio_sources.py
 @@ -0,0 +1,48 @@
@@ -2074,7 +2075,7 @@ index 0000000000000000000000000000000000000000..6ebd1dd5e6a3b676e45c6dcc50f1d42d
 +    """Preserve pure compatibility imports without a second native algorithm."""
 +    return getattr(sources, name)
 diff --git a/custom_components/loxone/config_flow.py b/custom_components/loxone/config_flow.py
-index 4297d01abf4c9419dfffdbd8036a429f4a2911db..fb09cdea1064f726ece86500f2fcaa90b05c9990 100644
+index 4297d01..fb09cde 100644
 --- a/custom_components/loxone/config_flow.py
 +++ b/custom_components/loxone/config_flow.py
 @@ -20,10 +20,13 @@ from homeassistant.helpers.selector import (BooleanSelector, NumberSelector,
@@ -2134,7 +2135,7 @@ index 4297d01abf4c9419dfffdbd8036a429f4a2911db..fb09cdea1064f726ece86500f2fcaa90
          vol.Optional(CONF_SCENE_GEN_DELAY, default=DEFAULT_DELAY_SCENE): NumberSelector(
              NumberSelectorConfig(mode=NumberSelectorMode.BOX, min=3)
 diff --git a/custom_components/loxone/const.py b/custom_components/loxone/const.py
-index ee3f7b1b2a34f2f2b3aa19db260e8e76f721ca86..3bb3239db6719bb7afd5a8be05af483b75514b19 100644
+index ee3f7b1..3bb3239 100644
 --- a/custom_components/loxone/const.py
 +++ b/custom_components/loxone/const.py
 @@ -32,6 +32,8 @@ LOXONE_DEFAULT_PORT = 8080
@@ -2147,7 +2148,7 @@ index ee3f7b1b2a34f2f2b3aa19db260e8e76f721ca86..3bb3239db6719bb7afd5a8be05af483b
  DEFAULT_IP = ""
  
 diff --git a/custom_components/loxone/coordinator.py b/custom_components/loxone/coordinator.py
-index b090464528bbda067eb34e35df616b48a38cf499..0ba404ac84386d6845c40dd53854fb1055140579 100644
+index b090464..0ba404a 100644
 --- a/custom_components/loxone/coordinator.py
 +++ b/custom_components/loxone/coordinator.py
 @@ -1,5 +1,6 @@
@@ -2251,7 +2252,7 @@ index b090464528bbda067eb34e35df616b48a38cf499..0ba404ac84386d6845c40dd53854fb10
 +        finally:
 +            coordinator.audio_commands = None
 diff --git a/custom_components/loxone/diagnostics.py b/custom_components/loxone/diagnostics.py
-index ffde74819c255c5126ddfc71b7ff88808fe6f2d7..d244c2bd36239b3817a6e45752449ee20712c1ad 100644
+index ffde748..d244c2b 100644
 --- a/custom_components/loxone/diagnostics.py
 +++ b/custom_components/loxone/diagnostics.py
 @@ -6,6 +6,7 @@ from typing import Any
@@ -2287,7 +2288,7 @@ index ffde74819c255c5126ddfc71b7ff88808fe6f2d7..d244c2bd36239b3817a6e45752449ee2
 +                                "Debug console is optional administrator-only Python execution; input is logged"]}
 +
 diff --git a/custom_components/loxone/manifest.json b/custom_components/loxone/manifest.json
-index 43fecb3b4e98e8bf7471ebbd8768dc1922ade7fb..22688646eb97dbe4e536eb5f6af95b0f4a320124 100644
+index 43fecb3..289e85a 100644
 --- a/custom_components/loxone/manifest.json
 +++ b/custom_components/loxone/manifest.json
 @@ -1,7 +1,9 @@
@@ -2307,16 +2308,16 @@ index 43fecb3b4e98e8bf7471ebbd8768dc1922ade7fb..22688646eb97dbe4e536eb5f6af95b0f
      "websockets>=14,<16",
 -    "pycryptodome>=3.20"
 +    "pycryptodome>=3.20",
-+    "PyLoxone-Audio==0.1.3"
++    "PyLoxone-Audio==0.1.4"
    ],
 -  "version": "0.10.3"
-+  "version": "0.10.3.dev18",
++  "version": "0.10.3.dev19",
 +  "loggers": [
 +    "pyloxone_audio"
 +  ]
  }
 diff --git a/custom_components/loxone/media_player.py b/custom_components/loxone/media_player.py
-index 3dd5111ee205fcf54ee9e1ba51155b93d92225a4..0ac0f76a3de01f396a97b3e9811af26a7f2c03ce 100644
+index 3dd5111..0ac0f76 100644
 --- a/custom_components/loxone/media_player.py
 +++ b/custom_components/loxone/media_player.py
 @@ -2,28 +2,75 @@
@@ -3790,7 +3791,7 @@ HcmV?d00001
 
 diff --git a/custom_components/loxone/pyloxone_api/audioserver.py b/custom_components/loxone/pyloxone_api/audioserver.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..e97d61215606248d365d09e30a5fd49a4f7a3f9e
+index 0000000..e97d612
 --- /dev/null
 +++ b/custom_components/loxone/pyloxone_api/audioserver.py
 @@ -0,0 +1,9 @@
@@ -3804,7 +3805,7 @@ index 0000000000000000000000000000000000000000..e97d61215606248d365d09e30a5fd49a
 +
 +sys.modules[__name__] = native
 diff --git a/custom_components/loxone/pyloxone_api/connection.py b/custom_components/loxone/pyloxone_api/connection.py
-index 254c35cba38552e387124392b28bf24b451f39ac..f1158d1680ab1dd26384139904cc779ce6b8b102 100644
+index 254c35c..f1158d1 100644
 --- a/custom_components/loxone/pyloxone_api/connection.py
 +++ b/custom_components/loxone/pyloxone_api/connection.py
 @@ -6,6 +6,7 @@ https://github.com/JoDehli/pyloxone-api
@@ -3855,7 +3856,7 @@ index 254c35cba38552e387124392b28bf24b451f39ac..f1158d1680ab1dd26384139904cc779c
              raise
  
 diff --git a/custom_components/loxone/services.yaml b/custom_components/loxone/services.yaml
-index 39a3e3fba68ce006245b3e14e5c644bb54fad007..9859cb24cdb664f206a4c392aa98c133acf55873 100644
+index 39a3e3f..9859cb2 100644
 --- a/custom_components/loxone/services.yaml
 +++ b/custom_components/loxone/services.yaml
 @@ -101,3 +101,80 @@ quick_shade:
@@ -3941,7 +3942,7 @@ index 39a3e3fba68ce006245b3e14e5c644bb54fad007..9859cb24cdb664f206a4c392aa98c133
 +            - pause
 diff --git a/custom_components/loxone/spotify_continuity.py b/custom_components/loxone/spotify_continuity.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..abd99320672f80565b05abbdee5cb629b84827ad
+index 0000000..abd9932
 --- /dev/null
 +++ b/custom_components/loxone/spotify_continuity.py
 @@ -0,0 +1,88 @@
@@ -4034,7 +4035,7 @@ index 0000000000000000000000000000000000000000..abd99320672f80565b05abbdee5cb629
 +    """Retain historical room fences without any provider/account dependency."""
 +    return bool(hass.data.get(_DISPATCH_RESTORE_FAILED)) or (room, player) in hass.data.get(_ROOM_FENCES, set())
 diff --git a/custom_components/loxone/switch.py b/custom_components/loxone/switch.py
-index 16b85d8ebb3c4837edfeee733d96e3ee4ab31325..94a7dbbb9d97cccea387c8aa5db71c147586adb5 100644
+index 16b85d8..94a7dbb 100644
 --- a/custom_components/loxone/switch.py
 +++ b/custom_components/loxone/switch.py
 @@ -17,7 +17,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -4110,7 +4111,7 @@ index 16b85d8ebb3c4837edfeee733d96e3ee4ab31325..94a7dbbb9d97cccea387c8aa5db71c14
      """Representation of a loxone switch"""
  
 diff --git a/custom_components/loxone/translations/cs.json b/custom_components/loxone/translations/cs.json
-index 5627a31200f1f6de5bb53c0e92b7e969a1065f76..f0491638edfdc1d88504c296487c084fb480c6a0 100644
+index 5627a31..f049163 100644
 --- a/custom_components/loxone/translations/cs.json
 +++ b/custom_components/loxone/translations/cs.json
 @@ -1,5 +1,10 @@
@@ -4190,7 +4191,7 @@ index 5627a31200f1f6de5bb53c0e92b7e969a1065f76..f0491638edfdc1d88504c296487c084f
 \ No newline at end of file
 +}
 diff --git a/custom_components/loxone/translations/de.json b/custom_components/loxone/translations/de.json
-index 8c8625dfd09e395e16a5f0565dc132617901b480..d774bbad9d6e75a2cd2e40c28d221f515ff5a609 100644
+index 8c8625d..d774bba 100644
 --- a/custom_components/loxone/translations/de.json
 +++ b/custom_components/loxone/translations/de.json
 @@ -1,5 +1,10 @@
@@ -4294,7 +4295,7 @@ index 8c8625dfd09e395e16a5f0565dc132617901b480..d774bbad9d6e75a2cd2e40c28d221f51
    }
  }
 diff --git a/custom_components/loxone/translations/en.json b/custom_components/loxone/translations/en.json
-index 68dec06179a48e3085844708ce01f9df451bf96e..05da0577b3f87235f48d9c7ee4544e8e1ac943d8 100644
+index 68dec06..05da057 100644
 --- a/custom_components/loxone/translations/en.json
 +++ b/custom_components/loxone/translations/en.json
 @@ -1,5 +1,10 @@
@@ -4398,7 +4399,7 @@ index 68dec06179a48e3085844708ce01f9df451bf96e..05da0577b3f87235f48d9c7ee4544e8e
  }
 diff --git a/custom_components/loxone/translations/es.json b/custom_components/loxone/translations/es.json
 new file mode 100644
-index 0000000000000000000000000000000000000000..ecccc80bfd33a58fa9439fd940e112dbdfcacb89
+index 0000000..ecccc80
 --- /dev/null
 +++ b/custom_components/loxone/translations/es.json
 @@ -0,0 +1,202 @@
@@ -4606,7 +4607,7 @@ index 0000000000000000000000000000000000000000..ecccc80bfd33a58fa9439fd940e112db
 +}
 diff --git a/custom_components/loxone/translations/fr.json b/custom_components/loxone/translations/fr.json
 new file mode 100644
-index 0000000000000000000000000000000000000000..9b1ac90420b76070b56276b096abf3493da0408b
+index 0000000..9b1ac90
 --- /dev/null
 +++ b/custom_components/loxone/translations/fr.json
 @@ -0,0 +1,202 @@
@@ -4814,7 +4815,7 @@ index 0000000000000000000000000000000000000000..9b1ac90420b76070b56276b096abf349
 +}
 diff --git a/custom_components/loxone/translations/it.json b/custom_components/loxone/translations/it.json
 new file mode 100644
-index 0000000000000000000000000000000000000000..a02d1d077fc618cbd829b0486c0b1deaa2e8abe2
+index 0000000..a02d1d0
 --- /dev/null
 +++ b/custom_components/loxone/translations/it.json
 @@ -0,0 +1,202 @@
@@ -5022,7 +5023,7 @@ index 0000000000000000000000000000000000000000..a02d1d077fc618cbd829b0486c0b1dea
 +}
 diff --git a/custom_components/loxone/translations/nl.json b/custom_components/loxone/translations/nl.json
 new file mode 100644
-index 0000000000000000000000000000000000000000..845d5d16c4baa5e02c858958a7c0889cfb88f11d
+index 0000000..845d5d1
 --- /dev/null
 +++ b/custom_components/loxone/translations/nl.json
 @@ -0,0 +1,202 @@
@@ -5230,7 +5231,7 @@ index 0000000000000000000000000000000000000000..845d5d16c4baa5e02c858958a7c0889c
 +}
 diff --git a/custom_components/loxone/translations/pt-BR.json b/custom_components/loxone/translations/pt-BR.json
 new file mode 100644
-index 0000000000000000000000000000000000000000..f7d79340eaa23f4a23296cadf09188d67440014e
+index 0000000..f7d7934
 --- /dev/null
 +++ b/custom_components/loxone/translations/pt-BR.json
 @@ -0,0 +1,202 @@
@@ -5438,7 +5439,7 @@ index 0000000000000000000000000000000000000000..f7d79340eaa23f4a23296cadf09188d6
 +}
 diff --git a/custom_components/loxone/translations/pt-PT.json b/custom_components/loxone/translations/pt-PT.json
 new file mode 100644
-index 0000000000000000000000000000000000000000..65f3b358c99d450a39d1aa909e7b22bf6bbcf08f
+index 0000000..65f3b35
 --- /dev/null
 +++ b/custom_components/loxone/translations/pt-PT.json
 @@ -0,0 +1,202 @@
@@ -5646,7 +5647,7 @@ index 0000000000000000000000000000000000000000..65f3b358c99d450a39d1aa909e7b22bf
 +}
 diff --git a/custom_components/loxone/translations/pt.json b/custom_components/loxone/translations/pt.json
 new file mode 100644
-index 0000000000000000000000000000000000000000..65f3b358c99d450a39d1aa909e7b22bf6bbcf08f
+index 0000000..65f3b35
 --- /dev/null
 +++ b/custom_components/loxone/translations/pt.json
 @@ -0,0 +1,202 @@

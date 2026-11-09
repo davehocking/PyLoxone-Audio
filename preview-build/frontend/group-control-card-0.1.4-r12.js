@@ -1,4 +1,4 @@
-// pyloxone-audio/leader-group-entry-20261107/frontend/src/native-bootstrap.js
+// adapters/pyloxone/frontend/src/native-bootstrap.js
 function afterNativeBootstrap(initialize) {
   let timer, deadline, stopped = false, disposed = false;
   const stop = () => {
@@ -38,7 +38,7 @@ function afterNativeBootstrap(initialize) {
   return dispose;
 }
 
-// pyloxone-audio/leader-group-entry-20261107/frontend/src/group-manager.js
+// adapters/pyloxone/frontend/src/group-manager.js
 var FEATURES = { volume: 4, pause: 1, play: 16384, grouping: 524288 };
 var ICONS = { play: "M8,5.14V19.14L19,12.14L8,5.14Z", pause: "M14,19H18V5H14M6,19H10V5H6V19Z", minus: "M19,13H5V11H19V13Z", plus: "M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" };
 var same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -157,7 +157,7 @@ var icon = (path) => {
 var controlKey = (view, action, owner, group = null, entity = null, context = null) => JSON.stringify([view, action, owner, group, entity, context]);
 var transport = (s) => s && ["playing", "paused", "idle", "off", "on", "standby"].includes(s.state) ? s.state === "playing" ? s.attributes.supported_features & FEATURES.pause ? "pause" : null : s.attributes.supported_features & FEATURES.play ? "play" : null : null;
 var CSS = `:host{display:block;min-width:0;color:var(--primary-text-color);font-family:Roboto,Arial,sans-serif}section.group{border:1px solid var(--divider-color,#bbb);border-radius:12px;padding:12px;margin:12px 0}h3{font-size:1rem;margin:4px 0 12px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;min-height:56px;border-bottom:1px solid var(--divider-color,#ddd);padding:6px 0}.name{flex:1;min-width:90px;overflow-wrap:anywhere}.leader{display:block;font-size:.75rem;color:var(--secondary-text-color)}.vol{display:flex;align-items:center;gap:4px;flex:1;min-width:220px}.vol input{width:100%;min-width:44px;height:44px}.vol output{min-width:4ch;text-align:right}button{border:0;border-radius:50%;background:transparent;color:inherit;min-width:44px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}button:disabled,input:disabled{opacity:.3;cursor:default}button:focus-visible,input:focus-visible{outline:3px solid var(--primary-color,#03a9f4)}ha-svg-icon{--mdc-icon-size:24px}.grouped{color:var(--disabled-text-color,#888)}.actions{display:flex;gap:8px;flex-wrap:wrap}.busy{position:sticky;bottom:0;background:var(--card-background-color,#fff);padding:16px;border-top:2px solid var(--primary-color,#03a9f4);font-weight:500;z-index:1}.busy:empty{display:none}[role=alert]{color:var(--error-color,#d33)}[aria-busy=true] .content{opacity:.25;pointer-events:none}ha-checkbox{min-width:44px;min-height:44px}@media(max-width:480px){.vol{flex-basis:100%}}`;
-var MEMBER_LAYOUT = `ha-button{--ha-button-height:44px}.members{min-width:0;margin-inline-start:8px;padding:4px 8px;border-radius:8px;background:color-mix(in srgb,var(--primary-text-color) 5%,var(--card-background-color,#fff))}.members .row:last-child{border-bottom:0}[data-master]{border-bottom:0}.group-actions{display:flex;flex-wrap:wrap;gap:12px;padding-block:12px}.group-actions ha-button{max-width:100%;overflow-wrap:anywhere}`;
+var MEMBER_LAYOUT = `ha-button{--ha-button-height:44px}.vol{flex:0 0 100%;min-width:0;order:1;box-sizing:border-box}.vol{display:grid;grid-template-columns:44px 44px 1fr}.vol input{grid-column:1/-1;grid-row:2;width:100%;box-sizing:border-box}.vol [data-action=volume-minus]{grid-column:1;grid-row:1}.vol [data-action=volume-plus]{grid-column:2;grid-row:1}.vol output{grid-column:3;grid-row:1;justify-self:end}.members{min-width:0;margin-inline-start:8px;padding:4px 8px;border-radius:8px;background:color-mix(in srgb,var(--primary-text-color) 5%,var(--card-background-color,#fff))}.members .row:last-child{border-bottom:0}[data-master]{border-bottom:0}.group-actions{display:flex;flex-wrap:wrap;gap:12px;padding-block:12px}.group-actions ha-button{max-width:100%;overflow-wrap:anywhere}`;
 var LAYOUT = `:host{display:flex;flex:1;min-height:0}.manager-layout{display:flex;flex:1;flex-direction:column;min-height:0;min-width:0;overflow:hidden}.content{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}.actions{flex:none;padding:8px 0;border-bottom:1px solid var(--divider-color,#ddd)}[role=alert]:empty{display:none}.busy{flex:none}[aria-busy=true] .content{pointer-events:auto}`;
 var LoxoneGroupManager;
 function initializeGroupManager() {
@@ -365,6 +365,7 @@ function initializeGroupManager() {
         if (!valid) throw new Error("Native eligibility, membership, context or authentication changed. No retry or rollback sent.");
       };
       this._ensure = ensure;
+      const operationMs = service === "media_play" ? (original.members.length + 2) * 8e3 + 2e3 : service === "volume_set" ? (original.members.length + 2) * 8e3 : 8e3;
       const guard = new Promise((_, reject) => {
         cancel = reject;
         this._cancel = reject;
@@ -376,7 +377,7 @@ function initializeGroupManager() {
           }
         }, 40);
       });
-      const deadline = Date.now() + 8e3;
+      const deadline = Date.now() + operationMs;
       try {
         await Promise.race([guard, (async () => {
           ensure();
@@ -388,7 +389,7 @@ function initializeGroupManager() {
             ensure();
           }
         })(), new Promise((_, reject) => {
-          token.timeout = setTimeout(() => reject(new Error("Native operation timed out; partial changes are not undone.")), 8e3);
+          token.timeout = setTimeout(() => reject(new Error("Native operation timed out; partial changes are not undone.")), operationMs);
         })]);
         if (expected) {
           this._mode = "overview";
@@ -501,8 +502,8 @@ function initializeGroupManager() {
           if (id === v.leader) label.append(node("span", "Leader", { class: "leader" }));
           row.append(label);
           this._play(row, id, true, stamp);
-          this._volume(row, id, true, stamp);
           this._button(row, "Remove from group", "remove", controlKey("overview-member", "remove", v.owner, v.group, id), () => this._manage(id, "remove"), stamp);
+          this._volume(row, id, true, stamp);
           members.append(row);
         }
         section.append(members);
@@ -549,7 +550,7 @@ function initializeGroupManager() {
   return LoxoneGroupManager;
 }
 
-// pyloxone-audio/leader-group-entry-20261107/frontend/src/native-group-manager.js
+// adapters/pyloxone/frontend/src/native-group-manager.js
 var SINGLETON = Symbol.for("pyloxone-audio.gm03.more-info");
 var validContext = (hass, instance, tag = "more-info-media_player") => {
   const id = tag === "hui-media-control-card" ? instance?._config?.entity : instance?.stateObj?.entity_id, s = hass?.states?.[id], d = s?.attributes?.loxone_group_control;
@@ -802,7 +803,7 @@ function initializeNativeGroupManager() {
   return LoxoneGroupManagerDialog;
 }
 
-// pyloxone-audio/leader-group-entry-20261107/frontend/src/group-control-card.js
+// adapters/pyloxone/frontend/src/group-control-card.js
 var LoxoneGroupControlCard;
 afterNativeBootstrap(() => {
   initializeNativeGroupManager();

@@ -1,7 +1,7 @@
 """
 Concrete PyLoxone-Audio API, independent of Home Assistant.
 
-Apache-2.0. Version 0.1.3.
+Apache-2.0. Version 0.1.4.
 The historical fake-backed facade contract is outside this distribution.
 """
 from .announcement import async_send_prepared_announcement

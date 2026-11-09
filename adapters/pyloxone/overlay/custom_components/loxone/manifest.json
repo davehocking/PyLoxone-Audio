@@ -12,9 +12,9 @@
   "requirements": [
     "websockets>=14,<16",
     "pycryptodome>=3.20",
-    "PyLoxone-Audio==0.1.3"
+    "PyLoxone-Audio==0.1.4"
   ],
-  "version": "0.10.3.dev18",
+  "version": "0.10.3.dev19",
   "loggers": [
     "pyloxone_audio"
   ]
