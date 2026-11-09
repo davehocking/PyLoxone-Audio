@@ -14,6 +14,9 @@
 - Radio startup can be slow and room-favourite artwork can be missing. Allow the
   station to start before repeating a play request.
 
+- Browse can occasionally time out. Reopen Browse if it does; avoid repeated
+  playback requests while a group operation is still pending.
+
 Use [Audio diagnostics](DIAGNOSTICS.md) to report a problem. Include the incident
 time/timezone, versions, normal steps and expected versus observed behaviour.
 

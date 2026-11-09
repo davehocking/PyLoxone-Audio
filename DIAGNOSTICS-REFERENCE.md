@@ -1,11 +1,11 @@
 # Audio diagnostics and native Home Assistant tools
 
-For library 0.1.3 and reference adapter 0.10.3.dev18. Start with the
-[installation guide](preview-build/README.md).
+For library 0.1.4 and reference adapter 0.10.3.dev19. Start with the
+[installation guide](https://github.com/davehocking/PyLoxone-Audio/blob/main/preview-build/README.md).
 New users default OFF; existing saved preferences are preserved. Install the
 matching adapter/library pair: installing only the wheel does not add the switch.
 The event schema remains version1 with an extended fixed allowlist; defaults and
-storage/age bounds remain unchanged. The 0.1.3 library and reference adapter add source-independent incident correlation and noise control.
+storage/age bounds remain unchanged. The 0.1.4 library and reference adapter add source-independent incident correlation and noise control.
 Diagnostics neither enables the Audio Server client nor repairs playback. Set the
 Audio Server host and existing experimental playback option separately; see
 [Required setup](README.md#required-setup).

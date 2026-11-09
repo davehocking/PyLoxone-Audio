@@ -1,7 +1,7 @@
-# PyLoxone-Audio 0.1.3 — API and compatibility
+# PyLoxone-Audio 0.1.4 — API and compatibility
 
 An Apache-2.0 Python library for native audio communication, consumed by the
-existing PyLoxone integration. The matching reference adapter is 0.10.3.dev18
+existing PyLoxone integration. The matching reference adapter is 0.10.3.dev19
 on stock PyLoxone 0.10.3. See [NOTICE.md](NOTICE.md) for attribution.
 
 ## Concrete public API and ownership
@@ -85,9 +85,9 @@ the supported enable/export workflow, exact bounds and evidence/privacy limits.
 
 ## Installation and host compatibility
 
-Requires Python >=3.14. Install `PyLoxone-Audio==0.1.3` for standalone consumers.
+Requires Python >=3.14. Install `PyLoxone-Audio==0.1.4` for standalone consumers.
 Home Assistant users need the matching component and frontend described in the
-[installation guide](preview-build/README.md); HA installs Python dependencies.
+[installation guide](https://github.com/davehocking/PyLoxone-Audio/blob/main/preview-build/README.md); HA installs Python dependencies.
 Keep domain `loxone`, existing entries/entities and the exact compatible pin.
 Source and installed-wheel checks use synthetic external I/O and real local
 WebSocket/crypto boundaries. They do not require household credentials.
