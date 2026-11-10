@@ -164,8 +164,10 @@ LoxoneGroupManager=class LoxoneGroupManager extends HTMLElement{
   if(this._pending||!project(this.hass,id))return;
   const original=project(this.hass,id),epoch=this._epoch,auth=this._auth(),before=Object.fromEntries(original.candidates.map(i=>[i,project(this.hass,i).members]));
   if(service==='volume_set'){const wanted=Math.round(data.volume_level*100),values=original.members.map(i=>percentOf(this.hass.states[i],true));if(values.some(v=>v===null))return;const mean=Math.floor((2*values.reduce((a,b)=>a+b,0)+values.length)/(2*values.length));this._volumeMean=Math.floor((2*values.reduce((a,b)=>a+Math.max(0,Math.min(100,b+wanted-mean)),0)+values.length)/(2*values.length));}
-  let valid=true,timer,cancel;const token={};this._pending=token;this._error='';this.render();
-  const ensure=()=>{const now=project(this.hass,id);valid=valid&&this.isConnected&&this._epoch===epoch&&this._auth()===auth&&this.hass?.connected!==false&&now?.owner===original.owner&&same(now?.candidates,original.candidates);if(valid){const current=Object.fromEntries(original.candidates.map(i=>[i,project(this.hass,i)?.members]));valid=same(current,before)||(expected&&same(current,expected));}if(!valid)throw new Error('Native eligibility, membership, context or authentication changed. No retry or rollback sent.');};
+  let valid=true,timer,cancel,request;const token={};this._pending=token;this._error='';this.render();
+  // Transport/volume cannot change group identity or native context revision.
+  // Membership operations alone may advance them to their expected topology.
+  const ensure=()=>{const now=project(this.hass,id);valid=valid&&this.isConnected&&this._epoch===epoch&&this._auth()===auth&&this.hass?.connected!==false&&now?.owner===original.owner&&same(now?.candidates,original.candidates)&&(expected||now?.revision===original.revision&&now?.group===original.group);if(valid){const current=Object.fromEntries(original.candidates.map(i=>[i,project(this.hass,i)?.members]));valid=same(current,before)||(expected&&same(current,expected));}if(!valid)throw new Error('Native eligibility, membership, context or authentication changed. No retry or rollback sent.');};
   this._ensure=ensure;
   // Match serial backend phases, not a blanket service timeout: lock8s,
   // at most one8s status/member, grouped send/reply/cleanup8s, and2s
@@ -173,8 +175,19 @@ LoxoneGroupManager=class LoxoneGroupManager extends HTMLElement{
   // serial member feedback and the existing8s UI confirmation allowance.
   const operationMs=service==='media_play'?(original.members.length+2)*8000+2000:service==='volume_set'?(original.members.length+2)*8000:8000;
   const guard=new Promise((_,reject)=>{cancel=reject;this._cancel=reject;timer=setInterval(()=>{try{ensure();}catch(e){reject(e);}},40);});const deadline=Date.now()+operationMs;
-  try{await Promise.race([guard,(async()=>{ensure();await this.hass.callService(domain,service,data,{entity_id:id});ensure();while(confirmed&&!confirmed()){if(Date.now()>deadline)throw new Error('Native feedback not confirmed. No retry or rollback sent.');await new Promise(r=>setTimeout(r,40));ensure();}})(),new Promise((_,reject)=>{token.timeout=setTimeout(()=>reject(new Error('Native operation timed out; partial changes are not undone.')),operationMs);})]);if(expected){this._mode='overview';this._selected.clear();}}
-  catch(e){this._error=e?.message||'Native operation failed.';}
+  try{await Promise.race([guard,(async()=>{ensure();request=Promise.resolve(this.hass.callService(domain,service,data,{entity_id:id}));await request;ensure();while(confirmed&&!confirmed()){if(Date.now()>deadline)throw new Error('Native feedback not confirmed. No retry or rollback sent.');await new Promise(r=>setTimeout(r,40));ensure();}})(),new Promise((_,reject)=>{token.timeout=setTimeout(()=>reject(new Error('Native operation timed out; partial changes are not undone.')),operationMs);})]);if(expected){this._mode='overview';this._selected.clear();}}
+  catch(e){
+   // A UI fence/timeout cannot unsend a submitted HA service. Revoke all
+   // follow-up confirmation, but retain pending ownership until its REAL
+   // settlement; never offer another action while that request is outstanding.
+   valid=false;clearInterval(timer);clearTimeout(token.timeout);
+   const reason=e?.message||'Native operation failed.';
+   if(request){
+    this._error='Request still outstanding. '+reason;this.render();
+    try{await request;this._error='Request completed successfully, but feedback was not verified. '+reason;}
+    catch(failure){this._error=failure?.message||'Native operation failed.';}
+   }else this._error=reason;
+  }
   finally{valid=false;clearInterval(timer);clearTimeout(token.timeout);if(this._cancel===cancel){this._cancel=null;this._ensure=null;}if(this._pending===token)this._pending=null;this.render();}
  }
  render(feedback=false){

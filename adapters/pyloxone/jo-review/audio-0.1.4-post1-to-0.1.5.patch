@@ -1,13 +1,16 @@
 diff --git a/custom_components/loxone/manifest.json b/custom_components/loxone/manifest.json
-index aa857f3..9a9aaf2 100644
+index 9a9aaf2b8abe3d3479246ffaf4899dba20816691..03ecc4bc18428ccd8a795811c94452b86a327d77 100644
 --- a/custom_components/loxone/manifest.json
 +++ b/custom_components/loxone/manifest.json
-@@ -12,7 +12,7 @@
+@@ -12,9 +12,9 @@
    "requirements": [
      "websockets>=14,<16",
      "pycryptodome>=3.20",
--    "PyLoxone-Audio==0.1.4"
-+    "PyLoxone-Audio==0.1.4.post1"
+-    "PyLoxone-Audio==0.1.4.post1"
++    "PyLoxone-Audio==0.1.5"
    ],
-   "version": "0.1.4",
+-  "version": "0.1.4",
++  "version": "0.1.5",
    "loggers": [
+     "pyloxone_audio"
+   ]

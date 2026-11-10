@@ -1,7 +1,7 @@
 {
   "integration": "PyLoxone",
   "domain": "loxone",
-  "integration_version": "0.1.4",
+  "integration_version": "0.1.5",
   "git_commit": "026e8b931fc1de0412f7c8bcc0daa615d1fa91fb",
   "upstream_repository_as_declared_by_host": "https://github.com/JoDehli/PyLoxone",
   "public_commit_availability_verified": true,
@@ -72,7 +72,7 @@
     "custom_components/loxone/helpers.py": "8282a776a58e2da8016d7c54a37202c5d961aae4b40770e5c4e90e5822019fbb",
     "custom_components/loxone/icons.json": "7603018bd6f1c34d791b5347f588a226395c7741860ddcc9be059f0928480b43",
     "custom_components/loxone/light.py": "92c1596e9130cddf5fe1c0d7bb3b03d4020b6ddc27c3ae90fd853647b0020ede",
-    "custom_components/loxone/manifest.json": "2f8960d602f6005f6e0150a8027977a549cd8f809c68372bbba7a686d12bcb4c",
+    "custom_components/loxone/manifest.json": "99d7faf25e7699423f415f5bd710004c665a580fa52c633f2a3019a985df33ed",
     "custom_components/loxone/media_player.py": "118ef0430b4a57097bbf0f7e7c63620992eb7fc3d0d3bf595ab72b2023c5a1a1",
     "custom_components/loxone/miniserver.py": "b0a2bab51b1211d7d1668b75121a58af4a51817bfd2dce6a2ab884ace7a91f7e",
     "custom_components/loxone/number.py": "60177e3afcfe8adaf5302b88ab8872e2f8e10e07a213b10701833d5a846e22af",
@@ -142,7 +142,7 @@
     "custom_components/loxone/const.py": "c5f7730c6d4d59295388ff2763e155843c462f13f4fe821c9b574a345c238ea3",
     "custom_components/loxone/coordinator.py": "2ea8bfcaf3c7f2d0afd4b836cd0d4df0a9e933d943ea0d4e91672012cdc90a2d",
     "custom_components/loxone/diagnostics.py": "7ff3202db2c73bf7d2bcffc727138d96a31fca3ada56d1919efea13d5742e199",
-    "custom_components/loxone/manifest.json": "2f8960d602f6005f6e0150a8027977a549cd8f809c68372bbba7a686d12bcb4c",
+    "custom_components/loxone/manifest.json": "99d7faf25e7699423f415f5bd710004c665a580fa52c633f2a3019a985df33ed",
     "custom_components/loxone/media_player.py": "118ef0430b4a57097bbf0f7e7c63620992eb7fc3d0d3bf595ab72b2023c5a1a1",
     "custom_components/loxone/music-placeholder.png": "8e08a2c8be93393303bf2c53c0d534210f97cf71b7c98e8c6d92290bb8102b97",
     "custom_components/loxone/pyloxone_api/audioserver.py": "afbda2359d83f28f47846dd9d4a7dc397fcc2e190fa6057107dcd54a4f3235f9",
@@ -163,5 +163,5 @@
   },
   "public_release": "0.10.3",
   "upstream_archive_sha256": "4add41bbad6fff014773336cc9d77081cacbbca54fcd10e857d6046b449be70a",
-  "release_phase_note": "Library 0.1.4.post1 documentation revision and reference adapter 0.1.4 with unchanged frontend r12 on exact stock 0.10.3."
+  "release_phase_note": "Library and reference adapter 0.1.5, frontend r13, exact stock 0.10.3 compatibility baseline."
 }

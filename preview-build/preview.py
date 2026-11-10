@@ -206,7 +206,7 @@ def preview_inventory():
     return {n:h for n,h in provenance()['shipping_files'].items() if n.startswith(COMPONENT)}
 
 def pinned_archive_sha():
-    name='PyLoxone-Audio-0.1.4.post1-r12-preview.zip'
+    name='PyLoxone-Audio-0.1.5-r13-docs1-preview.zip'
     rows=[line.split() for line in (HERE/'SHA256SUMS').read_text().splitlines() if line.strip()]
     matches=[row[0] for row in rows if len(row)==2 and row[1]==name]
     if len(matches)!=1 or len(matches[0])!=64:

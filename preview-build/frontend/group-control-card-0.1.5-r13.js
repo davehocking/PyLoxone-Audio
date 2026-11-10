@@ -350,14 +350,14 @@ function initializeGroupManager() {
         const mean = Math.floor((2 * values.reduce((a, b) => a + b, 0) + values.length) / (2 * values.length));
         this._volumeMean = Math.floor((2 * values.reduce((a, b) => a + Math.max(0, Math.min(100, b + wanted - mean)), 0) + values.length) / (2 * values.length));
       }
-      let valid = true, timer, cancel;
+      let valid = true, timer, cancel, request;
       const token = {};
       this._pending = token;
       this._error = "";
       this.render();
       const ensure = () => {
         const now = project(this.hass, id);
-        valid = valid && this.isConnected && this._epoch === epoch && this._auth() === auth && this.hass?.connected !== false && now?.owner === original.owner && same(now?.candidates, original.candidates);
+        valid = valid && this.isConnected && this._epoch === epoch && this._auth() === auth && this.hass?.connected !== false && now?.owner === original.owner && same(now?.candidates, original.candidates) && (expected || now?.revision === original.revision && now?.group === original.group);
         if (valid) {
           const current = Object.fromEntries(original.candidates.map((i) => [i, project(this.hass, i)?.members]));
           valid = same(current, before) || expected && same(current, expected);
@@ -381,7 +381,8 @@ function initializeGroupManager() {
       try {
         await Promise.race([guard, (async () => {
           ensure();
-          await this.hass.callService(domain, service, data, { entity_id: id });
+          request = Promise.resolve(this.hass.callService(domain, service, data, { entity_id: id }));
+          await request;
           ensure();
           while (confirmed && !confirmed()) {
             if (Date.now() > deadline) throw new Error("Native feedback not confirmed. No retry or rollback sent.");
@@ -396,7 +397,20 @@ function initializeGroupManager() {
           this._selected.clear();
         }
       } catch (e) {
-        this._error = e?.message || "Native operation failed.";
+        valid = false;
+        clearInterval(timer);
+        clearTimeout(token.timeout);
+        const reason = e?.message || "Native operation failed.";
+        if (request) {
+          this._error = "Request still outstanding. " + reason;
+          this.render();
+          try {
+            await request;
+            this._error = "Request completed successfully, but feedback was not verified. " + reason;
+          } catch (failure) {
+            this._error = failure?.message || "Native operation failed.";
+          }
+        } else this._error = reason;
       } finally {
         valid = false;
         clearInterval(timer);
@@ -567,7 +581,7 @@ function nativeTree(element, visit) {
 function installNativeMoreInfo() {
   if (!customElements.get("home-assistant")) return;
   if (window[SINGLETON]) return window[SINGLETON];
-  let root, binding, mediaLink, cardRoot, observers = [], scheduled = false, stopped = false, disposed = false;
+  let root, binding, observed, mediaLink, cardRoot, observers = [], scheduled = false, stopped = false, disposed = false;
   const cardClick = (event) => {
     if (stopped || !root?.isConnected) return;
     const path = event.composedPath(), card = path.find((n) => n?.localName === "hui-media-control-card");
@@ -594,11 +608,18 @@ function installNativeMoreInfo() {
   };
   const drop = () => {
     dropMedia();
-    if (binding) {
-      binding.instance.removeEventListener("click", binding.listener, true);
-      binding.instance.removeController?.(binding.controller);
-    }
+    if (binding) binding.instance.removeEventListener("click", binding.listener, true);
     binding = null;
+  };
+  const observe = (instance) => {
+    if (observed?.instance === instance) return;
+    observed?.instance.removeController?.(observed.controller);
+    observed = null;
+    if (instance) {
+      const controller = { hostUpdated: schedule, hostDisconnected: schedule };
+      observed = { instance, controller };
+      instance.addController?.(controller);
+    }
   };
   const mediaContext = (current) => {
     if (binding !== current || validContext(root?.hass, current.instance) !== current.id) return null;
@@ -641,6 +662,7 @@ function installNativeMoreInfo() {
     const next = document.querySelector("home-assistant");
     if (root !== next) {
       drop();
+      observe(null);
       root = next;
     }
     if (cardRoot !== root) {
@@ -652,7 +674,10 @@ function installNativeMoreInfo() {
     }
     for (const o of observers) o.disconnect();
     observers = [];
-    if (!root?.isConnected || !root.shadowRoot) return;
+    if (!root?.isConnected || !root.shadowRoot) {
+      observe(null);
+      return;
+    }
     const watch = (target) => {
       const o = new MutationObserver(schedule);
       o.observe(target, { childList: true, subtree: true, attributes: true, attributeFilter: ["disabled", "open", "class"] });
@@ -665,6 +690,7 @@ function installNativeMoreInfo() {
       if (el.shadowRoot) watch(el.shadowRoot);
       if (el.localName === "more-info-media_player") instance = el;
     });
+    observe(instance);
     const id = validContext(root.hass, instance), buttons = instance?.shadowRoot?.querySelectorAll("ha-icon-button#grouping-button");
     const button = buttons?.length === 1 && !buttons[0].disabled ? buttons[0] : null;
     if (!id || !button) {
@@ -686,8 +712,6 @@ function installNativeMoreInfo() {
     };
     binding = current;
     instance.addEventListener("click", current.listener, true);
-    current.controller = { hostUpdated: schedule, hostDisconnected: schedule };
-    instance.addController?.(current.controller);
     updateMedia(current);
   };
   const schedule = () => {
@@ -705,6 +729,7 @@ function installNativeMoreInfo() {
   const stop = () => {
     stopped = true;
     drop();
+    observe(null);
     dropCards();
     for (const o of observers) o.disconnect();
     observers = [];

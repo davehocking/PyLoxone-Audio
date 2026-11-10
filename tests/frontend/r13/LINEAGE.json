@@ -1,0 +1,15 @@
+{
+  "baseline_public_commit": "7954594f0d6effbf417cf7fc0e2f8f5910f4f57a",
+  "native_frontend_distribution": "home-assistant-frontend==20261028.5",
+  "unchanged_assertion_modules": {
+    "cases-warning.mjs": "16ab163da0cc95e2d74bce95e56aae7a039cc7ca61de65225f6ec268fd15350a",
+    "cases-route.mjs": "d6699296a2b5cff830f6a46335e311808fd9a66d75c011606216dc86a7e2355f",
+    "native-utils.mjs": "53e2bd020d4abf91e43f38ede4c187dff6881df0591c91f5c5e8af3806ee5425"
+  },
+  "wrapper_adaptations": [
+    "relative default node_modules and synthetic fixture",
+    "CHROMIUM_PATH override",
+    "two-scope dispatcher; case assertions unchanged"
+  ],
+  "fixture_sha256": "3a1fd6df0c5853d98e0195a759c597f115bf090b49ed33e17d48622a927e0bf8"
+}

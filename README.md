@@ -2,7 +2,7 @@
 
 Audio features for [PyLoxone](https://github.com/JoDehli/PyLoxone), using your existing Home Assistant integration and room players.
 
-**Version 0.1.4 (documentation revision):** library **0.1.4.post1**, reference adapter **0.1.4**, frontend **r12**, based on PyLoxone **0.10.3**. Install the matching preview below; Home Assistant resolves `PyLoxone-Audio==0.1.4.post1` through its normal dependency handling. Installing the library alone does not update the integration.
+**Version 0.1.5:** library **0.1.5**, reference adapter **0.1.5**, frontend **r13**, based on PyLoxone **0.10.3**. Install the matching preview below; Home Assistant resolves `PyLoxone-Audio==0.1.5` through its normal dependency handling. Installing the library alone does not update the integration.
 
 ## Start here
 
