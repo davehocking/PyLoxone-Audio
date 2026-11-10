@@ -170,10 +170,10 @@
     "custom_components/loxone/translations/pt-PT.json": "81ed4439eee306e866ee6c5cf40e1d4439f61e52f9fbf9d7448001b5dc97043c",
     "custom_components/loxone/translations/pt.json": "81ed4439eee306e866ee6c5cf40e1d4439f61e52f9fbf9d7448001b5dc97043c",
     "custom_components/loxone/window_monitor.py": "be636969b2d35152aa5eaab717cd75751d47d12cfa3b7ad865c52b142a0f8364",
-    "preview-build/README.md": "5278b5752a5e97c986cc89206bfd77dcdec11c12bd2d0674b80065d011f75d06",
+    "preview-build/README.md": "fab43f9294d27caacb13e9b96b4b9c9fdc350e06a34c3d4336a5dc94aa57b2f5",
     "preview-build/frontend/group-control-card-0.1.5-r13.js": "c8f7ba6f18f963203bd846cb4a2bba7a524ab1600608719d1e534889e6074f94",
-    "preview-build/preview.py": "73ea43743e3e9303a8e55c508f26fd45ab148f10ae9e33ea4527568bd364d4ed"
+    "preview-build/preview.py": "96d99de653c82ce3ff3cb26182a34d5ddc86427b2a5ef45dab364ef12bcbdd28"
   },
-  "archive_name": "PyLoxone-Audio-0.1.5-r13-preview.zip",
-  "documentation_revision": "release-0.1.5"
+  "archive_name": "PyLoxone-Audio-0.1.5-r13-docs1-preview.zip",
+  "documentation_revision": "release-0.1.5-docs1"
 }

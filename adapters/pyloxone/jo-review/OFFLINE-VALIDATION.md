@@ -1,6 +1,6 @@
 # Optional developer checks
 
-Not an installation prerequisite. Use the complete [source bundle](https://github.com/davehocking/PyLoxone-Audio/releases/download/v0.1.5/PyLoxone-Audio-0.1.5-source-preview.zip), the tested release wheel and exact stock 0.10.3 source. Never use real HA configuration or credentials. The supplied [runner](offline/test_project.py) explicitly loads the native HA test plugin and retains socket/import/warning guards.
+Not an installation prerequisite. Use the complete [source bundle](https://github.com/davehocking/PyLoxone-Audio/releases/download/v0.1.5/PyLoxone-Audio-0.1.5-docs1-source-preview.zip), the tested release wheel and exact stock 0.10.3 source. Never use real HA configuration or credentials. The supplied [runner](offline/test_project.py) explicitly loads the native HA test plugin and retains socket/import/warning guards.
 
 With Linux, Python 3.14, `uv`, Git and network access for test dependencies, extract the source bundle and enter `repository/`. Substitute `HOST_BASE`, `WHEEL` and a new `OUTPUT` path. A private Docker image is not required.
 
