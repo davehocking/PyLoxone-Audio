@@ -1,0 +1,13 @@
+diff --git a/custom_components/loxone/manifest.json b/custom_components/loxone/manifest.json
+index aa857f3..9a9aaf2 100644
+--- a/custom_components/loxone/manifest.json
++++ b/custom_components/loxone/manifest.json
+@@ -12,7 +12,7 @@
+   "requirements": [
+     "websockets>=14,<16",
+     "pycryptodome>=3.20",
+-    "PyLoxone-Audio==0.1.4"
++    "PyLoxone-Audio==0.1.4.post1"
+   ],
+   "version": "0.1.4",
+   "loggers": [

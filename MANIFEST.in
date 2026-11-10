@@ -15,7 +15,7 @@ include DIAGNOSTICS.md
 include KNOWN-ISSUES.md
 include CHANGELOG.md
 
-include RELEASE-NOTES-0.1.4.md
+include RELEASE-NOTES-0.1.4.post1.md
 include USER-GUIDE.md
 include DIAGNOSTICS-REFERENCE.md
 include AUTOMATION-GROUPING.md

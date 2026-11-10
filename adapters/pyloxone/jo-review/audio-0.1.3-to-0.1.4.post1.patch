@@ -13,7 +13,7 @@ index efe8b8a..858e233 100644
                      if (not is_current() or status.player_id != e._audio_player_id
                          or status.event_idle is not True or status.event_active is not False
 diff --git a/custom_components/loxone/manifest.json b/custom_components/loxone/manifest.json
-index 2268864..289e85a 100644
+index 2268864..9a9aaf2 100644
 --- a/custom_components/loxone/manifest.json
 +++ b/custom_components/loxone/manifest.json
 @@ -12,9 +12,9 @@
@@ -21,10 +21,10 @@ index 2268864..289e85a 100644
      "websockets>=14,<16",
      "pycryptodome>=3.20",
 -    "PyLoxone-Audio==0.1.3"
-+    "PyLoxone-Audio==0.1.4"
++    "PyLoxone-Audio==0.1.4.post1"
    ],
 -  "version": "0.10.3.dev18",
-+  "version": "0.10.3.dev19",
++  "version": "0.1.4",
    "loggers": [
      "pyloxone_audio"
    ]

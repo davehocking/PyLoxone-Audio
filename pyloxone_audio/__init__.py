@@ -1,9 +1,11 @@
 """
 Concrete PyLoxone-Audio API, independent of Home Assistant.
 
-Apache-2.0. Version 0.1.4.
+Apache-2.0. Version 0.1.4.post1.
 The historical fake-backed facade contract is outside this distribution.
 """
+__version__ = "0.1.4.post1"
+
 from .announcement import async_send_prepared_announcement
 from .catalogue import AudioCatalogue, CatalogueTarget, ConfiguredSource
 from .metadata import AudioMetadataCoordinator
