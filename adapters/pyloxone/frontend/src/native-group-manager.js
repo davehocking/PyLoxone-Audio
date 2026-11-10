@@ -20,7 +20,7 @@ function nativeTree(element,visit){
 export function installNativeMoreInfo(){
   if(!customElements.get('home-assistant'))return;
   if(window[SINGLETON])return window[SINGLETON];
-  let root,binding,mediaLink,cardRoot,observers=[],scheduled=false,stopped=false,disposed=false;
+  let root,binding,observed,mediaLink,cardRoot,observers=[],scheduled=false,stopped=false,disposed=false;
   // Delegate only the pinned native card's exact Group button. No full-panel
   // DOM scanning, native method replacement or blanket dialog interception.
   const cardClick=event=>{
@@ -36,7 +36,15 @@ export function installNativeMoreInfo(){
   };
   const dropCards=()=>{cardRoot?.removeEventListener('click',cardClick,true);cardRoot=null;};
   const dropMedia=()=>{if(mediaLink){mediaLink.active=false;mediaLink.node.onclick=null;mediaLink.node.remove();mediaLink=null;}};
-  const drop=()=>{dropMedia();if(binding){binding.instance.removeEventListener('click',binding.listener,true);binding.instance.removeController?.(binding.controller);}binding=null;};
+  const drop=()=>{dropMedia();if(binding)binding.instance.removeEventListener('click',binding.listener,true);binding=null;};
+  // Observation is not action authority. Keep the current native host's Lit
+  // lifecycle through temporary ineligibility: property-only recovery may
+  // produce no DOM mutation, and must rebind BEFORE the next Group click.
+  const observe=instance=>{
+    if(observed?.instance===instance)return;
+    observed?.instance.removeController?.(observed.controller);observed=null;
+    if(instance){const controller={hostUpdated:schedule,hostDisconnected:schedule};observed={instance,controller};instance.addController?.(controller);}
+  };
   const mediaContext=current=>{
     if(binding!==current||validContext(root?.hass,current.instance)!==current.id)return null;
     const h=root.hass,v=project(h,current.id),lead=v&&project(h,v.leader);
@@ -65,14 +73,15 @@ export function installNativeMoreInfo(){
   const reconcile=()=>{
     scheduled=false;if(stopped)return;
     const next=document.querySelector('home-assistant');
-    if(root!==next){drop();root=next;}
+    if(root!==next){drop();observe(null);root=next;}
     if(cardRoot!==root){dropCards();if(root?.isConnected){cardRoot=root;cardRoot.addEventListener('click',cardClick,true);}}
     for(const o of observers)o.disconnect();observers=[];
-    if(!root?.isConnected||!root.shadowRoot)return;
+    if(!root?.isConnected||!root.shadowRoot){observe(null);return;}
     const watch=target=>{const o=new MutationObserver(schedule);o.observe(target,{childList:true,subtree:true,attributes:true,attributeFilter:['disabled','open','class']});observers.push(o);};
     watch(root.shadowRoot);
     const dialog=root.shadowRoot.querySelector('ha-more-info-dialog');let instance;
     if(dialog)nativeTree(dialog,el=>{if(el.shadowRoot)watch(el.shadowRoot);if(el.localName==='more-info-media_player')instance=el;});
+    observe(instance);
     const id=validContext(root.hass,instance),buttons=instance?.shadowRoot?.querySelectorAll('ha-icon-button#grouping-button');
     const button=buttons?.length===1&&!buttons[0].disabled?buttons[0]:null;
     if(!id||!button){drop();return;}
@@ -87,15 +96,12 @@ export function installNativeMoreInfo(){
       instance.dispatchEvent(new CustomEvent('show-dialog',{bubbles:true,composed:true,detail:{dialogTag:'loxone-group-manager-dialog',dialogImport:()=>Promise.resolve(),dialogParams:{entity:activeId,preselectEntity:activeId}}}));
     };
     binding=current;instance.addEventListener('click',current.listener,true);
-    // Supported Lit host lifecycle, scoped to this one eligible More-info instance.
-    // No native/prototype method replacement or extra HA connection/subscription.
-    current.controller={hostUpdated:schedule,hostDisconnected:schedule};
-    instance.addController?.(current.controller);
+
     updateMedia(current);
   };
   const schedule=()=>{if(!scheduled&&!stopped){scheduled=true;queueMicrotask(reconcile);}};
   const start=()=>{if(!disposed){stopped=false;reconcile();}};
-  const stop=()=>{stopped=true;drop();dropCards();for(const o of observers)o.disconnect();observers=[];};
+  const stop=()=>{stopped=true;drop();observe(null);dropCards();for(const o of observers)o.disconnect();observers=[];};
   const api={start,stop,dispose(){disposed=true;stop();window.removeEventListener('pagehide',stop);window.removeEventListener('pageshow',start);delete window[SINGLETON];},get binding(){return binding;}};window[SINGLETON]=api;
   start();
   window.addEventListener('pagehide',stop);window.addEventListener('pageshow',start);

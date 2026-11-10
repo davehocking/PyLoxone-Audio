@@ -25,7 +25,7 @@ def main() -> int:
     parser.add_argument('--work-dir',type=Path,required=True)
     parser.add_argument('--case', action='append', default=[], help='Repository-relative test file or node ID; repeatable')
     args=parser.parse_args()
-    repo=Path('/repo')
+    repo=Path(__file__).resolve().parents[4]
     work=args.work_dir.resolve()
     work.mkdir(parents=True,exist_ok=False)
     lib=(args.library_root or repo).resolve()

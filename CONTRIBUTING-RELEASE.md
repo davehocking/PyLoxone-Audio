@@ -1,4 +1,4 @@
-# Contributor instructions for PyLoxone-Audio 0.1.4.post1
+# Contributor instructions for PyLoxone-Audio 0.1.5
 
 Preserve Apache-2.0 LICENSE, NOTICE.md and upstream authorship; disclose human/LLM
 provenance honestly. This is a separately versioned concrete library consumed by
@@ -53,11 +53,10 @@ No test result grants public publication or agent household-control permission.
 
 ## Adapter baselines
 
-The cumulative `audio-0.1.4.post1-on-stock-0.10.3.patch` targets stock 0.10.3;
-`audio-0.1.3-to-0.1.4.post1.patch` assumes the released 0.1.3 audio adapter
-(0.10.3.dev18) on the same stock 0.10.3 base. These are review baselines, not a
-claim of upstream adoption. See the short maintainer guide for optional qualified
-HA reproduction; the stock runner can require the documented plugin ordering.
+The cumulative `audio-0.1.5-on-stock-0.10.3.patch` targets stock 0.10.3;
+`audio-0.1.4-post1-to-0.1.5.patch` assumes public adapter 0.1.4
+with library 0.1.4.post1 on the same stock 0.10.3 base. These are review baselines, not a
+claim of upstream adoption. See the short maintainer guide for optional HA reproduction with the supplied plugin-qualified runner.
 
 Use isolated build tooling; never repair the provisioned HA test interpreter
 just to add build/twine. `python -m build` plus `twine check --strict` is the

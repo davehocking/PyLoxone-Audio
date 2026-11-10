@@ -1,6 +1,6 @@
 # Audio diagnostics and native Home Assistant tools
 
-For library 0.1.4.post1 and reference adapter 0.1.4. Start with the
+For library 0.1.5 and reference adapter 0.1.5. Start with the
 [installation guide](https://github.com/davehocking/PyLoxone-Audio/blob/main/preview-build/README.md).
 New users default OFF; existing saved preferences are preserved. Install the
 matching adapter/library pair: installing only the wheel does not add the switch.
