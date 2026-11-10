@@ -3,8 +3,8 @@
 The cumulative patch targets exact stock PyLoxone 0.10.3; the incremental patch
 assumes the released 0.1.3 audio adapter (0.10.3.dev18), not stock PyLoxone.
 
-- `audio-dev19-on-stock-0.10.3.patch`: **32 changed files**, +5174/−39 text lines, 1 binary files.
-- `audio-0.1.3-to-0.1.4.patch`: **2 changed files**, +4/−3 text lines, 0 binary files.
+- `audio-0.1.4.post1-on-stock-0.10.3.patch`: **32 changed files**, +5174/−39 text lines, 1 binary files.
+- `audio-0.1.3-to-0.1.4.post1.patch`: **2 changed files**, +4/−3 text lines, 0 binary files.
 
 The incremental adapter delta adds a per-member qualification timeout and updates
 the adapter version/library pin. The serial group-budget implementation lives in
@@ -45,6 +45,6 @@ the library; full-width sliders and matching UI deadlines live in frontend r12.
 | `translations/pt-PT.json` | Current audio setup/diagnostic/service strings; existing language coverage retained | `tests/adapter/test_automation_action_compatibility_ha.py` |
 | `translations/pt.json` | Current audio setup/diagnostic/service strings; existing language coverage retained | `tests/adapter/test_automation_action_compatibility_ha.py` |
 
-Hashes and complete baselines are in [PATCH-MANIFEST-DEV19.json](PATCH-MANIFEST-DEV19.json).
+Hashes and complete baselines are in [PATCH-MANIFEST-0.1.4.post1.json](PATCH-MANIFEST-0.1.4.post1.json).
 The engineering assembly includes the stock packaged tests; the installable preview
 omits those tests. [Short maintainer guide](README.md).

@@ -24,7 +24,7 @@ release checksums. Do not use the smaller installation preview as the source roo
 REPO=$(pwd -P)
 HOST_BASE=/path/to/exact-stock-0.10.3
 OUTPUT=/path/to/new-release-check-output
-WHEEL=/path/to/tested/pyloxone_audio-0.1.4-py3-none-any.whl
+WHEEL=/path/to/tested/pyloxone_audio-0.1.4.post1-py3-none-any.whl
 WHEEL_SHA256=<WHEEL-SHA256>
 IMAGE=sha256:80cfe2bbf2ef0fc81dc0925fd367ea262fe8404b467daae93d97c059b55e2946
 docker image inspect "$IMAGE" >/dev/null || exit 1

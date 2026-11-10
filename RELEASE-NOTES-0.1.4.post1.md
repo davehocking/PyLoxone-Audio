@@ -1,10 +1,10 @@
-# PyLoxone-Audio 0.1.4
+# PyLoxone-Audio 0.1.4.post1
 
-Library **0.1.4**, reference adapter **0.10.3.dev19**, frontend **r12**,
+Documentation revision: library **0.1.4.post1**, reference adapter **0.1.4**, frontend **r12**,
 based on PyLoxone **0.10.3**. Install the matching component and frontend;
 installing the library alone does not update the integration.
 
-Larger groups now have time for serial member qualification and volume feedback.
+Audio functionality is unchanged from 0.1.4. Larger groups have time for serial member qualification and volume feedback.
 Group and room volume sliders each use a full-width line, with percentage and
 −/+ controls above. Existing controls, grouping rules and defaults are retained.
 

@@ -19,7 +19,7 @@ def pytest_sessionfinish(session, exitstatus):
     root=Path(os.environ['PYLOXONE_PROJECT_LIBRARY_ROOT']).resolve()
     package=Path(pyloxone_audio.__file__).resolve()
     assert package.is_relative_to(root),str(package)
-    assert importlib.metadata.version('PyLoxone-Audio')=='0.1.4'
+    assert importlib.metadata.version('PyLoxone-Audio')=='0.1.4.post1'
     dependencies={}
     for text in importlib.metadata.requires('PyLoxone-Audio') or ():
         requirement=Requirement(text)

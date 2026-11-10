@@ -1,4 +1,4 @@
-# Contributor instructions for PyLoxone-Audio 0.1.4
+# Contributor instructions for PyLoxone-Audio 0.1.4.post1
 
 Preserve Apache-2.0 LICENSE, NOTICE.md and upstream authorship; disclose human/LLM
 provenance honestly. This is a separately versioned concrete library consumed by
@@ -53,8 +53,8 @@ No test result grants public publication or agent household-control permission.
 
 ## Adapter baselines
 
-The cumulative `audio-dev19-on-stock-0.10.3.patch` targets stock 0.10.3;
-`audio-0.1.3-to-0.1.4.patch` assumes the released 0.1.3 audio adapter
+The cumulative `audio-0.1.4.post1-on-stock-0.10.3.patch` targets stock 0.10.3;
+`audio-0.1.3-to-0.1.4.post1.patch` assumes the released 0.1.3 audio adapter
 (0.10.3.dev18) on the same stock 0.10.3 base. These are review baselines, not a
 claim of upstream adoption. See the short maintainer guide for optional qualified
 HA reproduction; the stock runner can require the documented plugin ordering.

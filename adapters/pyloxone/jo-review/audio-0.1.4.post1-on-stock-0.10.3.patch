@@ -2288,7 +2288,7 @@ index ffde748..d244c2b 100644
 +                                "Debug console is optional administrator-only Python execution; input is logged"]}
 +
 diff --git a/custom_components/loxone/manifest.json b/custom_components/loxone/manifest.json
-index 43fecb3..289e85a 100644
+index 43fecb3..9a9aaf2 100644
 --- a/custom_components/loxone/manifest.json
 +++ b/custom_components/loxone/manifest.json
 @@ -1,7 +1,9 @@
@@ -2308,10 +2308,10 @@ index 43fecb3..289e85a 100644
      "websockets>=14,<16",
 -    "pycryptodome>=3.20"
 +    "pycryptodome>=3.20",
-+    "PyLoxone-Audio==0.1.4"
++    "PyLoxone-Audio==0.1.4.post1"
    ],
 -  "version": "0.10.3"
-+  "version": "0.10.3.dev19",
++  "version": "0.1.4",
 +  "loggers": [
 +    "pyloxone_audio"
 +  ]
