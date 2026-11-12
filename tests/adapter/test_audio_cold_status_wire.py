@@ -5,6 +5,7 @@ import json
 from unittest.mock import AsyncMock
 
 import pytest
+from session_fixture_policy import close_retained_peer
 from test_audioserver_playback import SyntheticAudioSocket, rsa_key
 from test_audioserver_ha import audio_setup, zone_entity_id
 from test_audio_catalogue import catalogue_commands
@@ -45,6 +46,7 @@ async def test_actual_ha_cold_source_reads_status_then_dispatches_once_with_real
     await hass.services.async_call("media_player", "select_source", {"entity_id": entity.entity_id, "source": "Line-In"}, blocking=True)
     assert len(sockets) == 2
     assert [m for s in sockets for m in s.sent if m.startswith("audio/7/")] == ["audio/7/status", route]
+    await close_retained_peer(entity._audio_commands)
     assert all(s.closed for s in sockets)
     assert entity._audio_metadata.get(8) is None
     assert entity.source == "Line-In"

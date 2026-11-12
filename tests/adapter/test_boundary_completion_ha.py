@@ -21,6 +21,9 @@ from custom_components.loxone.pyloxone_api import audioserver
 @pytest.mark.asyncio
 async def test_optional_restore_diagnostics_are_not_source_confirmation(hass, audio_setup, monkeypatch, rsa_key):
     entity, controls, sockets, emit = await simplified_harness(hass, audio_setup, monkeypatch, rsa_key)
+    # This original oracle explicitly measures two independent cold peers.
+    # The warm rejection counterpart exercises the shared-session route.
+    entity._audio_commands.reuse_session = False
     controls['seek_reply'] = 'reject'
     await select(hass, entity)
     assert len(sockets) == 2

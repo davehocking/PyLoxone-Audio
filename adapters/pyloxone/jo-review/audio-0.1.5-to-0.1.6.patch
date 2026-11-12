@@ -1,0 +1,71 @@
+diff --git a/custom_components/loxone/__init__.py b/custom_components/loxone/__init__.py
+index c2ff276c3867d1ca267ccba727aee8fe47930752..26a0c76c754908e2e08c8d186fc7f870da97e5be 100644
+--- a/custom_components/loxone/__init__.py
++++ b/custom_components/loxone/__init__.py
+@@ -310,22 +310,28 @@ async def async_unload_entry(hass, config_entry):
+                 )
+         coordinator._listening_task = None
+ 
+-        try:
+-            await coordinator.async_cleanup()
+-        except Exception as err:  # noqa: BLE001
+-            _LOGGER.warning("Error closing connection: %s", err, exc_info=True)
+-
+-        hass.data[DOMAIN].pop(config_entry.entry_id, None)
+-
+     # Services are not removed here: the integration-wide ones are
+     # registered once in ``async_setup`` and route per call, and the
+     # cover entity services belong to the platform (HA manages them).
+     # Removing them would break every other loaded Miniserver.
+ 
+-    # Unload
+-    unload_ok = await hass.config_entries.async_unload_platforms(
+-        config_entry, LOXONE_PLATFORMS
++    async def close_connections():
++        if coordinator is not None:
++            try:
++                await coordinator.async_cleanup()
++            except Exception as err:  # noqa: BLE001
++                _LOGGER.warning("Error closing connection: %s", err, exc_info=True)
++
++    # Entity removal revokes and drains its requests. A reusable command session
++    # also owns awaited socket cleanup, so waiting for it BEFORE starting entity
++    # removal can hold those callers alive behind their own old context exit.
++    # Start both owners together and retain both until cleanup has completed.
++    _, unload_ok = await asyncio.gather(
++        close_connections(),
++        hass.config_entries.async_unload_platforms(config_entry, LOXONE_PLATFORMS),
+     )
++    if coordinator is not None:
++        hass.data[DOMAIN].pop(config_entry.entry_id, None)
+     return unload_ok
+ 
+ 
+diff --git a/custom_components/loxone/manifest.json b/custom_components/loxone/manifest.json
+index 03ecc4bc18428ccd8a795811c94452b86a327d77..9eef15ec2b737c93d8ef43ed760bd97f9e9c9b8f 100644
+--- a/custom_components/loxone/manifest.json
++++ b/custom_components/loxone/manifest.json
+@@ -12,9 +12,9 @@
+   "requirements": [
+     "websockets>=14,<16",
+     "pycryptodome>=3.20",
+-    "PyLoxone-Audio==0.1.5"
++    "PyLoxone-Audio==0.1.6"
+   ],
+-  "version": "0.1.5",
++  "version": "0.1.6",
+   "loggers": [
+     "pyloxone_audio"
+   ]
+diff --git a/custom_components/loxone/media_player.py b/custom_components/loxone/media_player.py
+index 0ac0f76a3de01f396a97b3e9811af26a7f2c03ce..ec94650c6043819d6a86c5dcfca2044c40fb697a 100644
+--- a/custom_components/loxone/media_player.py
++++ b/custom_components/loxone/media_player.py
+@@ -194,6 +194,7 @@ async def async_setup_entry(
+             _LOGGER.warning("Optional Audio Server playback unavailable; play/pause will not fall back to room start")
+         else:
+             coordinator.audio_commands = audio_commands
++            audio_commands.reuse_session = True
+             audio_commands.diagnostics = diagnostics
+ 
+ 

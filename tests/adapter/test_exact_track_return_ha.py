@@ -13,6 +13,7 @@ from homeassistant.exceptions import HomeAssistantError
 from test_audioserver_ha import audio_setup
 from test_audioserver_playback import rsa_key
 from test_seek_readiness_ha import readiness_harness, select
+from session_fixture_policy import close_retained_peer
 from custom_components.loxone import audio_sources
 
 
@@ -114,6 +115,7 @@ async def test_wrong_track_return_is_not_success_or_a_new_bookmark(
         for position in (1.0, 2.0):
             await h.emit({**h.target, "time": position})
         assert h.entity._radio_catalogue.source_session("Spotify") == h.bookmark
+        await close_retained_peer(h.commands)
         assert all(s.closed for s in h.sockets)
     finally:
         await h.commands.async_close()
@@ -202,6 +204,7 @@ async def test_exact_track_waits_past_unrelated_feedback_then_seeks_once(
         assert any(e["stage"] == "source_confirmed" for e in h.events)
         assert h.metadata.get(7).audio_path == h.saved["audiopath"]
         assert not h.commands.source_fences
+        await close_retained_peer(h.commands)
         assert all(s.closed for s in h.sockets)
     finally:
         pending.cancel()

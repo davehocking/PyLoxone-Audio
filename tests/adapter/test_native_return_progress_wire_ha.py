@@ -13,6 +13,7 @@ import asyncio
 import json
 
 import pytest
+from session_fixture_policy import close_retained_peer
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.util import dt as dt_util
 from test_audioserver_ha import audio_setup
@@ -41,6 +42,9 @@ async def native_return_harness(
     monkeypatch.setattr(wire.AudioServerCommands, "_async_request", real_request)
     entity._audio_commands._credentials = lambda: ("synthetic-user", "synthetic-active-token")
     entity._audio_commands._timeout = 1
+    if tick or auth_change is not None:
+        # This scenario explicitly exercises authentication, not a warm lease.
+        entity._audio_commands.reuse_session = False
     target = library_row(time=0)
     saved = library_row()
     if spotify:
@@ -128,6 +132,7 @@ async def test_native_return_accepts_anchored_progress_during_corrective_seek_au
         error = exc
     sent = [m for socket in sockets for m in socket.sent if m.startswith("audio/7/")]
     assert shortcut_calls == [], "Real transport must not use the earlier shortcut"
+    await close_retained_peer(entity._audio_commands)
     assert all(socket.closed for socket in sockets)
     if tick:
         assert len(samples) == 2
@@ -218,6 +223,7 @@ async def test_real_transport_never_restores_after_conflict_during_seek_auth(
     assert len(sent) == (2 if may_seek else 1)
     assert "/position/" not in sent[0]
     assert shortcuts == []
+    await close_retained_peer(entity._audio_commands)
     assert all(socket.closed for socket in sockets)
 
 
@@ -321,6 +327,7 @@ async def test_library_missing_seek_reply_is_uncertain_not_false_success_or_repl
     assert sent[-1] == "audio/7/position/45.0"
     # Source succeeded; a missing optional seek reply creates no source failure/fence.
     assert not entity._audio_commands.source_fences
+    await close_retained_peer(entity._audio_commands)
     assert all(socket.closed for socket in sockets)
     await hass.async_block_till_done()
     assert sent == [m for socket in sockets for m in socket.sent if m.startswith("audio/7/")]
@@ -375,6 +382,7 @@ async def test_actual_ha_newer_actions_cancel_return_pending_in_seek_authenticat
         sent = [m for socket in sockets for m in socket.sent if m.startswith("audio/7/")]
         assert len(sent) == 1
         assert "/position/" not in sent[0]
+        await close_retained_peer(entity._audio_commands)
         assert all(socket.closed for socket in sockets)
     finally:
         release.set()

@@ -194,6 +194,7 @@ async def async_setup_entry(
             _LOGGER.warning("Optional Audio Server playback unavailable; play/pause will not fall back to room start")
         else:
             coordinator.audio_commands = audio_commands
+            audio_commands.reuse_session = True
             audio_commands.diagnostics = diagnostics
 
 

@@ -8,6 +8,7 @@ from copy import deepcopy
 import pytest
 from test_audioserver_ha import audio_setup
 from test_audioserver_playback import SyntheticAudioSocket, rsa_key
+from session_fixture_policy import close_retained_peer
 from test_source_simple_session_ha import session_room
 from custom_components.loxone.pyloxone_api import audioserver as wire
 
@@ -53,6 +54,7 @@ async def test_native_session_ha_auth_wire_waits_for_actual_playing_not_early_ec
         release.set()
         await asyncio.wait_for(action,3)
         assert shortcut_writes == []
+        await close_retained_peer(entity._audio_commands)
         assert len(sockets)==1 and all(socket.closed for socket in sockets)
         assert session.queue == queue
         assert all(method=='GET' and not url.endswith('/queue') for method,url,_ in session.calls)

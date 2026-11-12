@@ -1,4 +1,4 @@
-# Contributor instructions for PyLoxone-Audio 0.1.5
+# Contributor instructions for PyLoxone-Audio 0.1.6
 
 Preserve Apache-2.0 LICENSE, NOTICE.md and upstream authorship; disclose human/LLM
 provenance honestly. This is a separately versioned concrete library consumed by
@@ -22,13 +22,16 @@ For deterministic container bytes use SOURCE_DATE_EPOCH=1792886400, umask 022,
 release receipts record the exact builder and independent rebuild comparison;
 the bare backend command alone does not promise deterministic tar/gzip headers.
 
-Use the portable tools/test_project.py entrypoint, running the two suites separately:
+Run the complete portable library suite and the following focused owning-host
+check separately. The supplied host runner explicitly loads its HA plugin:
     python tools/test_project.py library --work-dir /short/user-owned/library-check
-    python tools/test_project.py adapter --host-base /path/to/exact-host-base --work-dir /short/user-owned/adapter-check
+    python adapters/pyloxone/jo-review/offline/test_project.py adapter --host-base /path/to/exact-host-base --work-dir /short/user-owned/adapter-check --case tests/adapter/test_diagnostics_environment_ha.py --case tests/adapter/test_automation_action_compatibility_ha.py --case tests/adapter/test_reusable_session_ha.py
 The external host base must match adapters/pyloxone/BASE.json; only its listed
 custom_components files are needed. Do not substitute another branch or snapshot.
 For wheel checks, add --library-root /path/to/fresh-local-wheel-install to either
 command. These paths are examples, not dependencies on the development machine.
+The focused host command is not a full host-regression claim; the default
+adapter collection also retains separate UI replay/input-fixture tests.
 The runner rejects HA imports for library tests,
 blocks TCP, permits local AF_UNIX wire fixtures, treats runtime/resource/unraisable
 warnings as errors and records actual package/owning-host import paths. Set TMPDIR
@@ -53,9 +56,9 @@ No test result grants public publication or agent household-control permission.
 
 ## Adapter baselines
 
-The cumulative `audio-0.1.5-on-stock-0.10.3.patch` targets stock 0.10.3;
-`audio-0.1.4-post1-to-0.1.5.patch` assumes public adapter 0.1.4
-with library 0.1.4.post1 on the same stock 0.10.3 base. These are review baselines, not a
+The cumulative `audio-0.1.6-on-stock-0.10.3.patch` targets stock 0.10.3;
+`audio-0.1.5-to-0.1.6.patch` assumes public adapter 0.1.5
+with library 0.1.5 on the same stock 0.10.3 base. These are review baselines, not a
 claim of upstream adoption. See the short maintainer guide for optional HA reproduction with the supplied plugin-qualified runner.
 
 Use isolated build tooling; never repair the provisioned HA test interpreter

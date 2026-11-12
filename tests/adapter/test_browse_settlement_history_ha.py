@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import pytest
+from session_fixture_policy import close_retained_peer
 from homeassistant.exceptions import HomeAssistantError
 from test_audioserver_ha import audio_setup
 from test_audioserver_playback import rsa_key
@@ -82,6 +83,7 @@ async def test_browse_history_waits_for_successful_settlement(
         writes = [m for s in sockets for m in s.sent if m.startswith('audio/7/')]
         assert len(writes) == 1
         assert '/library/play/' in writes[0]
+        await close_retained_peer(entity._audio_commands)
         assert all(s.closed for s in sockets)
         assert shortcuts == []
         audio_setup.apis[0].send_websocket_command.assert_not_awaited()

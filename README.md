@@ -2,7 +2,7 @@
 
 Audio features for [PyLoxone](https://github.com/JoDehli/PyLoxone), using your existing Home Assistant integration and room players.
 
-**Version 0.1.5:** library **0.1.5**, reference adapter **0.1.5**, frontend **r13**, based on PyLoxone **0.10.3**. Install the matching preview below; Home Assistant resolves `PyLoxone-Audio==0.1.5` through its normal dependency handling. Installing the library alone does not update the integration.
+**Version 0.1.6:** library **0.1.6**, reference adapter **0.1.6**, frontend **r13**, based on PyLoxone **0.10.3**. Install the matching preview below; Home Assistant resolves `PyLoxone-Audio==0.1.6` through its normal dependency handling. Installing the library alone does not update the integration.
 
 ## Start here
 
@@ -25,6 +25,10 @@ In **Settings > Devices & services**, open the existing Loxone entry's configura
 Despite its name, that option also enables Browse/Search, source selection and return, supported seeking, Shuffle/Repeat, announcements and enhanced grouping. It uses the existing Loxone authentication; you do not need another integration or a Home Assistant Spotify login. Configure your music accounts in Loxone as usual.
 
 **Audio diagnostics** is a separate, optional switch. It does not enable playback.
+
+## What changes in 0.1.6
+
+Warm audio commands and sequential Browse requests reuse an authenticated Audio Server connection instead of repeating setup and close. Cold setup and slow source replies can still take time. See the [release notes](RELEASE-NOTES-0.1.6.md) for the connection policy and offline evidence.
 
 ## What it adds
 

@@ -7,6 +7,7 @@ import json
 from types import SimpleNamespace
 
 import pytest
+from session_fixture_policy import ColdAuthState, close_retained_peer
 from homeassistant.exceptions import HomeAssistantError
 from pyloxone_audio.diagnostic_events import DiagnosticEmitter
 from test_audioserver_ha import audio_setup, zone_entity_id
@@ -45,7 +46,7 @@ async def readiness_harness(
     emitter.enabled = True
     commands.diagnostics = emitter
     saved_rows, target_rows, started_events = {}, {}, {}
-    state = SimpleNamespace(auth_hook=None)
+    state = ColdAuthState(commands)
     for pid in range(1, 13):
         saved = library_row(
             playerid=pid,
@@ -221,6 +222,7 @@ async def test_late_same_target_readiness_restores_once_at_native_send(
         assert "/position/" not in h.writes[0]
         assert h.writes[1] == f"audio/{player}/position/{38 + player}.0"
         assert h.saved["audiopath"].replace(":", "%3A") in h.writes[0]
+        await close_retained_peer(h.commands)
         assert all(s.closed for s in h.sockets)
         assert h.shortcuts == []
         assert not h.commands.source_fences
@@ -259,6 +261,7 @@ async def test_readiness_cannot_survive_transient_other_track_during_seek_auth(
         assert len(h.writes) == 1, (
             "A revoked readiness visit was revived after another track"
         )
+        await close_retained_peer(h.commands)
         assert all(s.closed for s in h.sockets)
     finally:
         pending.cancel()
@@ -284,6 +287,7 @@ async def test_already_ready_visit_cannot_revive_after_other_track_during_auth(
     h.state.auth_hook = changed_and_reverted
     await asyncio.wait_for(select(hass, h), 1)
     assert len(h.writes) == 1, "An already-ready restore revived after another track"
+    await close_retained_peer(h.commands)
     assert all(s.closed for s in h.sockets)
 
 
@@ -354,6 +358,7 @@ async def test_changed_target_retires_readiness_without_reviving(
         await asyncio.wait_for(pending, 1)
         assert len(h.writes) == 1
         assert not any("/position/" in w for w in h.writes)
+        await close_retained_peer(h.commands)
         assert all(s.closed for s in h.sockets)
         assert len(h.metadata._listeners[7]) == 1
     finally:
@@ -413,6 +418,7 @@ async def test_newer_ha_action_cancels_readiness_and_detaches_listener(
             assert not h.metadata._listeners.get(7)
         assert not any("/position/" in w for w in h.writes)
         assert len(h.writes) == 1
+        await close_retained_peer(h.commands)
         assert all(s.closed for s in h.sockets)
     finally:
         auth_release.set()
@@ -454,6 +460,7 @@ async def test_two_rooms_interleave_readiness_without_cross_wake_or_shared_bookm
                 "audio/7/position/45.0",
             ]
         assert len(h.writes) == (3 if cancel_first else 4)
+        await close_retained_peer(h.commands)
         assert all(s.closed for s in h.sockets)
         assert all(len(h.metadata._listeners[p]) == 1 for p in range(1, 13))
     finally:

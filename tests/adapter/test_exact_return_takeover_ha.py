@@ -248,6 +248,8 @@ async def test_failed_newer_return_retains_bookmark_until_independent_playback(
         assert 7 in h.commands.source_fences
         await select(hass, h)
         assert len(h.writes) == 2, "New explicit current-session choice is not a replay"
+        from session_fixture_policy import close_retained_peer
+        await close_retained_peer(h.commands)
         assert not h.commands.source_fences and all(s.closed for s in h.sockets)
     finally:
         old.cancel()
@@ -282,6 +284,8 @@ async def test_auth_failure_during_takeover_does_not_legitimise_wrong_track(
             == h.saved["audiopath"]
         )
         assert h.entity._source_return_rejection is None
+        from session_fixture_policy import close_retained_peer
+        await close_retained_peer(h.commands)
         assert not h.commands.source_fences and all(s.closed for s in h.sockets)
     finally:
         old.cancel()
@@ -313,6 +317,8 @@ async def test_confirmed_matching_overlap_keeps_native_session_noop(
             h.entity._radio_catalogue.source_session("Spotify").audio_path
             == h.saved["audiopath"]
         )
+        from session_fixture_policy import close_retained_peer
+        await close_retained_peer(h.commands)
         assert not h.commands.source_fences and all(s.closed for s in h.sockets)
     finally:
         for task in (old, newer):
