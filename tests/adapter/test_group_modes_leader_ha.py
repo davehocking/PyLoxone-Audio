@@ -18,10 +18,10 @@ GREETING = 'LWSS V 17.2.02.01 | ~API:1.6~ | Session-Token: synthetic-audio-sessi
 FULL = 2048 | 4096 | 8192 | 32
 
 
-async def harness(hass, grouped_setup, audio_setup, monkeypatch, rsa_key):
+async def harness(hass, grouped_setup, audio_setup, monkeypatch, rsa_key, *, count=12):
     g = grouped_setup
     g.source.clear()
-    g.source.update(structure(12))
+    g.source.update(structure(count))
     entry, co, _ = await g.setup()
     entities = {e._audio_player_id: e for e in g.entities.values()}
     commands, metadata = co.audio_commands, co.audio_metadata

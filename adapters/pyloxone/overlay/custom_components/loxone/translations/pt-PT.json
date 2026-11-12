@@ -94,6 +94,11 @@
     }
   },
   "services": {
+    "audio_group_volume": {
+      "name": "Definir volume do grupo de áudio",
+      "description": "Ajusta a média do grupo confirmado mantendo o equilíbrio entre divisões. O controlo de volume normal altera apenas a sua divisão.",
+      "fields": {"volume_percent": {"name": "Volume do grupo"}}
+    },
     "audio_room_transport": {
       "name": "Reproduzir ou pausar uma divisão de áudio",
       "description": "Retoma ou pausa apenas a divisão selecionada, mesmo num grupo dinâmico. Não altera os membros, o volume nem a fonte. Os comandos normais de reprodução/pausa controlam todo o grupo.",
@@ -191,6 +196,9 @@
     },
     "audioserver_seek_failed": {
       "message": "A nova posição da faixa atual não foi confirmada. Não foi enviada nenhuma nova tentativa nem iniciada a reprodução."
+    },
+    "audioserver_volume_failed": {
+      "message": "A alteração de volume não foi confirmada ou foi ultrapassada. Não foi enviada nenhuma nova tentativa automática nem anulação."
     },
     "audioserver_playback_failed": {
       "message": "A reprodução no Audio Server não foi confirmada. Não foi enviado nenhum comando alternativo nem uma nova tentativa automática."

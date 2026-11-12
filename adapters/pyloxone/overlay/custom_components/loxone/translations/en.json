@@ -107,6 +107,11 @@
     }
   },
   "services": {
+    "audio_group_volume": {
+      "name": "Set audio group volume",
+      "description": "Adjust the confirmed group average while preserving room balance. Standard media player volume changes only its room.",
+      "fields": {"volume_percent": {"name": "Group volume"}}
+    },
     "audio_room_transport": {
       "name": "Play or pause one audio room",
       "description": "Resume or pause only the selected room, including a room in a dynamic group. Does not change membership, volume or source. Standard media player play/pause controls the whole group.",
@@ -215,6 +220,9 @@
     },
     "audioserver_seek_failed": {
       "message": "The seek was not confirmed for the current track. No retry or playback start was sent."
+    },
+    "audioserver_volume_failed": {
+      "message": "The volume change was not confirmed or was superseded. No automatic retry or undo was sent."
     },
     "audioserver_playback_failed": {
       "message": "Audio Server playback was not confirmed. No fallback or automatic retry was sent."

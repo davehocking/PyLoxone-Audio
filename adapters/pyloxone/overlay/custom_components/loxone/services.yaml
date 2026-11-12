@@ -141,7 +141,7 @@ audio_group_manage:
 
 audio_room_volume:
   name: Set one audio room volume
-  description: Set only the selected room, including a group leader or follower. Public grouped media player volume controls adjust the whole group.
+  description: Set only the selected room, including a group leader or follower, just like its standard media player volume control.
   target:
     entity:
       domain: media_player
@@ -149,6 +149,24 @@ audio_room_volume:
   fields:
     volume_percent:
       name: Room volume
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 1
+          unit_of_measurement: "%"
+
+audio_group_volume:
+  name: Set audio group volume
+  description: Adjust the confirmed group's average volume while preserving room balance, with limits at 0 and 100 percent. Does not change membership or source. Standard media player volume controls change only their room.
+  target:
+    entity:
+      domain: media_player
+      integration: loxone
+  fields:
+    volume_percent:
+      name: Group volume
       required: true
       selector:
         number:

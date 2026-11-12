@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 // Narrow pinned-native bindings: Loxone More-info and media-card Group buttons.
 import {project,initializeGroupManager} from './group-manager.js';
+import {followerModeControls} from './follower-mode-controls.js';
 const SINGLETON=Symbol.for('pyloxone-audio.gm03.more-info');
 const validContext=(hass,instance,tag='more-info-media_player')=>{
   const id=tag==='hui-media-control-card'?instance?._config?.entity:instance?.stateObj?.entity_id,s=hass?.states?.[id],d=s?.attributes?.loxone_group_control;
-  return ['2026.10.4','2026.11.0'].includes(hass?.config?.version)&&hass?.connected!==false&&!!hass?.user?.id
+  return ['2026.10.4','2026.11.0','2026.11.1'].includes(hass?.config?.version)&&hass?.connected!==false&&!!hass?.user?.id
     &&instance?.isConnected&&instance.localName===tag
-    &&project(hass,id)&&hass?.entities?.[id]?.platform==='loxone'&&d?.version===2&&Array.isArray(d.members)
+    &&project(hass,id)&&hass?.entities?.[id]?.platform==='loxone'&&d?.version===3&&Array.isArray(d.members)
     &&d.members.includes(id)&&Array.isArray(d.candidates)&&d.members.every(i=>{
       const other=hass.states[i]?.attributes?.loxone_group_control;
-      return hass.entities?.[i]?.platform==='loxone'&&other?.version===2&&other.owner===d.owner&&other.revision===d.revision;
+      return hass.entities?.[i]?.platform==='loxone'&&other?.version===3&&other.owner===d.owner&&other.revision===d.revision;
     })&&!['unknown','unavailable'].includes(s.state)?id:null;
 };
 function nativeTree(element,visit){
@@ -21,6 +22,7 @@ export function installNativeMoreInfo(){
   if(!customElements.get('home-assistant'))return;
   if(window[SINGLETON])return window[SINGLETON];
   let root,binding,observed,mediaLink,cardRoot,observers=[],scheduled=false,stopped=false,disposed=false;
+  const followerModes=followerModeControls(()=>root?.hass,current=>binding===current&&validContext(root?.hass,current.instance)===current.id?current.id:null);
   // Delegate only the pinned native card's exact Group button. No full-panel
   // DOM scanning, native method replacement or blanket dialog interception.
   const cardClick=event=>{
@@ -36,7 +38,7 @@ export function installNativeMoreInfo(){
   };
   const dropCards=()=>{cardRoot?.removeEventListener('click',cardClick,true);cardRoot=null;};
   const dropMedia=()=>{if(mediaLink){mediaLink.active=false;mediaLink.node.onclick=null;mediaLink.node.remove();mediaLink=null;}};
-  const drop=()=>{dropMedia();if(binding)binding.instance.removeEventListener('click',binding.listener,true);binding=null;};
+  const drop=()=>{dropMedia();followerModes.drop();if(binding)binding.instance.removeEventListener('click',binding.listener,true);binding=null;};
   // Observation is not action authority. Keep the current native host's Lit
   // lifecycle through temporary ineligibility: property-only recovery may
   // produce no DOM mutation, and must rebind BEFORE the next Group click.
@@ -85,7 +87,7 @@ export function installNativeMoreInfo(){
     const id=validContext(root.hass,instance),buttons=instance?.shadowRoot?.querySelectorAll('ha-icon-button#grouping-button');
     const button=buttons?.length===1&&!buttons[0].disabled?buttons[0]:null;
     if(!id||!button){drop();return;}
-    if(binding?.instance===instance&&binding.button===button&&binding.id===id){updateMedia(binding);return;}
+    if(binding?.instance===instance&&binding.button===button&&binding.id===id){updateMedia(binding);followerModes.update(binding);return;}
     drop();const current={instance,button,id};
     current.listener=event=>{
       const activeId=validContext(root?.hass,instance);
@@ -98,10 +100,11 @@ export function installNativeMoreInfo(){
     binding=current;instance.addEventListener('click',current.listener,true);
 
     updateMedia(current);
+    followerModes.update(current);
   };
   const schedule=()=>{if(!scheduled&&!stopped){scheduled=true;queueMicrotask(reconcile);}};
   const start=()=>{if(!disposed){stopped=false;reconcile();}};
-  const stop=()=>{stopped=true;drop();observe(null);dropCards();for(const o of observers)o.disconnect();observers=[];};
+  const stop=()=>{stopped=true;if(root)nativeTree(root,n=>{if(n.localName==='loxone-group-manager'){n._epoch++;n._cancelStep();n.render();}});drop();observe(null);dropCards();for(const o of observers)o.disconnect();observers=[];};
   const api={start,stop,dispose(){disposed=true;stop();window.removeEventListener('pagehide',stop);window.removeEventListener('pageshow',start);delete window[SINGLETON];},get binding(){return binding;}};window[SINGLETON]=api;
   start();
   window.addEventListener('pagehide',stop);window.addEventListener('pageshow',start);
@@ -123,16 +126,16 @@ LoxoneGroupManagerDialog=class LoxoneGroupManagerDialog extends HTMLElement {
     this.shadowRoot.querySelector('[data-action=close]').onclick=()=>this.closeDialog();
     // Native Escape/header/scrim dismissal changes ha-dialog's internal state,
     // not its public open input. Reconcile that input before HA caches/reuses us.
-    this._dialog.addEventListener('closed',()=>{this._open=false;this._dialog.open=false;this._manager._epoch++;this._manager._cancelGesture();this.dispatchEvent(new CustomEvent('dialog-closed',{detail:{dialog:this.localName},bubbles:true,composed:true}));});
+    this._dialog.addEventListener('closed',()=>{this._open=false;this._dialog.open=false;this._manager._epoch++;this._manager._cancelStep();this._manager._cancelGesture();this.dispatchEvent(new CustomEvent('dialog-closed',{detail:{dialog:this.localName},bubbles:true,composed:true}));});
     // ha-dialog does not forward the HTML dialog's cancel event. Guard its
     // actual owning dismissal paths, without changing native global behaviour.
-    this._dialog.addEventListener('keydown',e=>{if(this._manager._pending&&e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();}},true);
-    this._dialog.addEventListener('wa-hide',e=>{if(this._manager._pending&&e.composedPath()[0]===this._dialog.shadowRoot?.querySelector('wa-dialog'))e.preventDefault();},true);
+    this._dialog.addEventListener('keydown',e=>{if(e.key==='Escape'){this._manager._cancelStep();if(this._manager._pending){e.preventDefault();e.stopImmediatePropagation();}}},true);
+    this._dialog.addEventListener('wa-hide',e=>{if(e.composedPath()[0]===this._dialog.shadowRoot?.querySelector('wa-dialog')){this._manager._cancelStep();if(this._manager._pending)e.preventDefault();}},true);
   }
   set hass(hass){this._hass=hass;this._dialog.hass=hass;if(this._open)this._manager.hass=hass;}
   get hass(){return this._hass;}
   showDialog(params={}){
-    this._entity=params.entity;this._open=true;this._manager._cancelGesture();
+    this._entity=params.entity;this._open=true;this._manager._epoch++;this._manager._dialogEntity=params.entity;this._manager._cancelStep();this._manager._cancelGesture();
     this._manager._mode=params.mode==='create'?'create':'overview';this._manager._adding=null;this._manager._selected.clear();
     this._manager._createOrigin=null;this._manager.hass=this.hass;
     if(typeof params.preselectEntity==='string'&&params.preselectEntity===params.entity)
@@ -140,8 +143,8 @@ LoxoneGroupManagerDialog=class LoxoneGroupManagerDialog extends HTMLElement {
     if(params.mode==='create')this._manager._enterCreate();else this._manager.render();
     this._dialog.open=true;
   }
-  closeDialog(){if(this._manager._pending)return false;this._open=false;this._dialog.open=false;this._manager._epoch++;this._manager._cancelGesture();return true;}
-  disconnectedCallback(){this._manager._epoch++;this._manager._cancelGesture();this._manager._cancel?.(new Error('Dialog disconnected.'));this._open=false;this._dialog.open=false;}
+  closeDialog(){if(this._manager._pending)return false;this._open=false;this._dialog.open=false;this._manager._epoch++;this._manager._cancelStep();this._manager._cancelGesture();return true;}
+  disconnectedCallback(){this._manager._epoch++;this._manager._cancelStep();this._manager._cancelGesture();this._manager._cancel?.(new Error('Dialog disconnected.'));this._open=false;this._dialog.open=false;}
 };
 customElements.define('loxone-group-manager-dialog',LoxoneGroupManagerDialog);
 installNativeMoreInfo();

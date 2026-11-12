@@ -645,7 +645,11 @@ class EntryAudioDiagnostics:
             from homeassistant.helpers import entity_registry as er
 
             data = event.data
-            operation = data.get("service")
+            service = data.get("service")
+            # The new explicit group action is a generic volume operation in
+            # the portable schema. Preserve its integer intent at this adapter
+            # boundary instead of dropping an unsupported operation name.
+            operation = "volume_set" if data.get("domain") == "loxone" and service == "audio_group_volume" else service
             if (
                 data.get("domain") not in {"media_player", "loxone"}
                 or operation not in ENUMS["operation"]
@@ -674,7 +678,9 @@ class EntryAudioDiagnostics:
                 if operation == "media_seek":
                     fields["position"] = service_data.get("seek_position")
                 volume = service_data.get("volume_level")
-                if operation == "volume_set" and type(volume) in (int, float):
+                if service in ("audio_group_volume", "audio_room_volume"):
+                    fields["volume"] = service_data.get("volume_percent")
+                elif operation == "volume_set" and type(volume) in (int, float):
                     fields["volume"] = volume * 100
                 self.emit("ha_service_request", **fields)
         except Exception:

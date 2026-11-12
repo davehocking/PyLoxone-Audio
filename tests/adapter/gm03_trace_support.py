@@ -30,11 +30,12 @@ class VolumeFeedback:
         p=next(p for p,i in self.ids.items() if i==target)
         group=next((x for x in co.audio_grouping.native.snapshot.groups if p in x.players and x.kind=='dynamic'),None)
         if group is None:return [(action(p),f'volume/{int(level*100)}')]
-        old=[g.entities[self.ids[i]]._room_volume_percent for i in group.players]
-        assert all(type(v) is int for v in old)
-        baseline=(2*sum(old)+len(old))//(2*len(old))
-        delta=math.floor(level*100+.5)-baseline
-        return [(action(i),f'volume/{new}') for i,v in zip(group.players,old) if (new:=max(0,min(100,v+delta)))!=v]
+        # Owner v3 correction: literal historical native calls are room-only;
+        # explicit group callers have separate literal v3 replay coverage.
+        old=g.entities[self.ids[p]]._room_volume_percent
+        assert type(old) is int
+        new=math.floor(level*100+.5)
+        return [(action(p),f'volume/{new}')] if new!=old else []
 
     def assert_raw(self,hass,before,wires):
         expected=dict(before)

@@ -10,8 +10,8 @@ const groupLabel=(h,v)=>`${name(h,v.leader)} +${v.members.length-1}`;
 const sort=(h,a,b)=>name(h,a).toLocaleLowerCase('en').localeCompare(name(h,b).toLocaleLowerCase('en'),'en')||a.localeCompare(b);
 export function project(hass,target){
  const s=hass?.states?.[target],d=s?.attributes?.loxone_group_control;
- if(!available(s)||d?.version!==2||typeof d.owner!=='string'||typeof d.revision!=='string'||!ids(d.members)||!ids(d.candidates)||!d.members.includes(target)||!same(d.members,s.attributes.group_members))return null;
- const candidates=d.candidates.filter(id=>{const t=hass.states[id],v=t?.attributes.loxone_group_control;return available(t)&&hass.entities?.[id]?.platform==='loxone'&&v?.version===2&&v.owner===d.owner&&v.revision===d.revision&&v.candidates?.includes(id)&&!!(t.attributes.supported_features&FEATURES.grouping);});
+ if(!available(s)||d?.version!==3||d.group_volume!==true||!Object.hasOwn(s.attributes,'loxone_group_volume_level')||typeof d.owner!=='string'||typeof d.revision!=='string'||!ids(d.members)||!ids(d.candidates)||!d.members.includes(target)||!same(d.members,s.attributes.group_members))return null;
+ const candidates=d.candidates.filter(id=>{const t=hass.states[id],v=t?.attributes.loxone_group_control;return available(t)&&hass.entities?.[id]?.platform==='loxone'&&v?.version===3&&v.group_volume===true&&Object.hasOwn(t.attributes,'loxone_group_volume_level')&&v.owner===d.owner&&v.revision===d.revision&&v.candidates?.includes(id)&&!!(t.attributes.supported_features&FEATURES.grouping);});
  if(!d.members.every(id=>{const a=hass.states[id]?.attributes;return candidates.includes(id)&&same(a?.group_members,d.members)&&same(a?.loxone_group_control?.members,d.members)&&a.loxone_group_control.group_id===d.group_id;}))return null;
  return {owner:d.owner,revision:d.revision,members:[...d.members],leader:d.members[0],group:d.group_id,busy:!!d.busy,candidates,top:[...d.members].sort((a,b)=>sort(hass,a,b)),other:candidates.filter(id=>!d.members.includes(id)).sort((a,b)=>sort(hass,a,b))};
 }
@@ -24,7 +24,7 @@ export function overview(hass){
  const incomplete=relevant.some(id=>!views.has(id));
  return {views,incomplete,groups:[...groups.values()].sort((a,b)=>sort(hass,a.leader,b.leader)),free:[...views].filter(([,v])=>!v.group&&v.members.length===1).map(([id])=>id).sort((a,b)=>sort(hass,a,b))};
 }
-export function percentOf(s,room=false){const v=s?.attributes?.[room?'loxone_room_volume_level':'volume_level'];return typeof v==='number'&&Number.isFinite(v)&&v>=0&&v<=1?Math.round(v*100):null;}
+export function percentOf(s,room=false){const v=s?.attributes?.[room?'loxone_room_volume_level':'loxone_group_volume_level'];return typeof v==='number'&&Number.isFinite(v)&&v>=0&&v<=1?Math.round(v*100):null;}
 // Retain R1's conditional EPSILON at the normalized public/native boundary.
 export function percentLevel(p){const v=p/100;return Math.trunc(v*100)<p?v+Number.EPSILON:v;}
 const node=(tag,text,attrs={})=>{const n=document.createElement(tag);if(text!==null)n.textContent=text;for(const [k,v]of Object.entries(attrs))n.setAttribute(k,v);return n;};
@@ -95,32 +95,57 @@ if(customElements.get('loxone-group-manager'))return LoxoneGroupManager=customEl
 LoxoneGroupManager=class LoxoneGroupManager extends HTMLElement{
  constructor(){super();this.attachShadow({mode:'open'});this._selected=new Set();this._epoch=0;this._error='';this._mode='overview';
   // A second contact anywhere in this manager makes the range value ambiguous.
-  this.shadowRoot.addEventListener('pointerdown',e=>{if(this._gesture&&e.pointerId!==this._gesture.pointer)this._gesture.revoked=true;},true);
+  this.shadowRoot.addEventListener('pointerdown',e=>{if(this._gesture&&e.pointerId!==this._gesture.pointer)this._gesture.revoked=true;this._competingStep(e);},true);
+  this.shadowRoot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')this._competingStep(e);},true);
  }
  connectedCallback(){this._epoch++;this.render();}
- disconnectedCallback(){this._epoch++;this._cancelGesture();this._cancel?.(new Error('Manager disconnected; no retry sent.'));}
+ disconnectedCallback(){this._epoch++;this._cancelStep();this._cancelGesture();this._cancel?.(new Error('Manager disconnected; no retry sent.'));}
  set hass(h){this._hass=h;try{this._ensure?.();}catch(e){this._cancel?.(e);}this.render(true);}get hass(){return this._hass;}
  _auth(){return JSON.stringify([this.hass?.user,this.hass?.connected!==false]);}
- _stamp(){const o=overview(this.hass);return JSON.stringify([this._epoch,this._auth(),[...o.views], [...o.views.keys()].map(id=>{const s=this.hass.states[id];return [s.state,s.attributes.supported_features,s.attributes.loxone_room_volume_level,s.attributes.volume_level];})]);}
+ _stamp(){const o=overview(this.hass);return JSON.stringify([this._epoch,this._auth(),[...o.views], [...o.views.keys()].map(id=>{const s=this.hass.states[id];return [s.state,s.attributes.supported_features,s.attributes.loxone_room_volume_level,s.attributes.loxone_group_volume_level];})]);}
  _valid(stamp){return this.isConnected&&!this._pending&&this.hass?.connected!==false&&!!this.hass?.user?.id&&stamp===this._stamp()&&![...overview(this.hass).views.values()].some(v=>v.busy);}
  // Display/metadata churn is benign. Native identity/eligibility and the actual
  // controlled volumes are not; retain those fences for the whole held gesture.
- _gestureStamp(id,room){const o=overview(this.hass),v=o.views.get(id);return JSON.stringify([this._epoch,this._auth(),this.hass?.config?.version,this._mode,[...o.views].map(([i,p])=>[i,p.owner,p.revision,p.group,p.members,p.candidates,p.busy]),v?.members.map(i=>{const s=this.hass.states[i];return [i,s.state,s.attributes.supported_features,s.attributes.loxone_room_volume_level,room?null:s.attributes.volume_level];})]);}
+ _gestureStamp(id,room){const o=overview(this.hass),v=o.views.get(id);return JSON.stringify([this._epoch,this._auth(),this.hass?.config?.version,this._mode,[...o.views].map(([i,p])=>[i,p.owner,p.revision,p.group,p.members,p.candidates,p.busy]),v?.members.map(i=>{const s=this.hass.states[i];return [i,s.state,s.attributes.supported_features,s.attributes.loxone_room_volume_level,room?null:s.attributes.loxone_group_volume_level];})]);}
  _cancelGesture(){if(this._gesture)this._gesture.revoked=true;this._gesture=null;}
+ _competingStep(event){const control=event.composedPath().find(n=>n?.dataset?.action);if(control&&(!['volume-minus','volume-plus'].includes(control.dataset.action)||control.dataset.volumeKey!==this._step?.key))this._cancelStep();}
+ _cancelStep(){const draft=this._step;this._step=null;if(!draft)return;clearTimeout(draft.timer);
+  const input=draft.input,p=percentOf(this.hass?.states?.[draft.id],draft.room);
+  if(input.isConnected){input.value=p===null?'0':String(p);const wrap=input.parentElement;wrap.querySelector('output').textContent=p===null?'—':p+'%';for(const [action,limit]of [['minus',0],['plus',100]])wrap.querySelector('[data-action=volume-'+action+']').disabled=input.disabled||p===null||p===limit;}
+ }
+ _stepStamp(id,room){const views=overview(this.hass).views;return JSON.stringify([this._gestureStamp(id,room),this._dialogEntity,[...views.keys()].sort().map(i=>{const e=this.hass.entities[i];return [i,e.platform,e.unique_id,e.config_entry_id,e.device_id];})]);}
+ _queueStep(id,room,key,delta,input,output,stamp){
+  if(!input.isConnected||input.disabled||!this._valid(stamp))return;
+  let draft=this._step;
+  if(draft&&(draft.key!==key||draft.stamp!==this._stepStamp(id,room))){this._cancelStep();draft=null;}
+  if(!draft){const start=percentOf(this.hass.states[id],room);if(start===null)return;draft={id,room,key,start,value:start,stamp:this._stepStamp(id,room),input};this._step=draft;}
+  draft.value=Math.max(0,Math.min(100,draft.value+delta));clearTimeout(draft.timer);
+  input.value=String(draft.value);output.textContent=draft.value+'%';
+  const wrap=input.parentElement;for(const [action,limit]of [['minus',0],['plus',100]])wrap.querySelector('[data-action=volume-'+action+']').disabled=draft.value===limit;
+  draft.timer=setTimeout(()=>{
+   if(this._step!==draft)return;
+   const valid=draft.input.isConnected&&this._valid(this._stamp())&&draft.stamp===this._stepStamp(id,room);
+   this._cancelStep();
+   if(valid&&draft.value!==draft.start)this._run(id,'loxone',room?'audio_room_volume':'audio_group_volume',{volume_percent:draft.value},null,()=>percentOf(this.hass.states[id],room)===(room?draft.value:this._expectedMean(id,draft.value)));
+   else this.render();
+  },300);
+ }
  _button(parent,label,action,key,work,stamp,disabled=false){const b=node('ha-button',label,{'data-action':action,'aria-label':label,'data-key':key});b.disabled=disabled||!this._valid(stamp);bind(b,(b,guard)=>{b.onclick=guard(()=>{if(b.isConnected&&this._valid(stamp)&&!b.disabled)work();});});parent.append(b);return b;}
  _volume(parent,id,room,stamp){
   const v=project(this.hass,id),key=action=>controlKey(room?'overview-member':'overview-group',action,v.owner,v.group,room?id:null);
-  const s=this.hass.states[id],p=percentOf(s,room),wrap=node('div',null,{class:'vol','data-volume':room?'room':'group'}),input=node('input',null,{type:'range',min:'0',max:'100',step:'1','aria-label':`${name(this.hass,id)} ${room?'room':'group'} volume`,'data-key':key('volume')}),output=node('output',p===null?'—':p+'%');
-  input.value=p===null?'0':String(p);input.disabled=!this._valid(stamp)||p===null||!(s.attributes.supported_features&FEATURES.volume);
-  for(const [action,delta,limit]of [['minus',-1,0],['plus',1,100]]){const b=node('button',null,{'data-action':'volume-'+action,'data-key':key('volume-'+action),'aria-label':`${action==='plus'?'Increase':'Decrease'} ${name(this.hass,id)} ${room?'room':'group'} volume by 1 percentage point`});b.append(icon(action));b.disabled=input.disabled||p===limit;wrap.append(b);if(delta===-1)wrap.append(input);}
+  const s=this.hass.states[id],p=percentOf(s,room),requested=this._step?.key===key('volume')?this._step.value:p,wrap=node('div',null,{class:'vol','data-volume':room?'room':'group'}),input=node('input',null,{type:'range',min:'0',max:'100',step:'1','aria-label':`${name(this.hass,id)} ${room?'room':'group'} volume`,'data-key':key('volume')}),output=node('output',requested===null?'—':requested+'%');
+  input.value=requested===null?'0':String(requested);input.disabled=!this._valid(stamp)||p===null||!(s.attributes.supported_features&FEATURES.volume);
+  for(const [action,delta,limit]of [['minus',-1,0],['plus',1,100]]){const b=node('button',null,{'data-action':'volume-'+action,'data-key':key('volume-'+action),'data-volume-key':key('volume'),'aria-label':`${action==='plus'?'Increase':'Decrease'} ${name(this.hass,id)} ${room?'room':'group'} volume by 1 percentage point`});b.append(icon(action));b.disabled=input.disabled||requested===limit;wrap.append(b);if(delta===-1)wrap.append(input);}
   wrap.append(output);parent.append(wrap);
   bind(wrap,wrap=>{
   const input=wrap.querySelector('input'),output=wrap.querySelector('output');
-  const change=(value,current=false)=>{if(input.isConnected&&this._valid(current?this._stamp():stamp)&&Number.isInteger(value)&&value>=0&&value<=100&&p!==null&&value!==p)this._run(id,room?'loxone':'media_player',room?'audio_room_volume':'volume_set',room?{volume_percent:value}:{volume_level:percentLevel(value)},null,()=>percentOf(this.hass.states[id],room)===(room?value:this._expectedMean(id,value)));else this.render();};
+  const change=(value,current=false)=>{if(input.isConnected&&this._valid(current?this._stamp():stamp)&&Number.isInteger(value)&&value>=0&&value<=100&&p!==null&&value!==p)this._run(id,'loxone',room?'audio_room_volume':'audio_group_volume',{volume_percent:value},null,()=>percentOf(this.hass.states[id],room)===(room?value:this._expectedMean(id,value)));else this.render();};
   bind(input,(input,guard)=>{
   // Resolve expected clamp mean from the pre-dispatch actual rooms, not requested slider display.
   let gesture;
+  input.onkeydown=guard(()=>{this._cancelStep();});
   input.onpointerdown=guard(e=>{
+   this._cancelStep();
    if(this._gesture||e.isPrimary===false){
     if(this._gesture)this._gesture.revoked=true;
     // Also suppress this secondary range's native change/keyboard path. Keep
@@ -139,7 +164,7 @@ LoxoneGroupManager=class LoxoneGroupManager extends HTMLElement{
   // gesture commits only at verified release; keyboard retains native change.
   input.onchange=guard(()=>{if(!gesture)change(Number(input.value));});
   });
-  for(const [action,delta]of [['minus',-1],['plus',1]])bind(wrap.querySelector('[data-action=volume-'+action+']'),(b,guard)=>{b.onclick=guard(()=>{if(!b.disabled)change(Math.max(0,Math.min(100,p+delta)));});});
+  for(const [action,delta]of [['minus',-1],['plus',1]])bind(wrap.querySelector('[data-action=volume-'+action+']'),(b,guard)=>{b.onclick=guard(()=>{if(!b.disabled)this._queueStep(id,room,key('volume'),delta,input,output,stamp);});});
   });
  }
  _enterCreate(){
@@ -161,9 +186,10 @@ LoxoneGroupManager=class LoxoneGroupManager extends HTMLElement{
   this._run(id,'loxone','audio_group_manage',data,expected,()=>Object.entries(expected).every(([i,m])=>same(project(this.hass,i)?.members,m)));
  }
  async _run(id,domain,service,data,expected,confirmed){
+  this._cancelStep();
   if(this._pending||!project(this.hass,id))return;
   const original=project(this.hass,id),epoch=this._epoch,auth=this._auth(),before=Object.fromEntries(original.candidates.map(i=>[i,project(this.hass,i).members]));
-  if(service==='volume_set'){const wanted=Math.round(data.volume_level*100),values=original.members.map(i=>percentOf(this.hass.states[i],true));if(values.some(v=>v===null))return;const mean=Math.floor((2*values.reduce((a,b)=>a+b,0)+values.length)/(2*values.length));this._volumeMean=Math.floor((2*values.reduce((a,b)=>a+Math.max(0,Math.min(100,b+wanted-mean)),0)+values.length)/(2*values.length));}
+  if(service==='audio_group_volume'){const wanted=data.volume_percent,values=original.members.map(i=>percentOf(this.hass.states[i],true));if(values.some(v=>v===null))return;const mean=Math.floor((2*values.reduce((a,b)=>a+b,0)+values.length)/(2*values.length));this._volumeMean=Math.floor((2*values.reduce((a,b)=>a+Math.max(0,Math.min(100,b+wanted-mean)),0)+values.length)/(2*values.length));}
   let valid=true,timer,cancel,request;const token={};this._pending=token;this._error='';this.render();
   // Transport/volume cannot change group identity or native context revision.
   // Membership operations alone may advance them to their expected topology.
@@ -173,7 +199,7 @@ LoxoneGroupManager=class LoxoneGroupManager extends HTMLElement{
   // at most one8s status/member, grouped send/reply/cleanup8s, and2s
   // bounded native close on cancellation. Volume gets lock8s plus8s per
   // serial member feedback and the existing8s UI confirmation allowance.
-  const operationMs=service==='media_play'?(original.members.length+2)*8000+2000:service==='volume_set'?(original.members.length+2)*8000:8000;
+  const operationMs=service==='media_play'?(original.members.length+2)*8000+2000:service==='audio_group_volume'?(original.members.length+2)*8000:8000;
   const guard=new Promise((_,reject)=>{cancel=reject;this._cancel=reject;timer=setInterval(()=>{try{ensure();}catch(e){reject(e);}},40);});const deadline=Date.now()+operationMs;
   try{await Promise.race([guard,(async()=>{ensure();request=Promise.resolve(this.hass.callService(domain,service,data,{entity_id:id}));await request;ensure();while(confirmed&&!confirmed()){if(Date.now()>deadline)throw new Error('Native feedback not confirmed. No retry or rollback sent.');await new Promise(r=>setTimeout(r,40));ensure();}})(),new Promise((_,reject)=>{token.timeout=setTimeout(()=>reject(new Error('Native operation timed out; partial changes are not undone.')),operationMs);})]);if(expected){this._mode='overview';this._selected.clear();}}
   catch(e){
@@ -191,6 +217,7 @@ LoxoneGroupManager=class LoxoneGroupManager extends HTMLElement{
   finally{valid=false;clearInterval(timer);clearTimeout(token.timeout);if(this._cancel===cancel){this._cancel=null;this._ensure=null;}if(this._pending===token)this._pending=null;this.render();}
  }
  render(feedback=false){
+  if(this._step){const d=this._step;if(!d.input.isConnected||!this._valid(this._stamp())||d.stamp!==this._stepStamp(d.id,d.room))this._cancelStep();}
   if(this._createOrigin&&this._createOrigin.auth!==this._auth())this._createOrigin=null;
   if(!this.shadowRoot||!this.isConnected)return;
   if(this._gesture){const g=this._gesture;if(g.input.isConnected&&!g.revoked&&this._valid(this._stamp())&&g.stamp===this._gestureStamp(g.id,g.room))return;this._cancelGesture();g.input._binding=null;g.input.remove();this._presentation=null;}
@@ -198,7 +225,7 @@ LoxoneGroupManager=class LoxoneGroupManager extends HTMLElement{
   // Keep trusted press/release and touch-scroll ownership through unrelated HA
   // metadata feedback. Every existing action/eligibility stamp is still exact;
   // a meaningful guard or presentation change must still reconcile the view.
-  const presentation=JSON.stringify([stamp,h?.config?.version,[...o.views.keys()].map(id=>name(h,id)),o.incomplete,this._mode,[...this._selected],this._adding?.owner,this._adding?.group,!!this._pending,this._error]);
+  const presentation=JSON.stringify([stamp,h?.config?.version,o.groups.map(v=>this._stepStamp(v.leader,false)),[...o.views.keys()].map(id=>name(h,id)),o.incomplete,this._mode,[...this._selected],this._adding?.owner,this._adding?.group,!!this._pending,this._error]);
   if(feedback&&this._presentation===presentation)return;
   const active=this.shadowRoot.activeElement,key=active?.dataset.key,busy=!!this._pending||o.groups.some(v=>v.busy),existing=this.shadowRoot.querySelector('.manager-layout'),root=existing||node('div',null,{'tabindex':'-1','data-focus-safe':'true','role':'group','aria-label':'Audio group manager'}),content=node('div',null,{class:'content'}),renderEpoch=this._renderEpoch=(this._renderEpoch||0)+1;
 

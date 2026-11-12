@@ -6,6 +6,7 @@ import json
 from contextlib import suppress
 from typing import Any
 from time import monotonic
+from urllib.parse import unquote
 
 
 def call_later(delay, callback, *args):
@@ -168,14 +169,21 @@ class CommandSession:
                     break
                 echo = payload.get('command')
                 expected = self.command.split('/?q&', 1)[0]
-                if echo is not None and echo != expected:
+                # Native folder replies echo their percent-decoded command.
+                # Accept exactly that one decoding for catalogue reads only;
+                # retain every route/account/folder/offset/limit component and
+                # leave playback/write echoes byte-exact.
+                expected_echoes = (expected,)
+                if expected.startswith(('audio/cfg/getmediafolder/', 'audio/cfg/getservicefolder/')):
+                    expected_echoes += (unquote(expected),)
+                if echo is not None and echo not in expected_echoes:
                     # Foreign results cannot settle _reply. Let the existing
                     # source-proof race inspect a neutral frame instead of
                     # failing independently qualified playback.
                     self.tainted = True
                     self.inbox.put_nowait('{}')
                     continue
-                if echo == expected:
+                if echo in expected_echoes:
                     self.confirmed = True
                 # Keep old command-less response compatibility for this request,
                 # but no subsequent lease may trust that uncorrelated stream.

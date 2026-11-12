@@ -94,6 +94,11 @@
     }
   },
   "services": {
+    "audio_group_volume": {
+      "name": "Ajustar el volumen del grupo de audio",
+      "description": "Ajusta el promedio del grupo confirmado conservando el equilibrio entre habitaciones. El control de volumen normal solo cambia su habitación.",
+      "fields": {"volume_percent": {"name": "Volumen del grupo"}}
+    },
     "audio_room_transport": {
       "name": "Reproducir o pausar una habitación de audio",
       "description": "Reanuda o pausa solo la habitación seleccionada, incluso dentro de un grupo dinámico. No cambia la pertenencia, el volumen ni la fuente. Los controles estándar de reproducción/pausa controlan todo el grupo.",
@@ -191,6 +196,9 @@
     },
     "audioserver_seek_failed": {
       "message": "No se confirmó la nueva posición de la pista actual. No se reintentó ni se inició la reproducción."
+    },
+    "audioserver_volume_failed": {
+      "message": "El cambio de volumen no se confirmó o quedó obsoleto. No se envió ningún reintento automático ni se deshizo el cambio."
     },
     "audioserver_playback_failed": {
       "message": "No se confirmó la reproducción del Audio Server. No se envió ninguna alternativa ni reintento automático."

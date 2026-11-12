@@ -94,6 +94,11 @@
     }
   },
   "services": {
+    "audio_group_volume": {
+      "name": "Régler le volume du groupe audio",
+      "description": "Ajuste la moyenne du groupe confirmé en conservant les écarts entre pièces. Le contrôle de volume standard ne modifie que sa propre pièce.",
+      "fields": {"volume_percent": {"name": "Volume du groupe"}}
+    },
     "audio_room_transport": {
       "name": "Lire ou mettre en pause une pièce audio",
       "description": "Reprend ou met en pause uniquement la pièce sélectionnée, même dans un groupe dynamique. Ne modifie ni le groupe, ni le volume, ni la source. Les commandes lecture/pause standard contrôlent tout le groupe.",
@@ -191,6 +196,9 @@
     },
     "audioserver_seek_failed": {
       "message": "La nouvelle position de la piste actuelle n’a pas été confirmée. Aucun nouvel essai ni démarrage de lecture n’a été envoyé."
+    },
+    "audioserver_volume_failed": {
+      "message": "La modification du volume n’a pas été confirmée ou a été remplacée. Aucune nouvelle tentative automatique ni annulation n’a été envoyée."
     },
     "audioserver_playback_failed": {
       "message": "La lecture Audio Server n'a pas été confirmée. Aucune commande vers une autre source ni nouvelle tentative automatique n'a été envoyée."

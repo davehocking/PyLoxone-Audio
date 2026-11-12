@@ -94,6 +94,11 @@
     }
   },
   "services": {
+    "audio_group_volume": {
+      "name": "Imposta il volume del gruppo audio",
+      "description": "Regola la media del gruppo confermato mantenendo il bilanciamento delle stanze. Il controllo del volume normale modifica solo la propria stanza.",
+      "fields": {"volume_percent": {"name": "Volume del gruppo"}}
+    },
     "audio_room_transport": {
       "name": "Riproduci o metti in pausa una stanza audio",
       "description": "Riprende o mette in pausa solo la stanza selezionata, anche in un gruppo dinamico. Non modifica appartenenza, volume o sorgente. I comandi standard di riproduzione/pausa controllano l'intero gruppo.",
@@ -191,6 +196,9 @@
     },
     "audioserver_seek_failed": {
       "message": "La nuova posizione della traccia corrente non è stata confermata. Non è stato inviato alcun nuovo tentativo né avviata la riproduzione."
+    },
+    "audioserver_volume_failed": {
+      "message": "La modifica del volume non è stata confermata o è stata superata da una modifica successiva. Non è stato inviato alcun nuovo tentativo automatico né annullamento."
     },
     "audioserver_playback_failed": {
       "message": "La riproduzione Audio Server non è stata confermata. Non è stato inviato alcun comando alternativo né un nuovo tentativo automatico."

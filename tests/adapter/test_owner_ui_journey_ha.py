@@ -65,7 +65,7 @@ async def test_current_compiled_ui_owner_failure_journey_registered_wire(hass,gr
         if group:data['group_id']=group
         await call(label,'loxone','audio_group_manage',p,**data)
     try:
-        await call('unconfirmed-group-volume','media_player','volume_set',2,volume_level=.07)
+        await call('unconfirmed-group-volume','loxone','audio_group_volume',2,volume_percent=7)
         assert steps[-1]['result']=='HomeAssistantError' and writes==[{'uuid':action(2),'value':'volume/0'}]
         assert not owner.native.uncertain and len(owner.eligible())==6
         await call('group-pause','media_player','media_pause',2)

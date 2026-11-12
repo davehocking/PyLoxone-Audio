@@ -25,11 +25,11 @@ async def test_integer_mean_delta_clamp_noop_and_native_float_feedback(hass,grou
         await g.callbacks[entry.entry_id]['callback']({f'volume-{p}':int(event.data['value'].split('/')[1])})
     remove=hass.bus.async_listen(SENDDOMAIN,feedback)
     try:
-        await hass.services.async_call('media_player','volume_set',{'volume_level':requested/100},target={'entity_id':ids[2]},blocking=True)
+        await hass.services.async_call('loxone','audio_group_volume',{'volume_percent':requested},target={'entity_id':ids[2]},blocking=True)
         await hass.async_block_till_done()
         assert writes==[{'uuid':action(p),'value':f'volume/{v}'} for p,v,old in zip((1,2),expected,levels) if v!=old]
         assert [hass.states.get(ids[p]).attributes['loxone_room_volume_level'] for p in (1,2)]==[v/100 for v in expected]
-        assert hass.states.get(ids[1]).attributes['volume_level']==((sum(expected)*2+len(expected))//(2*len(expected)))/100
+        assert hass.states.get(ids[1]).attributes['loxone_group_volume_level']==((sum(expected)*2+len(expected))//(2*len(expected)))/100
     finally:remove()
 
 
@@ -37,8 +37,8 @@ async def test_integer_mean_delta_clamp_noop_and_native_float_feedback(hass,grou
 async def test_unknown_member_does_not_fabricate_mean_and_room_remains_independent(hass,grouped_setup,bad):
     g=grouped_setup;entry,co,ids=await g.setup();await g.feed(entry,row('one',(1,2)))
     await g.callbacks[entry.entry_id]['callback']({'play-1':1,'play-2':1,'volume-1':10,'volume-2':bad});await hass.async_block_till_done()
-    assert hass.states.get(ids[1]).attributes.get('volume_level') is None
-    with pytest.raises(HomeAssistantError):await hass.services.async_call('media_player','volume_set',{'volume_level':.45},target={'entity_id':ids[1]},blocking=True)
+    assert hass.states.get(ids[1]).attributes.get('loxone_group_volume_level') is None
+    with pytest.raises(HomeAssistantError):await hass.services.async_call('loxone','audio_group_volume',{'volume_percent':45},target={'entity_id':ids[1]},blocking=True)
     assert co.api.send_websocket_command.call_count==0
 
 
@@ -57,7 +57,7 @@ async def test_partial_group_volume_never_continues_after_latched_invalidation(h
         elif invalidate=='unload':co.audio_grouping.disabled=True;co.audio_grouping.native.invalidate()
     remove=hass.bus.async_listen(SENDDOMAIN,sent)
     try:
-        with pytest.raises(HomeAssistantError):await hass.services.async_call('media_player','volume_set',{'volume_level':.45},target={'entity_id':ids[1]},blocking=True)
+        with pytest.raises(HomeAssistantError):await hass.services.async_call('loxone','audio_group_volume',{'volume_percent':45},target={'entity_id':ids[1]},blocking=True)
         assert writes==[{'uuid':action(1),'value':'volume/30'}]
         assert g.entities[ids[1]]._room_volume_percent==10
         assert g.entities[ids[2]]._room_volume_percent==40
@@ -98,10 +98,10 @@ async def test_native_public_group_volume_is_additive_clamped_and_feedback_confi
         await g.callbacks[entry.entry_id]['callback']({f'volume-{player}':int(event.data['value'].split('/')[1])})
     remove=hass.bus.async_listen(SENDDOMAIN,sent)
     try:
-        await hass.services.async_call('media_player','volume_set',{'volume_level':.45},target={'entity_id':ids[2]},blocking=True)
+        await hass.services.async_call('loxone','audio_group_volume',{'volume_percent':45},target={'entity_id':ids[2]},blocking=True)
         await hass.async_block_till_done()
-        assert writes==[{'uuid':action(1),'value':'volume/30'},{'uuid':action(2),'value':'volume/60'}], 'Native group setter must shift every member, never equalize or only change clicked room'
-        assert hass.states.get(ids[1]).attributes['volume_level']==.45
+        assert writes==[{'uuid':action(1),'value':'volume/30'},{'uuid':action(2),'value':'volume/60'}], 'Explicit group setter must shift every member, never equalize or only change clicked room'
+        assert hass.states.get(ids[1]).attributes['loxone_group_volume_level']==.45
         assert hass.states.get(ids[1]).attributes['loxone_room_volume_level']==.3
         assert hass.states.get(ids[3]).attributes['loxone_room_volume_level']==.9
     finally:
@@ -113,9 +113,9 @@ async def test_public_group_mean_and_explicit_raw_room_level(hass, grouped_setup
     await g.feed(entry,row('one',(1,2)),row('other',(3,4)))
     await g.callbacks[entry.entry_id]['callback']({'play-1':1,'play-2':1,'play-3':1,'play-4':1,'volume-1':10,'volume-2':40,'volume-3':90,'volume-4':100})
     await hass.async_block_till_done()
-    assert hass.states.get(ids[1]).attributes['volume_level']==.25, 'Native grouped slider must expose all-member mean, not leader volume'
-    assert hass.states.get(ids[2]).attributes['volume_level']==.25
+    assert hass.states.get(ids[1]).attributes['loxone_group_volume_level']==.25, 'Explicit group slider must expose all-member mean, not leader volume'
+    assert hass.states.get(ids[2]).attributes['loxone_group_volume_level']==.25
     assert hass.states.get(ids[1]).attributes['loxone_room_volume_level']==.1
     assert hass.states.get(ids[2]).attributes['loxone_room_volume_level']==.4
-    assert hass.states.get(ids[3]).attributes['volume_level']==.95
-    assert hass.states.get(ids[1]).attributes['loxone_group_control']['version']==2
+    assert hass.states.get(ids[3]).attributes['loxone_group_volume_level']==.95
+    assert hass.states.get(ids[1]).attributes['loxone_group_control']['version']==3

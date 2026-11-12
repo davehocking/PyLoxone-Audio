@@ -157,6 +157,12 @@ async def async_setup_entry(
         required_features=MediaPlayerEntityFeature.VOLUME_SET,
     )
     entity_platform.async_get_current_platform().async_register_entity_service(
+        "audio_group_volume",
+        {vol.Required("volume_percent"): _integer_volume_percent},
+        "async_audio_group_volume",
+        required_features=MediaPlayerEntityFeature.VOLUME_SET,
+    )
+    entity_platform.async_get_current_platform().async_register_entity_service(
         "audio_group_manage",
         {vol.Required("action"): vol.In(("create", "add", "remove", "destroy")),
          vol.Optional("revision"): str, vol.Optional("group_id"): str,
@@ -641,6 +647,10 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
             **attrs,
             "loxone_group_control": self._audio_grouping.control_descriptor(self._audio_player_id) if self._audio_grouping is not None else None,
             "loxone_room_volume_level": self._room_volume_percent / 100 if self._room_volume_percent is not None else None,
+            "loxone_group_volume_level": (
+                self._audio_grouping.volume_level(self._audio_player_id)
+                if self._audio_grouping is not None and self._audio_player_id in self._audio_grouping.entities else None
+            ),
             "audio_track_id": (
                 sha256(repr((self._audio_timing_identity, self._audio_track_revision)).encode()).hexdigest()
                 if self._audio_timing_identity is not None else None
@@ -657,9 +667,7 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
 
     @property
     def volume_level(self) -> float | None:
-        """Volume level of the media player (0..1)."""
-        if self._audio_grouping is not None and self._audio_player_id in self._audio_grouping.entities:
-            return self._audio_grouping.volume_level(self._audio_player_id)
+        """Native HA controls always show this room's observed volume (0..1)."""
         return self._volume
 
     @audio_operation('audio_group_manage')
@@ -1389,10 +1397,17 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
 
     @audio_operation('audio_room_volume')
     async def async_audio_room_volume(self, volume_percent):
-        """Explicit raw-room integer volume, never the public group slider."""
+        """Explicit raw-room integer volume, matching the native HA room slider."""
         if self._audio_grouping is None:
             raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_unavailable")
         await self._audio_grouping.async_volume(self, _integer_volume_percent(volume_percent), room_only=True)
+
+    @audio_operation('volume_set')
+    async def async_audio_group_volume(self, volume_percent):
+        """Explicit additive group volume; generic volume diagnostics stay compatible."""
+        if self._audio_grouping is None:
+            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_unavailable")
+        await self._audio_grouping.async_volume(self, _integer_volume_percent(volume_percent), room_only=False)
 
     @audio_operation('volume_set')
     async def async_set_volume_level(self, volume: float) -> None:
@@ -1403,7 +1418,7 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
             import math
             if type(volume) not in (int, float) or not math.isfinite(volume) or not 0 <= volume <= 1:
                 raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_unavailable")
-            return await self._audio_grouping.async_volume(self, math.floor(volume * 100 + .5))
+            return await self._audio_grouping.async_volume(self, math.floor(volume * 100 + .5), room_only=True)
         volume_int = int(volume * 100)
         fire_audio_command(self, dict(uuid=self.uuidAction, value=f"volume/{volume_int}"))
         self.async_schedule_update_ha_state()

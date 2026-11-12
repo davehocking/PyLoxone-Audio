@@ -107,6 +107,11 @@
     }
   },
   "services": {
+    "audio_group_volume": {
+      "name": "Lautstärke der Audiogruppe einstellen",
+      "description": "Den Mittelwert der bestätigten Gruppe unter Beibehaltung der Raumunterschiede ändern. Die normale Lautstärkeregelung ändert nur den jeweiligen Raum.",
+      "fields": {"volume_percent": {"name": "Gruppenlautstärke"}}
+    },
     "audio_room_transport": {
       "name": "Einen Audioraum wiedergeben oder pausieren",
       "description": "Setzt nur den ausgewählten Raum fort oder pausiert ihn, auch in einer dynamischen Gruppe. Ändert weder Gruppenmitglieder noch Lautstärke oder Quelle. Die normalen Wiedergabe-/Pausebefehle steuern die gesamte Gruppe.",
@@ -205,6 +210,9 @@
     },
     "audioserver_seek_failed": {
       "message": "Die neue Position wurde für den aktuellen Titel nicht bestätigt. Es wurde weder erneut versucht noch die Wiedergabe gestartet."
+    },
+    "audioserver_volume_failed": {
+      "message": "Die Lautstärkeänderung wurde nicht bestätigt oder wurde durch eine Änderung überholt. Es wurde weder automatisch erneut versucht noch rückgängig gemacht."
     },
     "audioserver_playback_failed": {
       "message": "Die Wiedergabe über den Audio Server wurde nicht bestätigt. Es wurde weder auf eine andere Quelle ausgewichen noch automatisch erneut versucht."

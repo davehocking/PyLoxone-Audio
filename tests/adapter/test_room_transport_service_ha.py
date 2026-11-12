@@ -83,11 +83,19 @@ async def test_full_inherited_service_definitions_and_translations_preserved(has
     current = yaml.safe_load((host/'custom_components/loxone/services.yaml').read_text())
     inherited = yaml.safe_load((root/'tests/adapter/fixtures/inherited-services.yaml').read_text())
     assert {key:current[key] for key in inherited} == inherited
-    assert set(current) == set(inherited)|{'audio_room_transport','audio_room_volume','audio_group_manage'}
+    assert set(current) == set(inherited)|{'audio_room_transport','audio_room_volume','audio_group_volume','audio_group_manage'}
     for name,digest in json.loads((root/'tests/adapter/fixtures/gm03-inherited-translations.json').read_text()).items():
         relative=Path(name).relative_to('adapters/pyloxone/overlay')
-        assert hashlib.sha256((host/relative).read_bytes()).hexdigest()==digest,name
-    for service in ('audio_room_volume','audio_group_manage'):
+        original = root/'tests/adapter/fixtures/translations-before-v3'/relative.name
+        assert hashlib.sha256(original.read_bytes()).hexdigest()==digest,name
+        before = json.loads(original.read_text())
+        after = json.loads((host/relative).read_text())
+        after['services'].pop('audio_group_volume')
+        if 'services' not in before:
+            assert after.pop('services') == {}
+        after['exceptions'].pop('audioserver_volume_failed')
+        assert after == before, name
+    for service in ('audio_room_volume','audio_group_volume','audio_group_manage'):
         assert current[service]['name'] and current[service]['description']
         assert current[service]['target']['entity']=={'domain':'media_player','integration':'loxone'}
         assert all(field.get('name') for field in current[service]['fields'].values())

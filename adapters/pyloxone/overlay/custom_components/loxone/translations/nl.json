@@ -94,6 +94,11 @@
     }
   },
   "services": {
+    "audio_group_volume": {
+      "name": "Volume van audiogroep instellen",
+      "description": "Pas het gemiddelde van de bevestigde groep aan met behoud van de balans tussen kamers. De standaard volumeregeling wijzigt alleen de eigen kamer.",
+      "fields": {"volume_percent": {"name": "Groepsvolume"}}
+    },
     "audio_room_transport": {
       "name": "Eén audioruimte afspelen of pauzeren",
       "description": "Hervat of pauzeert alleen de geselecteerde ruimte, ook in een dynamische groep. Wijzigt geen groepslidmaatschap, volume of bron. De standaard afspeel-/pauzebediening bestuurt de hele groep.",
@@ -191,6 +196,9 @@
     },
     "audioserver_seek_failed": {
       "message": "De nieuwe positie voor het huidige nummer is niet bevestigd. Er is geen nieuwe poging of afspeelopdracht verzonden."
+    },
+    "audioserver_volume_failed": {
+      "message": "De volumewijziging is niet bevestigd of is achterhaald. Er is geen automatische nieuwe poging of herstelopdracht verzonden."
     },
     "audioserver_playback_failed": {
       "message": "Het afspelen via Audio Server is niet bevestigd. Er is geen alternatieve opdracht of automatische nieuwe poging verzonden."

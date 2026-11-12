@@ -94,6 +94,11 @@
     }
   },
   "services": {
+    "audio_group_volume": {
+      "name": "Definir volume do grupo de áudio",
+      "description": "Ajusta a média do grupo confirmado mantendo o equilíbrio entre os cômodos. O controle de volume padrão altera apenas seu próprio cômodo.",
+      "fields": {"volume_percent": {"name": "Volume do grupo"}}
+    },
     "audio_room_transport": {
       "name": "Reproduzir ou pausar um ambiente de áudio",
       "description": "Retoma ou pausa apenas o ambiente selecionado, mesmo em um grupo dinâmico. Não altera os membros, o volume nem a fonte. Os controles normais de reprodução/pausa controlam todo o grupo.",
@@ -191,6 +196,9 @@
     },
     "audioserver_seek_failed": {
       "message": "A nova posição da faixa atual não foi confirmada. Não foi enviada nenhuma nova tentativa nem iniciada a reprodução."
+    },
+    "audioserver_volume_failed": {
+      "message": "A alteração de volume não foi confirmada ou foi substituída. Nenhuma nova tentativa automática ou reversão foi enviada."
     },
     "audioserver_playback_failed": {
       "message": "A reprodução no Audio Server não foi confirmada. Não foi enviado nenhum comando alternativo nem uma nova tentativa automática."
