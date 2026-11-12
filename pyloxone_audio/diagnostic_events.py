@@ -46,6 +46,7 @@ STAGES = frozenset(
         "state_published",
         "lock_acquired",
         "connection_opened",
+        "session_reused",
         "request_finished",
     }
 )

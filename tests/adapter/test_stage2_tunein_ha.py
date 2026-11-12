@@ -18,6 +18,7 @@ from test_audio_modes_ha import mode_harness
 from test_stage2_modes_ha import output
 from custom_components.loxone.pyloxone_api import audioserver as wire
 from pyloxone_audio import native, clock as native_clock
+from session_fixture_policy import close_retained_peer
 
 # Capture the real method at collection, before audio_setup's discovery mocks.
 REAL_RADIO_SERVICES = wire.AudioServerCommands.async_radio_services
@@ -150,6 +151,21 @@ async def test_registered_tunein_selection_partitions_native_waits_without_short
             mark("registered-select-source-complete")
             assert room.source == "TuneIn" and routes.count(route) == 2
             assert not h.commands.source_fences
+        # Only after the real owning operation returns (including its unchanged
+        # fifteen-second ACK-only failure). Cleanup must not release its fence.
+        assert task.done() and room._source_task is None
+        if outcome == "confirmed":
+            station_peers = [s for s in sockets if route in s.sent]
+            # Legacy catalogue replies are command-less: they deliberately
+            # retire their session, including the refresh before source return.
+            # The final exact station reply, however, is genuinely retained.
+            assert sum(s.sent.count(route) for s in station_peers) == 2
+            assert sum(m.startswith("secure/authenticate/") for m in station_peers[-1].sent) == 1
+            assert not station_peers[-1].closed
+            assert all(s.closed for s in sockets if s is not station_peers[-1])
+        fences_before_cleanup = dict(h.commands.source_fences)
+        await close_retained_peer(h.commands)
+        assert h.commands.source_fences == fences_before_cleanup
         output(f"tunein-{outcome}.json", {"timeline": timeline, "routes": routes,
             "command_timeout_seconds": h.commands._timeout, "feedback_timeout_seconds": 15,
             "source_state": room.source, "sockets_closed": all(s.closed for s in sockets),

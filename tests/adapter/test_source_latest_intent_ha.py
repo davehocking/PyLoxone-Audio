@@ -11,6 +11,7 @@ from homeassistant.exceptions import HomeAssistantError
 from test_audioserver_ha import audio_setup
 from test_native_source_return_ha import install_sources, library_row, RADIO
 from test_audioserver_playback import rsa_key, SyntheticAudioSocket
+from session_fixture_policy import close_retained_peer
 
 from custom_components.loxone.audio_catalogue import CatalogueTarget
 from custom_components.loxone.audio_radio import RADIO_MEDIA_TYPE
@@ -191,6 +192,7 @@ async def test_sent_old_source_closes_before_new_explicit_write_without_old_seek
         assert entity._source_task is None
         assert not entity._audio_commands.source_fences
         assert not entity._audio_commands.source_observations
+        await close_retained_peer(entity._audio_commands)
         assert all(socket.closed for socket in sockets)
         assert shortcuts == []
     finally:

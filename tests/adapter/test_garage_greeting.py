@@ -12,6 +12,7 @@ from test_audioserver_playback import SyntheticAudioSocket, rsa_key
 from test_audioserver_ha import audio_setup, zone_entity_id
 from test_audio_catalogue import catalogue_commands
 from custom_components.loxone.pyloxone_api import audioserver as wire
+from session_fixture_policy import close_retained_peer
 
 
 def prefixed(socket, frames):
@@ -114,6 +115,13 @@ async def test_real_ha_source_service_lifecycle_survives_event_before_greeting(h
     monkeypatch.setattr(wire, 'connect', lambda *a, **k: socket)
     await hass.services.async_call('media_player', 'select_source', {'entity_id': entity.entity_id, 'source': 'Line-In'}, blocking=True)
     assert entity.source == 'Line-In'
+    # The owning service has completed, with its original feedback/guard
+    # assertions below intact. Successful exact replies now retain a warm peer.
+    assert entity._source_task is None
+    assert not entity._audio_commands.source_fences
+    assert not socket.closed
+    assert sum(m.startswith('secure/authenticate/') for m in socket.sent) == 1
+    await close_retained_peer(entity._audio_commands)
     assert socket.sent.count(route) == 1 and socket.closed
     assert not entity._audio_commands.source_fences
     assert hass.states.get(zone_entity_id(hass, 8)) == other

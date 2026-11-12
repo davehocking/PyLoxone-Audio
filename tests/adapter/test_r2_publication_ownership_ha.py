@@ -119,6 +119,9 @@ async def test_r2_queued_lifetime_observer_removed_on_cancellation(
     hass, audio_setup, monkeypatch, rsa_key, boundary,
 ):
     h, co, publish, publications = await producer(hass, audio_setup, monkeypatch, rsa_key)
+    # This original one-observer oracle selects the one-shot compatibility
+    # route. The warm counterpart below waits for BOTH real queued owners.
+    h.commands.reuse_session = False
     sparse = {k: v for k, v in h.rows[7].items() if k not in {'pbr', 'plshuffle', 'plrepeat'}}
     sparse.update(audiopath='library:local:track:r2-cancel', time=1)
     await h.commands._lock.acquire()
@@ -140,6 +143,38 @@ async def test_r2_queued_lifetime_observer_removed_on_cancellation(
     assert not h.metadata._recoveries and not h.metadata._mode_recovery
     assert len(h.commands._authentication_guards) == 0
     assert not h.writes and all(peer.closed for peer in h.sockets)
+
+
+@pytest.mark.parametrize('boundary', ['cancel', 'unload'])
+async def test_r2_warm_queued_admission_and_recovery_observers_both_retire(
+    hass, audio_setup, monkeypatch, rsa_key, boundary,
+):
+    h, co, publish, publications = await producer(hass, audio_setup, monkeypatch, rsa_key)
+    assert h.commands.reuse_session
+    sparse = {k: v for k, v in h.rows[7].items() if k not in {'pbr', 'plshuffle', 'plrepeat'}}
+    sparse.update(audiopath='library:local:track:r2-warm-cancel', time=1)
+    await h.commands._lock.acquire()
+    try:
+        await h.emit(sparse)
+        # The metadata recovery owns a freshness guard and the admitted native
+        # request owns its independent pre-lock credential-generation guard.
+        assert await eventually(lambda: len(h.commands._authentication_guards) == 2)
+        assert h.metadata._recoveries and not h.sockets and not h.writes
+        if boundary == 'unload':
+            assert await hass.config_entries.async_unload(h.entry.entry_id)
+        else:
+            h.metadata.set_playing(7, False)
+            assert await eventually(lambda: not h.metadata._recoveries)
+        await publish('synthetic-replacement-token')
+        await publish('synthetic-active-token')
+    finally:
+        h.commands._lock.release()
+    await hass.async_block_till_done()
+    gc.collect()
+    assert not h.metadata._recoveries and not h.metadata._mode_recovery
+    assert len(h.commands._authentication_guards) == 0
+    assert not h.writes and not h.sockets
+    assert h.commands._session is None and h.commands._socket is None
 
 
 @pytest.mark.parametrize('failed_observer', ['grouping', 'commands'])

@@ -99,6 +99,8 @@ class AudioMetadataCoordinator:
         for task in tuple(self._recoveries.values()):
             task.cancel()
         await asyncio.gather(*tuple(self._recoveries.values()), return_exceptions=True)
+        for player, binding in self._bindings.items():
+            binding[0].observe_playback(player, False)
         self._bindings.clear()
         self._playing.clear()
         self._active_since.clear()
@@ -179,6 +181,7 @@ class AudioMetadataCoordinator:
         def remove() -> None:
             if self._bindings.get(player_id) is binding:
                 del self._bindings[player_id]
+                commands.observe_playback(player_id, False)
                 self.set_playing(player_id, False)
 
         return remove
@@ -455,6 +458,17 @@ class AudioMetadataCoordinator:
 
     def _on_update(self, updates: tuple[AudioZoneMetadata, ...]) -> None:
         """Notify affected players; an empty update invalidates every snapshot."""
+        # Only exact opted-in mapped bindings qualify retention. This does not
+        # alter content/permission freshness, source proof or recovery policy.
+        if not updates:
+            for player, binding in self._bindings.items():
+                binding[0].observe_playback(player, False)
+        for row in updates:
+            if binding := self._bindings.get(row.player_id):
+                # Reconciler eligibility includes source/group/operation fences;
+                # those do not make a mapped room's positive playback unknown.
+                # Binding removal/stop owns retention invalidation separately.
+                binding[0].observe_playback(row.player_id, row.native_mode == "play")
         if diagnostics_enabled(self.diagnostics):
             if not updates:
                 diagnostic_event(

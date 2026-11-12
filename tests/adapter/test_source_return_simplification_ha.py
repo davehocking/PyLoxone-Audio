@@ -9,6 +9,7 @@ import json
 from typing import Any
 
 import pytest
+from session_fixture_policy import ColdAuthControls, close_retained_peer
 from homeassistant.exceptions import HomeAssistantError
 from test_audioserver_ha import audio_setup as _audio_setup
 from test_audioserver_playback import SyntheticAudioSocket, rsa_key as _rsa_key
@@ -43,7 +44,7 @@ async def simplified_harness(
     if spotify:
         target.update(audiopath="spotify:track:original", parent={"id": "spotify:playlist:original"},
                       sourceName="Synthetic owner")
-    controls: dict[str, Any] = {"target": target, "seek_reply": "ack", "source_reply": "ack"}
+    controls: dict[str, Any] = ColdAuthControls(entity._audio_commands, {"target": target, "seek_reply": "ack", "source_reply": "ack"})
     sockets: list[Any] = []
 
     async def emit(row: dict[str, Any]) -> None:
@@ -132,6 +133,7 @@ async def test_confirmed_source_ignores_old_progress_guard_without_position_veri
     source = "Spotify" if spotify else "Local Library"
     assert entity._radio_catalogue.source_session(source).position == 1
     assert not entity._audio_commands.source_fences
+    await close_retained_peer(entity._audio_commands)
     assert all(socket.closed for socket in sockets)
     audio_setup.apis[0].send_websocket_command.assert_not_awaited()
 
@@ -153,6 +155,7 @@ async def test_optional_restore_is_one_ordinary_attempt_and_never_invents_progre
     assert entity._radio_catalogue.source_session("Local Library").position == observed_position
     assert not entity._audio_commands.source_fences
     assert not entity._audio_commands.source_observations
+    await close_retained_peer(entity._audio_commands)
     assert all(socket.closed for socket in sockets)
 
 
@@ -176,6 +179,7 @@ async def test_source_return_accepts_provider_current_track_without_seeking_old_
     assert saved is previous
     assert entity._audio_metadata.get(7).audio_path == prefix + "track:next"
     assert entity._audio_metadata.get(7).position == observed_position
+    await close_retained_peer(entity._audio_commands)
     assert all(socket.closed for socket in sockets)
 
 
@@ -204,6 +208,7 @@ async def test_wrong_or_unrelated_feedback_cannot_confirm_source_return(
         await select(hass, entity, spotify=True)
     assert len(sent_commands(sockets)) == 1
     assert entity._radio_catalogue.source_session("Spotify") is before
+    await close_retained_peer(entity._audio_commands)
     assert all(socket.closed for socket in sockets)
 
 
@@ -227,6 +232,7 @@ async def test_failed_initial_command_never_attempts_optional_restore(
     assert all("/position/" not in command for command in sent_commands(sockets))
     assert len(sent_commands(sockets)) == (0 if fault == "closed" else 1)
     assert entity._radio_catalogue.source_session("Local Library") is before
+    await close_retained_peer(entity._audio_commands)
     assert all(socket.closed for socket in sockets)
 
 
@@ -255,6 +261,7 @@ async def test_optional_restore_checks_current_target_after_authentication(
     controls["during_seek"] = changed
     await select(hass, entity)
     assert len(sent_commands(sockets)) == 1
+    await close_retained_peer(entity._audio_commands)
     assert all(socket.closed for socket in sockets)
     assert not entity._audio_commands.source_fences
 
@@ -288,6 +295,7 @@ async def test_newest_ha_request_and_unload_cancel_optional_restore(
             (result,) = await asyncio.gather(pending, return_exceptions=True)
         assert isinstance(result, (HomeAssistantError, asyncio.CancelledError))
         assert len(sent_commands(sockets)) == 1
+        await close_retained_peer(entity._audio_commands)
         assert all(socket.closed for socket in sockets)
         assert not entity._audio_commands.source_fences
     finally:
@@ -325,6 +333,7 @@ async def test_radio_source_return_uses_native_namespace_not_generic_radio_label
         with pytest.raises(HomeAssistantError):
             await action()
     assert len(sent_commands(sockets)) == 1
+    await close_retained_peer(entity._audio_commands)
     assert all(socket.closed for socket in sockets)
 
 
@@ -340,6 +349,7 @@ async def test_explicit_browser_item_still_requires_exact_item_feedback(
         async with asyncio.timeout(2):
             await entity._async_play_radio(media_id)
     assert len(sent_commands(sockets)) == 1
+    await close_retained_peer(entity._audio_commands)
     assert all(socket.closed for socket in sockets)
 
 
@@ -356,4 +366,5 @@ async def test_paused_native_spotify_return_accepts_advanced_track(
     await select(hass, entity, spotify=True)
     assert sent_commands(sockets) == ["audio/7/serviceplay/spotify/synthetic-account/"]
     assert entity._radio_catalogue.source_session("Spotify").audio_path == "spotify:track:next"
+    await close_retained_peer(entity._audio_commands)
     assert all(socket.closed for socket in sockets)

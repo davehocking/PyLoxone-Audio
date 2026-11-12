@@ -15,7 +15,7 @@ import base64
 import json
 import logging
 import re
-from contextlib import suppress
+from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from enum import IntEnum
@@ -30,6 +30,8 @@ from uuid import uuid4
 from weakref import WeakSet
 
 from .diagnostic_events import diagnostic_event, diagnostics_enabled
+from .session import CommandSession
+from . import session as session_policy
 
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.PublicKey import RSA
@@ -389,6 +391,11 @@ class AudioServerCommands:
         self._lock = asyncio.Lock()
         self._closed = False
         self._socket: Any = None
+        # The HA entry opts in explicitly; direct 0.1.x callers retain the
+        # original one-shot lifecycle unless they select reusable sessions.
+        self.reuse_session = False
+        self._session: CommandSession | None = None
+        self._playback_until: dict[int, float] = {}
         self.diagnostics = diagnostics
         self.announcement_fences: dict[int, Callable[[], None]] = {}
         self.source_fences: dict[int, Callable[[], None]] = {}
@@ -424,14 +431,69 @@ class AudioServerCommands:
         """Latch published revocation without retaining token publication data."""
         for current in tuple(self._authentication_guards):
             current()
+        if self._session is not None and not self._session.valid():
+            self._session.invalidate()
+
+    def observe_playback(self, player_id: int, playing: bool) -> None:
+        """Receive already-mapped native observations; silence expires in 30s."""
+        now = session_policy.monotonic()
+        self._playback_until = {p: end for p, end in self._playback_until.items() if end > now}
+        if playing is True and not self._closed:
+            self._playback_until[player_id] = now + 30
+        else:
+            self._playback_until.pop(player_id, None)
+        if self._session is not None:
+            self._session.observe_playing(max(self._playback_until.values(), default=0))
 
     async def async_close(self) -> None:
         """Reject queued/future requests and close an in-flight owned socket."""
         self._closed = True
+        self._playback_until.clear()
         for release in (*tuple(self.announcement_fences.values()), *tuple(self.source_fences.values())):
             release()
-        if self._socket is not None:
+        if self._session is not None:
+            await self._session.close()
+            self._session = None
+        elif self._socket is not None:
             await self._socket.close()
+
+    @asynccontextmanager
+    async def _connection(self):
+        """Lease one session under _lock; uncertain requests never remain warm."""
+        def context():
+            return connect(
+                self._uri, subprotocols=[Subprotocol("remotecontrol")],
+                open_timeout=self._timeout, close_timeout=2, ping_interval=None,
+                max_size=1024 * 1024, **_DIRECT_CONNECT,
+            )
+
+        if not self.reuse_session:
+            async with context() as socket:
+                yield socket
+            return
+        session = self._session
+        if session is not None and not session.valid():
+            await session.close()
+            if self._session is session:
+                self._session = None
+            session = None
+        if session is None:
+            current = self.authentication_guard()
+            manager = context()
+            socket = await manager.__aenter__()
+            session = self._session = CommandSession(socket, manager, current, AudioCommandError)
+            session.observe_playing(max(self._playback_until.values(), default=0))
+        try:
+            session.begin()
+            yield session
+        except BaseException:
+            session.invalidate()
+            raise
+        finally:
+            if not session.finish():
+                await session.close()
+                if self._session is session:
+                    self._session = None
 
     async def async_execute(
         self, player_id: object, action: str, *, is_current: Callable[[], bool] | None = None,
@@ -1083,8 +1145,14 @@ class AudioServerCommands:
             # waiting for the existing shared lock or handshake. Other native
             # routes retain their established transport/ownership behaviour.
             status_credentials = self._credentials() if reply_key in ("status_result", "dgroup_update_result", "grouped_play_result", "grouped_pause_result") else None
+            # A reusable-session request owns the authentication lifetime from
+            # admission, including time spent queued behind another room. A
+            # published A→B→A must not create a fresh authority for that intent.
+            request_authentication = self.authentication_guard() if self.reuse_session else None
             async with asyncio.timeout(self._timeout), self._lock:
                 record("lock_acquired")
+                if request_authentication is not None and not request_authentication():
+                    raise AudioCommandError("Native command authentication changed while queued")
                 if self._closed:
                     message = "Audio playback connection is closed"
                     raise AudioCommandError(message)
@@ -1092,23 +1160,23 @@ class AudioServerCommands:
                 if not isinstance(username, str) or not username.strip() or not isinstance(token, str) or not token:
                     message = "Audio playback credentials are unavailable"
                     raise AudioCommandError(message)
-                async with connect(
-                    self._uri,
-                    subprotocols=[Subprotocol("remotecontrol")],
-                    open_timeout=self._timeout,
-                    close_timeout=2,
-                    ping_interval=None,
-                    max_size=1024 * 1024,
-                    **_DIRECT_CONNECT,
-                ) as socket:
+                async with self._connection() as socket:
                     owned_socket = self._socket = socket
-                    record("connection_opened")
+                    reused = isinstance(socket, CommandSession) and socket.authenticated
+                    if not reused:
+                        record("connection_opened")
                     if self._closed:
                         message = "Audio playback connection is closed"
                         raise AudioCommandError(message)
-                    shuffle_switch = await self._authenticate(socket, username, token)
-                    if diagnostics_enabled(observer):
-                        record("authenticated")
+                    if reused:
+                        shuffle_switch = socket.shuffle_switch
+                        record("session_reused")
+                    else:
+                        shuffle_switch = await self._authenticate(socket, username, token)
+                        if isinstance(socket, CommandSession):
+                            socket.start_reader(shuffle_switch)
+                        if diagnostics_enabled(observer):
+                            record("authenticated")
 
                     if self._closed:
                         message = "Audio playback connection is closed"

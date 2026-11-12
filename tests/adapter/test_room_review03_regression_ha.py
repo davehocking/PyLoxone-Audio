@@ -7,6 +7,7 @@ import json
 from types import SimpleNamespace
 
 import pytest
+from session_fixture_policy import close_retained_peer
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
 from custom_components.loxone.pyloxone_api import audioserver as wire
@@ -69,7 +70,7 @@ async def test_registered_room_duplicate_ack_fails_without_state_or_replay(hass,
 
 
 @pytest.fixture
-async def real_source_peer(hass, grouped_setup, audio_setup, monkeypatch, rsa_key):
+async def real_source_peer(hass, grouped_setup, audio_setup, monkeypatch, rsa_key, request):
     g = grouped_setup
     entry, co, ids = await g.setup()
     await g.feed(entry)
@@ -77,6 +78,9 @@ async def real_source_peer(hass, grouped_setup, audio_setup, monkeypatch, rsa_ke
     co.api.get_token_dict = lambda: {'token': token[0]}
     co.audio_commands._credentials = lambda: ('synthetic-user', token[0])
     co.audio_commands._timeout = 3
+    if request.node.callspec.params.get('phase') == 'auth':
+        # An auth-specific oracle must actually execute a cold authentication.
+        co.audio_commands.reuse_session = False
     p = SimpleNamespace(g=g, co=co, entry=entry, ids=ids, token=token, sockets=[],
                         source_sent=asyncio.Event(), drain=asyncio.Event(), release=asyncio.Event(),
                         hold_drain=False, phase=None, hook=None)
@@ -164,6 +168,7 @@ async def real_source_peer(hass, grouped_setup, audio_setup, monkeypatch, rsa_ke
         assert not co.audio_commands.source_fences
         assert not co.audio_commands.source_fence_owners
         assert not co.audio_commands.source_observations
+        await close_retained_peer(co.audio_commands)
         assert_clean(p)
 
 

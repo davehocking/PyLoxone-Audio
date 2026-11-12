@@ -310,22 +310,28 @@ async def async_unload_entry(hass, config_entry):
                 )
         coordinator._listening_task = None
 
-        try:
-            await coordinator.async_cleanup()
-        except Exception as err:  # noqa: BLE001
-            _LOGGER.warning("Error closing connection: %s", err, exc_info=True)
-
-        hass.data[DOMAIN].pop(config_entry.entry_id, None)
-
     # Services are not removed here: the integration-wide ones are
     # registered once in ``async_setup`` and route per call, and the
     # cover entity services belong to the platform (HA manages them).
     # Removing them would break every other loaded Miniserver.
 
-    # Unload
-    unload_ok = await hass.config_entries.async_unload_platforms(
-        config_entry, LOXONE_PLATFORMS
+    async def close_connections():
+        if coordinator is not None:
+            try:
+                await coordinator.async_cleanup()
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.warning("Error closing connection: %s", err, exc_info=True)
+
+    # Entity removal revokes and drains its requests. A reusable command session
+    # also owns awaited socket cleanup, so waiting for it BEFORE starting entity
+    # removal can hold those callers alive behind their own old context exit.
+    # Start both owners together and retain both until cleanup has completed.
+    _, unload_ok = await asyncio.gather(
+        close_connections(),
+        hass.config_entries.async_unload_platforms(config_entry, LOXONE_PLATFORMS),
     )
+    if coordinator is not None:
+        hass.data[DOMAIN].pop(config_entry.entry_id, None)
     return unload_ok
 
 
