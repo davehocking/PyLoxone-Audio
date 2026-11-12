@@ -41,7 +41,8 @@ async def test_owner_unconfirmed_zero_timeout_preserves_real_subsequent_routes(
     owner = co.audio_grouping
     assert owner.native.timeout == 8
     assert len(owner.entities) == 12
-    assert hass.states.get(ids[first]).attributes['volume_level'] == .24
+    assert hass.states.get(ids[first]).attributes['loxone_group_volume_level'] == .24
+    assert hass.states.get(ids[first]).attributes['volume_level'] == .10
     original_snapshot = owner.native.snapshot
     initial_generation = owner.native._generation
     writes, sockets, progress, outcomes, snapshots = [], [], [], [], []
@@ -118,7 +119,7 @@ async def test_owner_unconfirmed_zero_timeout_preserves_real_subsequent_routes(
     try:
         capture('before')
         start = time.monotonic()
-        failure = await call('media_player', 'volume_set', second, volume_level=.07)
+        failure = await call('loxone', 'audio_group_volume', second, volume_percent=7)
         elapsed = time.monotonic() - start
         finished.set()
         await producer

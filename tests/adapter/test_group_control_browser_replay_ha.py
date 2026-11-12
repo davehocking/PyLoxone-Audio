@@ -81,7 +81,7 @@ async def test_exact_rendered_browser_service_calls_reach_owning_native_targets(
         service = request['service']
         if service == 'volume_set':
             assert messages == []
-            # Literal historical public request now has owner-approved group scope.
+            # Literal historical public request has owner-corrected room scope.
             assert [tuple(c.args) for c in co.api.send_websocket_command.await_args_list]==expected_volume
             assert co.audio_grouping.native.snapshot.groups == before
         else:

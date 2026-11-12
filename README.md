@@ -2,7 +2,7 @@
 
 Audio features for [PyLoxone](https://github.com/JoDehli/PyLoxone), using your existing Home Assistant integration and room players.
 
-**Version 0.1.6:** library **0.1.6**, reference adapter **0.1.6**, frontend **r13**, based on PyLoxone **0.10.3**. Install the matching preview below; Home Assistant resolves `PyLoxone-Audio==0.1.6` through its normal dependency handling. Installing the library alone does not update the integration.
+**Version 0.1.7:** library **0.1.7**, reference adapter **0.1.7**, frontend **r14**, based on PyLoxone **0.10.3**. Install the matching preview below; Home Assistant resolves `PyLoxone-Audio==0.1.7` through its normal dependency handling. Installing the library alone does not update the integration.
 
 ## Start here
 
@@ -26,15 +26,15 @@ Despite its name, that option also enables Browse/Search, source selection and r
 
 **Audio diagnostics** is a separate, optional switch. It does not enable playback.
 
-## What changes in 0.1.6
+## What changes in 0.1.7
 
-Warm audio commands and sequential Browse requests reuse an authenticated Audio Server connection instead of repeating setup and close. Cold setup and slow source replies can still take time. See the [release notes](RELEASE-NOTES-0.1.6.md) for the connection policy and offline evidence.
+Warm audio commands and Browse requests reuse an authenticated connection. This release also improves nested Local Library browsing, supports the native Group entry on Core 2026.11.1, and separates room volume from explicit whole-group volume. Rapid −/+ taps in the custom manager combine after a brief 300 ms pause. Cold setup and slow source replies can still take time. See the [release notes](https://github.com/davehocking/PyLoxone-Audio/blob/main/RELEASE-NOTES-0.1.7.md).
 
 ## What it adds
 
 - Now-playing information and Browse/Search for supported native sources.
 - Previous-source selection with remembered content and best-effort position return.
-- Native audio groups through the player's **Join** control, with whole-group and individual-room controls.
+- Native audio groups through the player's **Join** control, with separate group and room controls.
 - Group music controls on the leader, with a link from followers to the leader's player.
 - Grouping actions for automations and optional diagnostic downloads.
 

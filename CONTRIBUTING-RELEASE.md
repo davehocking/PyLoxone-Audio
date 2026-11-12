@@ -1,4 +1,4 @@
-# Contributor instructions for PyLoxone-Audio 0.1.6
+# Contributor instructions for PyLoxone-Audio 0.1.7
 
 Preserve Apache-2.0 LICENSE, NOTICE.md and upstream authorship; disclose human/LLM
 provenance honestly. This is a separately versioned concrete library consumed by
@@ -56,8 +56,9 @@ No test result grants public publication or agent household-control permission.
 
 ## Adapter baselines
 
-The cumulative `audio-0.1.6-on-stock-0.10.3.patch` targets stock 0.10.3;
-`audio-0.1.5-to-0.1.6.patch` assumes public adapter 0.1.5
+The cumulative `audio-0.1.7-on-stock-0.10.3.patch` targets stock 0.10.3;
+`audio-0.1.6-to-0.1.7.patch` assumes public adapter 0.1.6;
+`audio-0.1.5-to-0.1.7.patch` assumes public adapter 0.1.5
 with library 0.1.5 on the same stock 0.10.3 base. These are review baselines, not a
 claim of upstream adoption. See the short maintainer guide for optional HA reproduction with the supplied plugin-qualified runner.
 

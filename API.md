@@ -1,8 +1,8 @@
-# PyLoxone-Audio 0.1.6 — API and compatibility
+# PyLoxone-Audio 0.1.7 — API and compatibility
 
 ## Command-session lifecycle
 
-The 0.1.6 adapter explicitly enables `AudioServerCommands.reuse_session`. Direct library consumers retain the original one-shot default. One command owner belongs to one entry/server/current authentication lifetime; never share it between entries or accounts. The host publishes token revocation through `observe_authentication()` and awaits `async_close()` on unload. Changing host/options uses the existing unload/new-owner lifecycle, not mutation of an active owner's endpoint.
+The 0.1.7 adapter explicitly enables `AudioServerCommands.reuse_session`. Direct library consumers retain the original one-shot default. One command owner belongs to one entry/server/current authentication lifetime; never share it between entries or accounts. The host publishes token revocation through `observe_authentication()` and awaits `async_close()` on unload. Changing host/options uses the existing unload/new-owner lifecycle, not mutation of an active owner's endpoint.
 
 The reusable transport keeps the existing single-request lock, authentication/serializers and command proof. After authentication, one bounded-inbox reader owns receive. Unsolicited events are drained but are not metadata authority; command echoes must match the active command (including the vendor's search-query key convention). An uncertain, cancelled, timed-out, malformed or uncorrelated session is retired without replay. The native protocol has no demonstrated unique request ID for a delayed identical echo.
 
@@ -11,7 +11,7 @@ Mapped metadata bindings call `observe_playback(player_id, playing)` from native
 Diagnostics adds `session_reused` rather than inventing new connection/authentication stages for warm requests. `request_finished` still follows the actual request boundary. The Miniserver and metadata/event connections are separate and unchanged.
 
 An Apache-2.0 Python library for native audio communication, consumed by the
-existing PyLoxone integration. The matching reference adapter is 0.1.6
+existing PyLoxone integration. The matching reference adapter is 0.1.7
 on stock PyLoxone 0.10.3. See [NOTICE.md](NOTICE.md) for attribution.
 
 ## Concrete public API and ownership
@@ -95,7 +95,7 @@ the supported enable/export workflow, exact bounds and evidence/privacy limits.
 
 ## Installation and host compatibility
 
-Requires Python >=3.14. Install `PyLoxone-Audio==0.1.6` for standalone consumers.
+Requires Python >=3.14. Install `PyLoxone-Audio==0.1.7` for standalone consumers.
 Home Assistant users need the matching component and frontend described in the
 [installation guide](https://github.com/davehocking/PyLoxone-Audio/blob/main/preview-build/README.md); HA installs Python dependencies.
 Keep domain `loxone`, existing entries/entities and the exact compatible pin.

@@ -1,4 +1,11 @@
 {
+  "services": {
+    "audio_group_volume": {
+      "name": "Nastavit hlasitost zvukové skupiny",
+      "description": "Upraví průměr potvrzené skupiny při zachování rozdílů mezi místnostmi. Běžné ovládání hlasitosti mění jen vlastní místnost.",
+      "fields": {"volume_percent": {"name": "Hlasitost skupiny"}}
+    }
+  },
   "entity": {
     "switch": {
       "audio_diagnostics": {
@@ -92,6 +99,9 @@
     },
     "audioserver_seek_failed": {
       "message": "Nová pozice aktuální stopy nebyla potvrzena. Nebyl odeslán další pokus ani spuštění přehrávání."
+    },
+    "audioserver_volume_failed": {
+      "message": "Změna hlasitosti nebyla potvrzena nebo byla překonána novější změnou. Nebyl odeslán automatický opakovaný pokus ani vrácení změny."
     },
     "audioserver_playback_failed": {
       "message": "Přehrávání přes Audio Server nebylo potvrzeno. Nebyl spuštěn náhradní zdroj ani odeslán automatický opakovaný pokus."

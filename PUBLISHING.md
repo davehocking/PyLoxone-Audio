@@ -35,7 +35,7 @@ gate. `tools/verify_public_release.py` performs bounded read-only index retries
 and retains success/failure receipts. It does not upload or mutate releases.
 
 ```sh
-python tools/verify_public_release.py --dist /path/to/tested-dist --version 0.1.6 --work-dir /path/to/new-public-check
+python tools/verify_public_release.py --dist /path/to/tested-dist --version 0.1.7 --work-dir /path/to/new-public-check
 ```
 
 Never overwrite published files, move a tag, delete/re-upload a package or treat

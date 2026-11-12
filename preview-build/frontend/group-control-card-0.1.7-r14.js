@@ -49,10 +49,10 @@ var groupLabel = (h, v) => `${name(h, v.leader)} +${v.members.length - 1}`;
 var sort = (h, a, b) => name(h, a).toLocaleLowerCase("en").localeCompare(name(h, b).toLocaleLowerCase("en"), "en") || a.localeCompare(b);
 function project(hass, target) {
   const s = hass?.states?.[target], d = s?.attributes?.loxone_group_control;
-  if (!available(s) || d?.version !== 2 || typeof d.owner !== "string" || typeof d.revision !== "string" || !ids(d.members) || !ids(d.candidates) || !d.members.includes(target) || !same(d.members, s.attributes.group_members)) return null;
+  if (!available(s) || d?.version !== 3 || d.group_volume !== true || !Object.hasOwn(s.attributes, "loxone_group_volume_level") || typeof d.owner !== "string" || typeof d.revision !== "string" || !ids(d.members) || !ids(d.candidates) || !d.members.includes(target) || !same(d.members, s.attributes.group_members)) return null;
   const candidates = d.candidates.filter((id) => {
     const t = hass.states[id], v = t?.attributes.loxone_group_control;
-    return available(t) && hass.entities?.[id]?.platform === "loxone" && v?.version === 2 && v.owner === d.owner && v.revision === d.revision && v.candidates?.includes(id) && !!(t.attributes.supported_features & FEATURES.grouping);
+    return available(t) && hass.entities?.[id]?.platform === "loxone" && v?.version === 3 && v.group_volume === true && Object.hasOwn(t.attributes, "loxone_group_volume_level") && v.owner === d.owner && v.revision === d.revision && v.candidates?.includes(id) && !!(t.attributes.supported_features & FEATURES.grouping);
   });
   if (!d.members.every((id) => {
     const a = hass.states[id]?.attributes;
@@ -72,12 +72,8 @@ function overview(hass) {
   return { views, incomplete, groups: [...groups.values()].sort((a, b) => sort(hass, a.leader, b.leader)), free: [...views].filter(([, v]) => !v.group && v.members.length === 1).map(([id]) => id).sort((a, b) => sort(hass, a, b)) };
 }
 function percentOf(s, room = false) {
-  const v = s?.attributes?.[room ? "loxone_room_volume_level" : "volume_level"];
+  const v = s?.attributes?.[room ? "loxone_room_volume_level" : "loxone_group_volume_level"];
   return typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 1 ? Math.round(v * 100) : null;
-}
-function percentLevel(p) {
-  const v = p / 100;
-  return Math.trunc(v * 100) < p ? v + Number.EPSILON : v;
 }
 var node = (tag, text, attrs = {}) => {
   const n = document.createElement(tag);
@@ -172,6 +168,10 @@ function initializeGroupManager() {
       this._mode = "overview";
       this.shadowRoot.addEventListener("pointerdown", (e) => {
         if (this._gesture && e.pointerId !== this._gesture.pointer) this._gesture.revoked = true;
+        this._competingStep(e);
+      }, true);
+      this.shadowRoot.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") this._competingStep(e);
       }, true);
     }
     connectedCallback() {
@@ -180,6 +180,7 @@ function initializeGroupManager() {
     }
     disconnectedCallback() {
       this._epoch++;
+      this._cancelStep();
       this._cancelGesture();
       this._cancel?.(new Error("Manager disconnected; no retry sent."));
     }
@@ -202,7 +203,7 @@ function initializeGroupManager() {
       const o = overview(this.hass);
       return JSON.stringify([this._epoch, this._auth(), [...o.views], [...o.views.keys()].map((id) => {
         const s = this.hass.states[id];
-        return [s.state, s.attributes.supported_features, s.attributes.loxone_room_volume_level, s.attributes.volume_level];
+        return [s.state, s.attributes.supported_features, s.attributes.loxone_room_volume_level, s.attributes.loxone_group_volume_level];
       })]);
     }
     _valid(stamp) {
@@ -214,12 +215,63 @@ function initializeGroupManager() {
       const o = overview(this.hass), v = o.views.get(id);
       return JSON.stringify([this._epoch, this._auth(), this.hass?.config?.version, this._mode, [...o.views].map(([i, p]) => [i, p.owner, p.revision, p.group, p.members, p.candidates, p.busy]), v?.members.map((i) => {
         const s = this.hass.states[i];
-        return [i, s.state, s.attributes.supported_features, s.attributes.loxone_room_volume_level, room ? null : s.attributes.volume_level];
+        return [i, s.state, s.attributes.supported_features, s.attributes.loxone_room_volume_level, room ? null : s.attributes.loxone_group_volume_level];
       })]);
     }
     _cancelGesture() {
       if (this._gesture) this._gesture.revoked = true;
       this._gesture = null;
+    }
+    _competingStep(event) {
+      const control = event.composedPath().find((n) => n?.dataset?.action);
+      if (control && (!["volume-minus", "volume-plus"].includes(control.dataset.action) || control.dataset.volumeKey !== this._step?.key)) this._cancelStep();
+    }
+    _cancelStep() {
+      const draft = this._step;
+      this._step = null;
+      if (!draft) return;
+      clearTimeout(draft.timer);
+      const input = draft.input, p = percentOf(this.hass?.states?.[draft.id], draft.room);
+      if (input.isConnected) {
+        input.value = p === null ? "0" : String(p);
+        const wrap = input.parentElement;
+        wrap.querySelector("output").textContent = p === null ? "\u2014" : p + "%";
+        for (const [action, limit] of [["minus", 0], ["plus", 100]]) wrap.querySelector("[data-action=volume-" + action + "]").disabled = input.disabled || p === null || p === limit;
+      }
+    }
+    _stepStamp(id, room) {
+      const views = overview(this.hass).views;
+      return JSON.stringify([this._gestureStamp(id, room), this._dialogEntity, [...views.keys()].sort().map((i) => {
+        const e = this.hass.entities[i];
+        return [i, e.platform, e.unique_id, e.config_entry_id, e.device_id];
+      })]);
+    }
+    _queueStep(id, room, key, delta, input, output, stamp) {
+      if (!input.isConnected || input.disabled || !this._valid(stamp)) return;
+      let draft = this._step;
+      if (draft && (draft.key !== key || draft.stamp !== this._stepStamp(id, room))) {
+        this._cancelStep();
+        draft = null;
+      }
+      if (!draft) {
+        const start = percentOf(this.hass.states[id], room);
+        if (start === null) return;
+        draft = { id, room, key, start, value: start, stamp: this._stepStamp(id, room), input };
+        this._step = draft;
+      }
+      draft.value = Math.max(0, Math.min(100, draft.value + delta));
+      clearTimeout(draft.timer);
+      input.value = String(draft.value);
+      output.textContent = draft.value + "%";
+      const wrap = input.parentElement;
+      for (const [action, limit] of [["minus", 0], ["plus", 100]]) wrap.querySelector("[data-action=volume-" + action + "]").disabled = draft.value === limit;
+      draft.timer = setTimeout(() => {
+        if (this._step !== draft) return;
+        const valid = draft.input.isConnected && this._valid(this._stamp()) && draft.stamp === this._stepStamp(id, room);
+        this._cancelStep();
+        if (valid && draft.value !== draft.start) this._run(id, "loxone", room ? "audio_room_volume" : "audio_group_volume", { volume_percent: draft.value }, null, () => percentOf(this.hass.states[id], room) === (room ? draft.value : this._expectedMean(id, draft.value)));
+        else this.render();
+      }, 300);
     }
     _button(parent, label, action, key, work, stamp, disabled = false) {
       const b = node("ha-button", label, { "data-action": action, "aria-label": label, "data-key": key });
@@ -234,13 +286,13 @@ function initializeGroupManager() {
     }
     _volume(parent, id, room, stamp) {
       const v = project(this.hass, id), key = (action) => controlKey(room ? "overview-member" : "overview-group", action, v.owner, v.group, room ? id : null);
-      const s = this.hass.states[id], p = percentOf(s, room), wrap = node("div", null, { class: "vol", "data-volume": room ? "room" : "group" }), input = node("input", null, { type: "range", min: "0", max: "100", step: "1", "aria-label": `${name(this.hass, id)} ${room ? "room" : "group"} volume`, "data-key": key("volume") }), output = node("output", p === null ? "\u2014" : p + "%");
-      input.value = p === null ? "0" : String(p);
+      const s = this.hass.states[id], p = percentOf(s, room), requested = this._step?.key === key("volume") ? this._step.value : p, wrap = node("div", null, { class: "vol", "data-volume": room ? "room" : "group" }), input = node("input", null, { type: "range", min: "0", max: "100", step: "1", "aria-label": `${name(this.hass, id)} ${room ? "room" : "group"} volume`, "data-key": key("volume") }), output = node("output", requested === null ? "\u2014" : requested + "%");
+      input.value = requested === null ? "0" : String(requested);
       input.disabled = !this._valid(stamp) || p === null || !(s.attributes.supported_features & FEATURES.volume);
       for (const [action, delta, limit] of [["minus", -1, 0], ["plus", 1, 100]]) {
-        const b = node("button", null, { "data-action": "volume-" + action, "data-key": key("volume-" + action), "aria-label": `${action === "plus" ? "Increase" : "Decrease"} ${name(this.hass, id)} ${room ? "room" : "group"} volume by 1 percentage point` });
+        const b = node("button", null, { "data-action": "volume-" + action, "data-key": key("volume-" + action), "data-volume-key": key("volume"), "aria-label": `${action === "plus" ? "Increase" : "Decrease"} ${name(this.hass, id)} ${room ? "room" : "group"} volume by 1 percentage point` });
         b.append(icon(action));
-        b.disabled = input.disabled || p === limit;
+        b.disabled = input.disabled || requested === limit;
         wrap.append(b);
         if (delta === -1) wrap.append(input);
       }
@@ -249,12 +301,16 @@ function initializeGroupManager() {
       bind(wrap, (wrap2) => {
         const input2 = wrap2.querySelector("input"), output2 = wrap2.querySelector("output");
         const change = (value, current = false) => {
-          if (input2.isConnected && this._valid(current ? this._stamp() : stamp) && Number.isInteger(value) && value >= 0 && value <= 100 && p !== null && value !== p) this._run(id, room ? "loxone" : "media_player", room ? "audio_room_volume" : "volume_set", room ? { volume_percent: value } : { volume_level: percentLevel(value) }, null, () => percentOf(this.hass.states[id], room) === (room ? value : this._expectedMean(id, value)));
+          if (input2.isConnected && this._valid(current ? this._stamp() : stamp) && Number.isInteger(value) && value >= 0 && value <= 100 && p !== null && value !== p) this._run(id, "loxone", room ? "audio_room_volume" : "audio_group_volume", { volume_percent: value }, null, () => percentOf(this.hass.states[id], room) === (room ? value : this._expectedMean(id, value)));
           else this.render();
         };
         bind(input2, (input3, guard) => {
           let gesture;
+          input3.onkeydown = guard(() => {
+            this._cancelStep();
+          });
           input3.onpointerdown = guard((e) => {
+            this._cancelStep();
             if (this._gesture || e.isPrimary === false) {
               if (this._gesture) this._gesture.revoked = true;
               if (this._gesture?.input !== input3) gesture = { revoked: true, pointer: e.pointerId };
@@ -290,7 +346,7 @@ function initializeGroupManager() {
         });
         for (const [action, delta] of [["minus", -1], ["plus", 1]]) bind(wrap2.querySelector("[data-action=volume-" + action + "]"), (b, guard) => {
           b.onclick = guard(() => {
-            if (!b.disabled) change(Math.max(0, Math.min(100, p + delta)));
+            if (!b.disabled) this._queueStep(id, room, key("volume"), delta, input2, output2, stamp);
           });
         });
       });
@@ -342,10 +398,11 @@ function initializeGroupManager() {
       this._run(id, "loxone", "audio_group_manage", data, expected, () => Object.entries(expected).every(([i, m]) => same(project(this.hass, i)?.members, m)));
     }
     async _run(id, domain, service, data, expected, confirmed) {
+      this._cancelStep();
       if (this._pending || !project(this.hass, id)) return;
       const original = project(this.hass, id), epoch = this._epoch, auth = this._auth(), before = Object.fromEntries(original.candidates.map((i) => [i, project(this.hass, i).members]));
-      if (service === "volume_set") {
-        const wanted = Math.round(data.volume_level * 100), values = original.members.map((i) => percentOf(this.hass.states[i], true));
+      if (service === "audio_group_volume") {
+        const wanted = data.volume_percent, values = original.members.map((i) => percentOf(this.hass.states[i], true));
         if (values.some((v) => v === null)) return;
         const mean = Math.floor((2 * values.reduce((a, b) => a + b, 0) + values.length) / (2 * values.length));
         this._volumeMean = Math.floor((2 * values.reduce((a, b) => a + Math.max(0, Math.min(100, b + wanted - mean)), 0) + values.length) / (2 * values.length));
@@ -365,7 +422,7 @@ function initializeGroupManager() {
         if (!valid) throw new Error("Native eligibility, membership, context or authentication changed. No retry or rollback sent.");
       };
       this._ensure = ensure;
-      const operationMs = service === "media_play" ? (original.members.length + 2) * 8e3 + 2e3 : service === "volume_set" ? (original.members.length + 2) * 8e3 : 8e3;
+      const operationMs = service === "media_play" ? (original.members.length + 2) * 8e3 + 2e3 : service === "audio_group_volume" ? (original.members.length + 2) * 8e3 : 8e3;
       const guard = new Promise((_, reject) => {
         cancel = reject;
         this._cancel = reject;
@@ -424,6 +481,10 @@ function initializeGroupManager() {
       }
     }
     render(feedback = false) {
+      if (this._step) {
+        const d = this._step;
+        if (!d.input.isConnected || !this._valid(this._stamp()) || d.stamp !== this._stepStamp(d.id, d.room)) this._cancelStep();
+      }
       if (this._createOrigin && this._createOrigin.auth !== this._auth()) this._createOrigin = null;
       if (!this.shadowRoot || !this.isConnected) return;
       if (this._gesture) {
@@ -435,7 +496,7 @@ function initializeGroupManager() {
         this._presentation = null;
       }
       const h = this.hass, o = overview(h), stamp = this._stamp();
-      const presentation = JSON.stringify([stamp, h?.config?.version, [...o.views.keys()].map((id) => name(h, id)), o.incomplete, this._mode, [...this._selected], this._adding?.owner, this._adding?.group, !!this._pending, this._error]);
+      const presentation = JSON.stringify([stamp, h?.config?.version, o.groups.map((v) => this._stepStamp(v.leader, false)), [...o.views.keys()].map((id) => name(h, id)), o.incomplete, this._mode, [...this._selected], this._adding?.owner, this._adding?.group, !!this._pending, this._error]);
       if (feedback && this._presentation === presentation) return;
       const active = this.shadowRoot.activeElement, key = active?.dataset.key, busy = !!this._pending || o.groups.some((v) => v.busy), existing = this.shadowRoot.querySelector(".manager-layout"), root = existing || node("div", null, { "tabindex": "-1", "data-focus-safe": "true", "role": "group", "aria-label": "Audio group manager" }), content = node("div", null, { class: "content" }), renderEpoch = this._renderEpoch = (this._renderEpoch || 0) + 1;
       if (this._mode === "create" && this._adding) {
@@ -564,13 +625,117 @@ function initializeGroupManager() {
   return LoxoneGroupManager;
 }
 
+// adapters/pyloxone/frontend/src/follower-mode-controls.js
+var SHUFFLE = 32768;
+var REPEAT = 262144;
+var ICONS2 = {
+  shuffleOn: "M14.83,13.41L13.42,14.82L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z",
+  shuffleOff: "M16,4.5V7H5V9H16V11.5L19.5,8M16,12.5V15H5V17H16V19.5L19.5,16",
+  all: "M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z",
+  one: "M13,15V9H12L10,10V11H11.5V15M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z",
+  off: "M2,5.27L3.28,4L20,20.72L18.73,22L15.73,19H7V22L3,18L7,14V17H13.73L7,10.27V11H5V8.27L2,5.27M17,13H19V17.18L17,15.18V13M17,5V2L21,6L17,10V7H8.82L6.82,5H17Z"
+};
+function followerModeControls(getHass, valid) {
+  let owned;
+  const drop = () => {
+    if (!owned) return;
+    owned.active = false;
+    for (const n of owned.buttons) {
+      n.onclick = n.onpointerdown = n.onkeydown = n.onkeyup = n.onblur = n.onpointercancel = null;
+    }
+    owned.node.remove();
+    owned = null;
+  };
+  const context = (current) => {
+    const h = getHass(), id = valid(current), s = h?.states?.[id], v = id && project(h, id), lead = v && project(h, v.leader), a = s?.attributes, l = h?.states?.[v?.leader]?.attributes;
+    if (!v || !v.group || v.members.length < 2 || v.leader === id || v.busy || !lead || lead.busy || s.state !== "idle" || a.assumed_state === true) return null;
+    const modes = [];
+    if (a.supported_features & SHUFFLE && l.supported_features & SHUFFLE && typeof a.shuffle === "boolean" && a.shuffle === l.shuffle) modes.push("shuffle");
+    if (a.supported_features & REPEAT && l.supported_features & REPEAT && ["off", "all", "one"].includes(a.repeat) && a.repeat === l.repeat) modes.push("repeat");
+    if (!modes.length) return null;
+    return { h, id, a, modes, key: JSON.stringify([h.user, h.connected !== false, h.config.version, v.owner, v.revision, v.group, v.members, v.candidates, id, v.leader, a.supported_features, l.supported_features, a.shuffle, a.repeat, l.shuffle, l.repeat, modes]) };
+  };
+  const update = (current) => {
+    const c = context(current);
+    if (!c) {
+      drop();
+      return;
+    }
+    if (owned?.key === c.key && owned.current === current) return;
+    drop();
+    const node2 = document.createElement("div");
+    node2.setAttribute("data-loxone-follower-modes", "");
+    node2.style.cssText = "display:flex;gap:16px;align-items:center;margin-block:12px;min-height:44px";
+    const state = { node: node2, key: c.key, current, active: true, buttons: [], pending: false };
+    owned = state;
+    const error = document.createElement("span");
+    error.setAttribute("role", "alert");
+    for (const mode of c.modes) {
+      if (current.instance.shadowRoot.querySelector(`[action=${mode}_set]`)) continue;
+      const b = document.createElement("ha-icon-button");
+      b.setAttribute("data-loxone-mode", mode);
+      b.setAttribute("action", mode + "_set");
+      const translated = c.h.localize?.("ui.card.media_player." + mode + "_set");
+      b.label = translated || (mode === "shuffle" ? "Shuffle" : "Repeat");
+      b.setAttribute("aria-label", b.label);
+      b.setAttribute("aria-pressed", String(mode === "shuffle" ? c.a.shuffle : c.a.repeat !== "off"));
+      b.path = mode === "shuffle" ? ICONS2[c.a.shuffle ? "shuffleOn" : "shuffleOff"] : ICONS2[c.a.repeat];
+      b.title = mode === "shuffle" ? `${b.label}: ${c.a.shuffle ? "on" : "off"}` : `${b.label}: ${c.a.repeat}`;
+      b.style.cssText = "--mdc-icon-button-size:48px";
+      let held = null;
+      b.onpointerdown = () => {
+        held = { fired: false };
+      };
+      b.onkeydown = (e) => {
+        if ((e.key === " " || e.key === "Enter") && !e.repeat) held = { fired: false };
+      };
+      b.onkeyup = (e) => {
+        if (e.key === " " || e.key === "Enter") queueMicrotask(() => {
+          held = null;
+        });
+      };
+      b.onblur = b.onpointercancel = () => {
+        held = { fired: true };
+      };
+      b.onclick = async () => {
+        const now = context(current);
+        if (!state.active || owned !== state || !b.isConnected || state.pending || !now || now.key !== state.key || held?.fired) return;
+        if (held) held.fired = true;
+        state.pending = true;
+        state.buttons.forEach((n) => {
+          n.disabled = true;
+        });
+        error.textContent = "";
+        const value = mode === "shuffle" ? !now.a.shuffle : now.a.repeat === "off" ? "all" : now.a.repeat === "all" ? "one" : "off";
+        try {
+          await now.h.callService("media_player", mode + "_set", { entity_id: now.id, [mode]: value });
+        } catch (e) {
+          if (state.active) error.textContent = e?.message || "Mode change failed; no retry sent.";
+        } finally {
+          if (state.active && owned === state) {
+            state.pending = false;
+            state.buttons.forEach((n) => {
+              n.disabled = false;
+            });
+          }
+        }
+      };
+      state.buttons.push(b);
+      node2.append(b);
+    }
+    node2.append(error);
+    current.instance.shadowRoot.append(node2);
+  };
+  return { update, drop };
+}
+
 // adapters/pyloxone/frontend/src/native-group-manager.js
 var SINGLETON = Symbol.for("pyloxone-audio.gm03.more-info");
 var validContext = (hass, instance, tag = "more-info-media_player") => {
   const id = tag === "hui-media-control-card" ? instance?._config?.entity : instance?.stateObj?.entity_id, s = hass?.states?.[id], d = s?.attributes?.loxone_group_control;
-  return ["2026.10.4", "2026.11.0"].includes(hass?.config?.version) && hass?.connected !== false && !!hass?.user?.id && instance?.isConnected && instance.localName === tag && project(hass, id) && hass?.entities?.[id]?.platform === "loxone" && d?.version === 2 && Array.isArray(d.members) && d.members.includes(id) && Array.isArray(d.candidates) && d.members.every((i) => {
+  return ["2026.10.4", "2026.11.0", "2026.11.1"].includes(hass?.config?.version) && hass?.connected !== false && !!hass?.user?.id && instance?.isConnected && instance.localName === tag && project(hass, id) && hass?.entities?.[id]?.platform === "loxone" && d?.version === 3 && Array.isArray(d.members) && d.members.includes(id) && Array.isArray(d.candidates) && d.members.every((i) => {
     const other = hass.states[i]?.attributes?.loxone_group_control;
-    return hass.entities?.[i]?.platform === "loxone" && other?.version === 2 && other.owner === d.owner && other.revision === d.revision;
+    return hass.entities?.[i]?.platform === "loxone" && other?.version === 3 && other.owner === d.owner && other.revision === d.revision;
   }) && !["unknown", "unavailable"].includes(s.state) ? id : null;
 };
 function nativeTree(element, visit) {
@@ -582,6 +747,7 @@ function installNativeMoreInfo() {
   if (!customElements.get("home-assistant")) return;
   if (window[SINGLETON]) return window[SINGLETON];
   let root, binding, observed, mediaLink, cardRoot, observers = [], scheduled = false, stopped = false, disposed = false;
+  const followerModes = followerModeControls(() => root?.hass, (current) => binding === current && validContext(root?.hass, current.instance) === current.id ? current.id : null);
   const cardClick = (event) => {
     if (stopped || !root?.isConnected) return;
     const path = event.composedPath(), card = path.find((n) => n?.localName === "hui-media-control-card");
@@ -608,6 +774,7 @@ function installNativeMoreInfo() {
   };
   const drop = () => {
     dropMedia();
+    followerModes.drop();
     if (binding) binding.instance.removeEventListener("click", binding.listener, true);
     binding = null;
   };
@@ -699,6 +866,7 @@ function installNativeMoreInfo() {
     }
     if (binding?.instance === instance && binding.button === button && binding.id === id) {
       updateMedia(binding);
+      followerModes.update(binding);
       return;
     }
     drop();
@@ -713,6 +881,7 @@ function installNativeMoreInfo() {
     binding = current;
     instance.addEventListener("click", current.listener, true);
     updateMedia(current);
+    followerModes.update(current);
   };
   const schedule = () => {
     if (!scheduled && !stopped) {
@@ -728,6 +897,13 @@ function installNativeMoreInfo() {
   };
   const stop = () => {
     stopped = true;
+    if (root) nativeTree(root, (n) => {
+      if (n.localName === "loxone-group-manager") {
+        n._epoch++;
+        n._cancelStep();
+        n.render();
+      }
+    });
     drop();
     observe(null);
     dropCards();
@@ -771,17 +947,24 @@ function initializeNativeGroupManager() {
         this._open = false;
         this._dialog.open = false;
         this._manager._epoch++;
+        this._manager._cancelStep();
         this._manager._cancelGesture();
         this.dispatchEvent(new CustomEvent("dialog-closed", { detail: { dialog: this.localName }, bubbles: true, composed: true }));
       });
       this._dialog.addEventListener("keydown", (e) => {
-        if (this._manager._pending && e.key === "Escape") {
-          e.preventDefault();
-          e.stopImmediatePropagation();
+        if (e.key === "Escape") {
+          this._manager._cancelStep();
+          if (this._manager._pending) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+          }
         }
       }, true);
       this._dialog.addEventListener("wa-hide", (e) => {
-        if (this._manager._pending && e.composedPath()[0] === this._dialog.shadowRoot?.querySelector("wa-dialog")) e.preventDefault();
+        if (e.composedPath()[0] === this._dialog.shadowRoot?.querySelector("wa-dialog")) {
+          this._manager._cancelStep();
+          if (this._manager._pending) e.preventDefault();
+        }
       }, true);
     }
     set hass(hass) {
@@ -795,6 +978,9 @@ function initializeNativeGroupManager() {
     showDialog(params = {}) {
       this._entity = params.entity;
       this._open = true;
+      this._manager._epoch++;
+      this._manager._dialogEntity = params.entity;
+      this._manager._cancelStep();
       this._manager._cancelGesture();
       this._manager._mode = params.mode === "create" ? "create" : "overview";
       this._manager._adding = null;
@@ -812,11 +998,13 @@ function initializeNativeGroupManager() {
       this._open = false;
       this._dialog.open = false;
       this._manager._epoch++;
+      this._manager._cancelStep();
       this._manager._cancelGesture();
       return true;
     }
     disconnectedCallback() {
       this._manager._epoch++;
+      this._manager._cancelStep();
       this._manager._cancelGesture();
       this._manager._cancel?.(new Error("Dialog disconnected."));
       this._open = false;

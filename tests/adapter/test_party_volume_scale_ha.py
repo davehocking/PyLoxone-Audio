@@ -19,7 +19,7 @@ async def test_party_volume_preserves_balance_with_delayed_per_room_feedback(has
         await g.callbacks[entry.entry_id]['callback']({f'volume-{p}':old[p]+10})
     remove=hass.bus.async_listen(SENDDOMAIN,feedback)
     try:
-        await hass.services.async_call('media_player','volume_set',{'entity_id':ids[1],'volume_level':(mean+10)/100},blocking=True)
+        await hass.services.async_call('loxone','audio_group_volume',{'entity_id':ids[1],'volume_percent':mean+10},blocking=True)
         await hass.async_block_till_done()
         assert writes==[{'uuid':action(p),'value':f'volume/{old[p]+10}'}for p in players]
         assert {p:g.entities[i]._room_volume_percent for p,i in ids.items()}=={p:v+(10 if p in players else 0)for p,v in old.items()}

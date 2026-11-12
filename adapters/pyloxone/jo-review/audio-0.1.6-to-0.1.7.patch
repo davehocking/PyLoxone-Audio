@@ -1,0 +1,475 @@
+diff --git a/custom_components/loxone/audio_diagnostics.py b/custom_components/loxone/audio_diagnostics.py
+index 58633c9..023b662 100644
+--- a/custom_components/loxone/audio_diagnostics.py
++++ b/custom_components/loxone/audio_diagnostics.py
+@@ -645,7 +645,11 @@ class EntryAudioDiagnostics:
+             from homeassistant.helpers import entity_registry as er
+ 
+             data = event.data
+-            operation = data.get("service")
++            service = data.get("service")
++            # The new explicit group action is a generic volume operation in
++            # the portable schema. Preserve its integer intent at this adapter
++            # boundary instead of dropping an unsupported operation name.
++            operation = "volume_set" if data.get("domain") == "loxone" and service == "audio_group_volume" else service
+             if (
+                 data.get("domain") not in {"media_player", "loxone"}
+                 or operation not in ENUMS["operation"]
+@@ -674,7 +678,9 @@ class EntryAudioDiagnostics:
+                 if operation == "media_seek":
+                     fields["position"] = service_data.get("seek_position")
+                 volume = service_data.get("volume_level")
+-                if operation == "volume_set" and type(volume) in (int, float):
++                if service in ("audio_group_volume", "audio_room_volume"):
++                    fields["volume"] = service_data.get("volume_percent")
++                elif operation == "volume_set" and type(volume) in (int, float):
+                     fields["volume"] = volume * 100
+                 self.emit("ha_service_request", **fields)
+         except Exception:
+diff --git a/custom_components/loxone/audio_grouping.py b/custom_components/loxone/audio_grouping.py
+index 858e233..2b729d0 100644
+--- a/custom_components/loxone/audio_grouping.py
++++ b/custom_components/loxone/audio_grouping.py
+@@ -187,27 +187,34 @@ class AudioGroupingOwner:
+             and player not in self.native.commands.announcement_fences
+         )
+ 
+-    def members(self, player):
+-        if player not in self.eligible():
+-            return None
++    def _member_projection(self):
++        """One fresh synchronous authority projection, never retained across awaits."""
++        eligible = self.eligible()
++        if not eligible:
++            return {}
+         ids = {
+             p: entity.entity_id
+             for p, entity in self.entities.items()
+-            if p in self.eligible()
++            if p in eligible
+         }
+-        return project_group_members(self.native.snapshot.groups, ids).get(player)
++        return project_group_members(self.native.snapshot.groups, ids)
++
++    def members(self, player):
++        return self._member_projection().get(player)
+ 
+     def control_descriptor(self, player):
+         """Optional UI projection; eligibility is still enforced on every service."""
+         from hashlib import sha256
+-        members = self.members(player)
++        projection = self._member_projection()
++        members = projection.get(player)
+         if members is None:
+             return None
+-        candidates = [e.entity_id for p, e in self.entities.items() if self.members(p) is not None]
++        candidates = [self.entities[p].entity_id for p, members in projection.items() if members is not None]
+         group = next((g for g in self.native.snapshot.groups if player in g.players and g.kind == "dynamic"), None)
+         signature = tuple((g.group_id, g.kind, g.players) for g in self.native.snapshot.groups)
+         return {
+-            "version": 2,
++            "version": 3,
++            "group_volume": True,
+             "owner": sha256(repr((self.host.config_entry.entry_id, self.binding[0])).encode()).hexdigest(),
+             "revision": sha256(repr((signature, self.native.revision, self.context(), candidates)).encode()).hexdigest(),
+             "members": list(members),
+@@ -291,7 +298,7 @@ class AudioGroupingOwner:
+         return current, remove
+ 
+     def volume_level(self, player):
+-        """Public grouped player volume is the complete confirmed-room mean."""
++        """Explicit group-volume attribute: complete confirmed-room mean."""
+         group = next((g for g in self.native.snapshot.groups
+                       if g.kind == "dynamic" and player in g.players and len(g.players) > 1), None) if self.native.snapshot else None
+         if group is None:
+@@ -579,7 +586,7 @@ class AudioGroupingOwner:
+             await self.native.async_volume(target, percent, lambda p: self.entities[p]._room_volume_percent,
+                                            send, room_only=room_only, qualified=qualified)
+         except (AudioCommandError, ValueError, TimeoutError):
+-            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_failed") from None
++            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_volume_failed") from None
+         finally:
+             for remove in removers:
+                 remove()
+diff --git a/custom_components/loxone/manifest.json b/custom_components/loxone/manifest.json
+index 9eef15e..79d23b0 100644
+--- a/custom_components/loxone/manifest.json
++++ b/custom_components/loxone/manifest.json
+@@ -12,9 +12,9 @@
+   "requirements": [
+     "websockets>=14,<16",
+     "pycryptodome>=3.20",
+-    "PyLoxone-Audio==0.1.6"
++    "PyLoxone-Audio==0.1.7"
+   ],
+-  "version": "0.1.6",
++  "version": "0.1.7",
+   "loggers": [
+     "pyloxone_audio"
+   ]
+diff --git a/custom_components/loxone/media_player.py b/custom_components/loxone/media_player.py
+index ec94650..a112cd2 100644
+--- a/custom_components/loxone/media_player.py
++++ b/custom_components/loxone/media_player.py
+@@ -156,6 +156,12 @@ async def async_setup_entry(
+         "async_audio_room_volume",
+         required_features=MediaPlayerEntityFeature.VOLUME_SET,
+     )
++    entity_platform.async_get_current_platform().async_register_entity_service(
++        "audio_group_volume",
++        {vol.Required("volume_percent"): _integer_volume_percent},
++        "async_audio_group_volume",
++        required_features=MediaPlayerEntityFeature.VOLUME_SET,
++    )
+     entity_platform.async_get_current_platform().async_register_entity_service(
+         "audio_group_manage",
+         {vol.Required("action"): vol.In(("create", "add", "remove", "destroy")),
+@@ -641,6 +647,10 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
+             **attrs,
+             "loxone_group_control": self._audio_grouping.control_descriptor(self._audio_player_id) if self._audio_grouping is not None else None,
+             "loxone_room_volume_level": self._room_volume_percent / 100 if self._room_volume_percent is not None else None,
++            "loxone_group_volume_level": (
++                self._audio_grouping.volume_level(self._audio_player_id)
++                if self._audio_grouping is not None and self._audio_player_id in self._audio_grouping.entities else None
++            ),
+             "audio_track_id": (
+                 sha256(repr((self._audio_timing_identity, self._audio_track_revision)).encode()).hexdigest()
+                 if self._audio_timing_identity is not None else None
+@@ -657,9 +667,7 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
+ 
+     @property
+     def volume_level(self) -> float | None:
+-        """Volume level of the media player (0..1)."""
+-        if self._audio_grouping is not None and self._audio_player_id in self._audio_grouping.entities:
+-            return self._audio_grouping.volume_level(self._audio_player_id)
++        """Native HA controls always show this room's observed volume (0..1)."""
+         return self._volume
+ 
+     @audio_operation('audio_group_manage')
+@@ -1389,11 +1397,18 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
+ 
+     @audio_operation('audio_room_volume')
+     async def async_audio_room_volume(self, volume_percent):
+-        """Explicit raw-room integer volume, never the public group slider."""
++        """Explicit raw-room integer volume, matching the native HA room slider."""
+         if self._audio_grouping is None:
+             raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_unavailable")
+         await self._audio_grouping.async_volume(self, _integer_volume_percent(volume_percent), room_only=True)
+ 
++    @audio_operation('volume_set')
++    async def async_audio_group_volume(self, volume_percent):
++        """Explicit additive group volume; generic volume diagnostics stay compatible."""
++        if self._audio_grouping is None:
++            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_unavailable")
++        await self._audio_grouping.async_volume(self, _integer_volume_percent(volume_percent), room_only=False)
++
+     @audio_operation('volume_set')
+     async def async_set_volume_level(self, volume: float) -> None:
+         """Send new volume_level to device."""
+@@ -1403,7 +1418,7 @@ class LoxoneAudioZoneV2(LoxoneEntity, MediaPlayerEntity):
+             import math
+             if type(volume) not in (int, float) or not math.isfinite(volume) or not 0 <= volume <= 1:
+                 raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_unavailable")
+-            return await self._audio_grouping.async_volume(self, math.floor(volume * 100 + .5))
++            return await self._audio_grouping.async_volume(self, math.floor(volume * 100 + .5), room_only=True)
+         volume_int = int(volume * 100)
+         fire_audio_command(self, dict(uuid=self.uuidAction, value=f"volume/{volume_int}"))
+         self.async_schedule_update_ha_state()
+diff --git a/custom_components/loxone/services.yaml b/custom_components/loxone/services.yaml
+index 9859cb2..0b5967e 100644
+--- a/custom_components/loxone/services.yaml
++++ b/custom_components/loxone/services.yaml
+@@ -141,7 +141,7 @@ audio_group_manage:
+ 
+ audio_room_volume:
+   name: Set one audio room volume
+-  description: Set only the selected room, including a group leader or follower. Public grouped media player volume controls adjust the whole group.
++  description: Set only the selected room, including a group leader or follower, just like its standard media player volume control.
+   target:
+     entity:
+       domain: media_player
+@@ -157,6 +157,24 @@ audio_room_volume:
+           step: 1
+           unit_of_measurement: "%"
+ 
++audio_group_volume:
++  name: Set audio group volume
++  description: Adjust the confirmed group's average volume while preserving room balance, with limits at 0 and 100 percent. Does not change membership or source. Standard media player volume controls change only their room.
++  target:
++    entity:
++      domain: media_player
++      integration: loxone
++  fields:
++    volume_percent:
++      name: Group volume
++      required: true
++      selector:
++        number:
++          min: 0
++          max: 100
++          step: 1
++          unit_of_measurement: "%"
++
+ audio_room_transport:
+   name: Play or pause one audio room
+   description: >
+diff --git a/custom_components/loxone/translations/cs.json b/custom_components/loxone/translations/cs.json
+index f049163..7696bf5 100644
+--- a/custom_components/loxone/translations/cs.json
++++ b/custom_components/loxone/translations/cs.json
+@@ -1,4 +1,11 @@
+ {
++  "services": {
++    "audio_group_volume": {
++      "name": "Nastavit hlasitost zvukové skupiny",
++      "description": "Upraví průměr potvrzené skupiny při zachování rozdílů mezi místnostmi. Běžné ovládání hlasitosti mění jen vlastní místnost.",
++      "fields": {"volume_percent": {"name": "Hlasitost skupiny"}}
++    }
++  },
+   "entity": {
+     "switch": {
+       "audio_diagnostics": {
+@@ -93,6 +100,9 @@
+     "audioserver_seek_failed": {
+       "message": "Nová pozice aktuální stopy nebyla potvrzena. Nebyl odeslán další pokus ani spuštění přehrávání."
+     },
++    "audioserver_volume_failed": {
++      "message": "Změna hlasitosti nebyla potvrzena nebo byla překonána novější změnou. Nebyl odeslán automatický opakovaný pokus ani vrácení změny."
++    },
+     "audioserver_playback_failed": {
+       "message": "Přehrávání přes Audio Server nebylo potvrzeno. Nebyl spuštěn náhradní zdroj ani odeslán automatický opakovaný pokus."
+     },
+diff --git a/custom_components/loxone/translations/de.json b/custom_components/loxone/translations/de.json
+index d774bba..75b7bcc 100644
+--- a/custom_components/loxone/translations/de.json
++++ b/custom_components/loxone/translations/de.json
+@@ -107,6 +107,11 @@
+     }
+   },
+   "services": {
++    "audio_group_volume": {
++      "name": "Lautstärke der Audiogruppe einstellen",
++      "description": "Den Mittelwert der bestätigten Gruppe unter Beibehaltung der Raumunterschiede ändern. Die normale Lautstärkeregelung ändert nur den jeweiligen Raum.",
++      "fields": {"volume_percent": {"name": "Gruppenlautstärke"}}
++    },
+     "audio_room_transport": {
+       "name": "Einen Audioraum wiedergeben oder pausieren",
+       "description": "Setzt nur den ausgewählten Raum fort oder pausiert ihn, auch in einer dynamischen Gruppe. Ändert weder Gruppenmitglieder noch Lautstärke oder Quelle. Die normalen Wiedergabe-/Pausebefehle steuern die gesamte Gruppe.",
+@@ -206,6 +211,9 @@
+     "audioserver_seek_failed": {
+       "message": "Die neue Position wurde für den aktuellen Titel nicht bestätigt. Es wurde weder erneut versucht noch die Wiedergabe gestartet."
+     },
++    "audioserver_volume_failed": {
++      "message": "Die Lautstärkeänderung wurde nicht bestätigt oder wurde durch eine Änderung überholt. Es wurde weder automatisch erneut versucht noch rückgängig gemacht."
++    },
+     "audioserver_playback_failed": {
+       "message": "Die Wiedergabe über den Audio Server wurde nicht bestätigt. Es wurde weder auf eine andere Quelle ausgewichen noch automatisch erneut versucht."
+     },
+diff --git a/custom_components/loxone/translations/en.json b/custom_components/loxone/translations/en.json
+index 05da057..7af6710 100644
+--- a/custom_components/loxone/translations/en.json
++++ b/custom_components/loxone/translations/en.json
+@@ -107,6 +107,11 @@
+     }
+   },
+   "services": {
++    "audio_group_volume": {
++      "name": "Set audio group volume",
++      "description": "Adjust the confirmed group average while preserving room balance. Standard media player volume changes only its room.",
++      "fields": {"volume_percent": {"name": "Group volume"}}
++    },
+     "audio_room_transport": {
+       "name": "Play or pause one audio room",
+       "description": "Resume or pause only the selected room, including a room in a dynamic group. Does not change membership, volume or source. Standard media player play/pause controls the whole group.",
+@@ -216,6 +221,9 @@
+     "audioserver_seek_failed": {
+       "message": "The seek was not confirmed for the current track. No retry or playback start was sent."
+     },
++    "audioserver_volume_failed": {
++      "message": "The volume change was not confirmed or was superseded. No automatic retry or undo was sent."
++    },
+     "audioserver_playback_failed": {
+       "message": "Audio Server playback was not confirmed. No fallback or automatic retry was sent."
+     },
+diff --git a/custom_components/loxone/translations/es.json b/custom_components/loxone/translations/es.json
+index ecccc80..d637a6f 100644
+--- a/custom_components/loxone/translations/es.json
++++ b/custom_components/loxone/translations/es.json
+@@ -94,6 +94,11 @@
+     }
+   },
+   "services": {
++    "audio_group_volume": {
++      "name": "Ajustar el volumen del grupo de audio",
++      "description": "Ajusta el promedio del grupo confirmado conservando el equilibrio entre habitaciones. El control de volumen normal solo cambia su habitación.",
++      "fields": {"volume_percent": {"name": "Volumen del grupo"}}
++    },
+     "audio_room_transport": {
+       "name": "Reproducir o pausar una habitación de audio",
+       "description": "Reanuda o pausa solo la habitación seleccionada, incluso dentro de un grupo dinámico. No cambia la pertenencia, el volumen ni la fuente. Los controles estándar de reproducción/pausa controlan todo el grupo.",
+@@ -192,6 +197,9 @@
+     "audioserver_seek_failed": {
+       "message": "No se confirmó la nueva posición de la pista actual. No se reintentó ni se inició la reproducción."
+     },
++    "audioserver_volume_failed": {
++      "message": "El cambio de volumen no se confirmó o quedó obsoleto. No se envió ningún reintento automático ni se deshizo el cambio."
++    },
+     "audioserver_playback_failed": {
+       "message": "No se confirmó la reproducción del Audio Server. No se envió ninguna alternativa ni reintento automático."
+     },
+diff --git a/custom_components/loxone/translations/fr.json b/custom_components/loxone/translations/fr.json
+index 9b1ac90..458491c 100644
+--- a/custom_components/loxone/translations/fr.json
++++ b/custom_components/loxone/translations/fr.json
+@@ -94,6 +94,11 @@
+     }
+   },
+   "services": {
++    "audio_group_volume": {
++      "name": "Régler le volume du groupe audio",
++      "description": "Ajuste la moyenne du groupe confirmé en conservant les écarts entre pièces. Le contrôle de volume standard ne modifie que sa propre pièce.",
++      "fields": {"volume_percent": {"name": "Volume du groupe"}}
++    },
+     "audio_room_transport": {
+       "name": "Lire ou mettre en pause une pièce audio",
+       "description": "Reprend ou met en pause uniquement la pièce sélectionnée, même dans un groupe dynamique. Ne modifie ni le groupe, ni le volume, ni la source. Les commandes lecture/pause standard contrôlent tout le groupe.",
+@@ -192,6 +197,9 @@
+     "audioserver_seek_failed": {
+       "message": "La nouvelle position de la piste actuelle n’a pas été confirmée. Aucun nouvel essai ni démarrage de lecture n’a été envoyé."
+     },
++    "audioserver_volume_failed": {
++      "message": "La modification du volume n’a pas été confirmée ou a été remplacée. Aucune nouvelle tentative automatique ni annulation n’a été envoyée."
++    },
+     "audioserver_playback_failed": {
+       "message": "La lecture Audio Server n'a pas été confirmée. Aucune commande vers une autre source ni nouvelle tentative automatique n'a été envoyée."
+     },
+diff --git a/custom_components/loxone/translations/it.json b/custom_components/loxone/translations/it.json
+index a02d1d0..26ac95a 100644
+--- a/custom_components/loxone/translations/it.json
++++ b/custom_components/loxone/translations/it.json
+@@ -94,6 +94,11 @@
+     }
+   },
+   "services": {
++    "audio_group_volume": {
++      "name": "Imposta il volume del gruppo audio",
++      "description": "Regola la media del gruppo confermato mantenendo il bilanciamento delle stanze. Il controllo del volume normale modifica solo la propria stanza.",
++      "fields": {"volume_percent": {"name": "Volume del gruppo"}}
++    },
+     "audio_room_transport": {
+       "name": "Riproduci o metti in pausa una stanza audio",
+       "description": "Riprende o mette in pausa solo la stanza selezionata, anche in un gruppo dinamico. Non modifica appartenenza, volume o sorgente. I comandi standard di riproduzione/pausa controllano l'intero gruppo.",
+@@ -192,6 +197,9 @@
+     "audioserver_seek_failed": {
+       "message": "La nuova posizione della traccia corrente non è stata confermata. Non è stato inviato alcun nuovo tentativo né avviata la riproduzione."
+     },
++    "audioserver_volume_failed": {
++      "message": "La modifica del volume non è stata confermata o è stata superata da una modifica successiva. Non è stato inviato alcun nuovo tentativo automatico né annullamento."
++    },
+     "audioserver_playback_failed": {
+       "message": "La riproduzione Audio Server non è stata confermata. Non è stato inviato alcun comando alternativo né un nuovo tentativo automatico."
+     },
+diff --git a/custom_components/loxone/translations/nl.json b/custom_components/loxone/translations/nl.json
+index 845d5d1..5fb56e1 100644
+--- a/custom_components/loxone/translations/nl.json
++++ b/custom_components/loxone/translations/nl.json
+@@ -94,6 +94,11 @@
+     }
+   },
+   "services": {
++    "audio_group_volume": {
++      "name": "Volume van audiogroep instellen",
++      "description": "Pas het gemiddelde van de bevestigde groep aan met behoud van de balans tussen kamers. De standaard volumeregeling wijzigt alleen de eigen kamer.",
++      "fields": {"volume_percent": {"name": "Groepsvolume"}}
++    },
+     "audio_room_transport": {
+       "name": "Eén audioruimte afspelen of pauzeren",
+       "description": "Hervat of pauzeert alleen de geselecteerde ruimte, ook in een dynamische groep. Wijzigt geen groepslidmaatschap, volume of bron. De standaard afspeel-/pauzebediening bestuurt de hele groep.",
+@@ -192,6 +197,9 @@
+     "audioserver_seek_failed": {
+       "message": "De nieuwe positie voor het huidige nummer is niet bevestigd. Er is geen nieuwe poging of afspeelopdracht verzonden."
+     },
++    "audioserver_volume_failed": {
++      "message": "De volumewijziging is niet bevestigd of is achterhaald. Er is geen automatische nieuwe poging of herstelopdracht verzonden."
++    },
+     "audioserver_playback_failed": {
+       "message": "Het afspelen via Audio Server is niet bevestigd. Er is geen alternatieve opdracht of automatische nieuwe poging verzonden."
+     },
+diff --git a/custom_components/loxone/translations/pt-BR.json b/custom_components/loxone/translations/pt-BR.json
+index f7d7934..2e389ab 100644
+--- a/custom_components/loxone/translations/pt-BR.json
++++ b/custom_components/loxone/translations/pt-BR.json
+@@ -94,6 +94,11 @@
+     }
+   },
+   "services": {
++    "audio_group_volume": {
++      "name": "Definir volume do grupo de áudio",
++      "description": "Ajusta a média do grupo confirmado mantendo o equilíbrio entre os cômodos. O controle de volume padrão altera apenas seu próprio cômodo.",
++      "fields": {"volume_percent": {"name": "Volume do grupo"}}
++    },
+     "audio_room_transport": {
+       "name": "Reproduzir ou pausar um ambiente de áudio",
+       "description": "Retoma ou pausa apenas o ambiente selecionado, mesmo em um grupo dinâmico. Não altera os membros, o volume nem a fonte. Os controles normais de reprodução/pausa controlam todo o grupo.",
+@@ -192,6 +197,9 @@
+     "audioserver_seek_failed": {
+       "message": "A nova posição da faixa atual não foi confirmada. Não foi enviada nenhuma nova tentativa nem iniciada a reprodução."
+     },
++    "audioserver_volume_failed": {
++      "message": "A alteração de volume não foi confirmada ou foi substituída. Nenhuma nova tentativa automática ou reversão foi enviada."
++    },
+     "audioserver_playback_failed": {
+       "message": "A reprodução no Audio Server não foi confirmada. Não foi enviado nenhum comando alternativo nem uma nova tentativa automática."
+     },
+diff --git a/custom_components/loxone/translations/pt-PT.json b/custom_components/loxone/translations/pt-PT.json
+index 65f3b35..59f26c4 100644
+--- a/custom_components/loxone/translations/pt-PT.json
++++ b/custom_components/loxone/translations/pt-PT.json
+@@ -94,6 +94,11 @@
+     }
+   },
+   "services": {
++    "audio_group_volume": {
++      "name": "Definir volume do grupo de áudio",
++      "description": "Ajusta a média do grupo confirmado mantendo o equilíbrio entre divisões. O controlo de volume normal altera apenas a sua divisão.",
++      "fields": {"volume_percent": {"name": "Volume do grupo"}}
++    },
+     "audio_room_transport": {
+       "name": "Reproduzir ou pausar uma divisão de áudio",
+       "description": "Retoma ou pausa apenas a divisão selecionada, mesmo num grupo dinâmico. Não altera os membros, o volume nem a fonte. Os comandos normais de reprodução/pausa controlam todo o grupo.",
+@@ -192,6 +197,9 @@
+     "audioserver_seek_failed": {
+       "message": "A nova posição da faixa atual não foi confirmada. Não foi enviada nenhuma nova tentativa nem iniciada a reprodução."
+     },
++    "audioserver_volume_failed": {
++      "message": "A alteração de volume não foi confirmada ou foi ultrapassada. Não foi enviada nenhuma nova tentativa automática nem anulação."
++    },
+     "audioserver_playback_failed": {
+       "message": "A reprodução no Audio Server não foi confirmada. Não foi enviado nenhum comando alternativo nem uma nova tentativa automática."
+     },
+diff --git a/custom_components/loxone/translations/pt.json b/custom_components/loxone/translations/pt.json
+index 65f3b35..59f26c4 100644
+--- a/custom_components/loxone/translations/pt.json
++++ b/custom_components/loxone/translations/pt.json
+@@ -94,6 +94,11 @@
+     }
+   },
+   "services": {
++    "audio_group_volume": {
++      "name": "Definir volume do grupo de áudio",
++      "description": "Ajusta a média do grupo confirmado mantendo o equilíbrio entre divisões. O controlo de volume normal altera apenas a sua divisão.",
++      "fields": {"volume_percent": {"name": "Volume do grupo"}}
++    },
+     "audio_room_transport": {
+       "name": "Reproduzir ou pausar uma divisão de áudio",
+       "description": "Retoma ou pausa apenas a divisão selecionada, mesmo num grupo dinâmico. Não altera os membros, o volume nem a fonte. Os comandos normais de reprodução/pausa controlam todo o grupo.",
+@@ -192,6 +197,9 @@
+     "audioserver_seek_failed": {
+       "message": "A nova posição da faixa atual não foi confirmada. Não foi enviada nenhuma nova tentativa nem iniciada a reprodução."
+     },
++    "audioserver_volume_failed": {
++      "message": "A alteração de volume não foi confirmada ou foi ultrapassada. Não foi enviada nenhuma nova tentativa automática nem anulação."
++    },
+     "audioserver_playback_failed": {
+       "message": "A reprodução no Audio Server não foi confirmada. Não foi enviado nenhum comando alternativo nem uma nova tentativa automática."
+     },

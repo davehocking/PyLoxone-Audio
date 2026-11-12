@@ -26,12 +26,13 @@ Only Loxone-managed audio rooms are offered. This manager supports dynamic group
 | Control | Effect |
 |---|---|
 | Grouped player's standard play/pause or manager's top play/pause | Whole group |
-| Grouped player's standard volume or manager's top slider | Whole group, keeping the rooms' volume balance until a limit is reached |
+| Room player's standard volume slider or volume up/down | That room only, whether leader or follower |
+| Custom manager's **Group volume** slider | Whole group, keeping the rooms' volume balance until a limit is reached |
 | Each room row's play/pause or volume | That room only, including the leader's row |
 | Leader Browse, Source or supported seeking | Shared group music |
 | Follower's **Media controls on <leader name>** link | Opens the current leader's player |
 
-Use the leader to change the group's music. Shuffle/Repeat appear where native capability and state support them. Each volume slider occupies its own full-width line, with percentage and −/+ controls above it. Group volume shows the rounded mean of room levels; it is not a command to give every room the same volume. Startup/resume volume behaviour remains native to Loxone.
+Use the leader to change the group's music. Supported Shuffle/Repeat controls on a follower change the current leader's modes; idle followers get matching native-style buttons without pretending they are playing. Each volume slider occupies its own full-width line, with percentage and −/+ controls above it. Group volume shows the rounded mean of room levels; it is not a command to give every room the same volume. Startup/resume volume behaviour remains native to Loxone. Rapid −/+ taps in the custom manager are combined after a 300 ms pause; wait for confirmation before another operation.
 
 ## Automations and troubleshooting
 

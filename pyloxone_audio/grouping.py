@@ -554,12 +554,16 @@ class AudioGroupCoordinator:
         self._tasks.add(task)
         sent_targets, confirmed = {}, set()
         valid, sent, completed, acquired = True, False, False, False
+        # An absolute ROOM target has no pre-lock volume prerequisite. Keep
+        # every initiating non-volume observer live while earlier work settles;
+        # GROUP retains its original additive plan and stale-volume predicate.
+        volume_armed = not room_only
 
         def current():
             nonlocal valid
             valid = bool(valid and request_current() and qualified()
                          and not self.uncertain and before == _group_signature(self.snapshot)
-                         and all(read(p) in ({targets[p]} if p in confirmed else {initial[p], sent_targets.get(p, initial[p])}) for p in players))
+                         and (not volume_armed or all(read(p) in ({targets[p]} if p in confirmed else {initial[p], sent_targets.get(p, initial[p])}) for p in players)))
             return valid
 
         self._requests.add(current)
@@ -567,6 +571,12 @@ class AudioGroupCoordinator:
             async with asyncio.timeout(self.timeout) as deadline, self._lock:
                 if not current():
                     raise AudioCommandError("Volume request superseded")
+                if room_only:
+                    initial = {target: read(target)}
+                    if mean_volume_percent(list(initial.values())) is None:
+                        raise AudioCommandError("Current room volume feedback required")
+                    targets = {target: percent}
+                    volume_armed = True
                 self._scope, self._context, self._conflict = frozenset(players), self.context(), False
                 self._transport_before = before
                 acquired = True

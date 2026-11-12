@@ -26,8 +26,8 @@ async def test_exact_party_native_volume_requests_owning_ha(hass,grouped_setup,m
             old={p:round(states[i]['attributes']['loxone_room_volume_level']*100)for p,i in ids.items()}
             await g.callbacks[entry.entry_id]['callback']({**{f'play-{p}':1 for p in ids},**{f'volume-{p}':v for p,v in old.items()}})
             await hass.async_block_till_done()
-            before=len(writes);room=call['service']=='audio_room_volume';target=next(p for p,i in ids.items() if i==call['target']['entity_id'])
-            wanted=call['data']['volume_percent'] if room else round(call['data']['volume_level']*100)
+            before=len(writes);room=True;target=next(p for p,i in ids.items() if i==call['target']['entity_id'])
+            wanted=call['data']['volume_percent'] if call['service']=='audio_room_volume' else round(call['data']['volume_level']*100)
             mean=(2*sum(old[p] for p in players)+len(players))//(2*len(players))
             expected={p:(wanted if p==target else v) if room else max(0,min(100,v+wanted-mean))for p,v in old.items()}
             await hass.services.async_call(call['domain'],call['service'],call['data'],target=call['target'],blocking=True)

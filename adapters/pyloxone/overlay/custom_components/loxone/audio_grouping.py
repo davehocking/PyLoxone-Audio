@@ -187,27 +187,34 @@ class AudioGroupingOwner:
             and player not in self.native.commands.announcement_fences
         )
 
-    def members(self, player):
-        if player not in self.eligible():
-            return None
+    def _member_projection(self):
+        """One fresh synchronous authority projection, never retained across awaits."""
+        eligible = self.eligible()
+        if not eligible:
+            return {}
         ids = {
             p: entity.entity_id
             for p, entity in self.entities.items()
-            if p in self.eligible()
+            if p in eligible
         }
-        return project_group_members(self.native.snapshot.groups, ids).get(player)
+        return project_group_members(self.native.snapshot.groups, ids)
+
+    def members(self, player):
+        return self._member_projection().get(player)
 
     def control_descriptor(self, player):
         """Optional UI projection; eligibility is still enforced on every service."""
         from hashlib import sha256
-        members = self.members(player)
+        projection = self._member_projection()
+        members = projection.get(player)
         if members is None:
             return None
-        candidates = [e.entity_id for p, e in self.entities.items() if self.members(p) is not None]
+        candidates = [self.entities[p].entity_id for p, members in projection.items() if members is not None]
         group = next((g for g in self.native.snapshot.groups if player in g.players and g.kind == "dynamic"), None)
         signature = tuple((g.group_id, g.kind, g.players) for g in self.native.snapshot.groups)
         return {
-            "version": 2,
+            "version": 3,
+            "group_volume": True,
             "owner": sha256(repr((self.host.config_entry.entry_id, self.binding[0])).encode()).hexdigest(),
             "revision": sha256(repr((signature, self.native.revision, self.context(), candidates)).encode()).hexdigest(),
             "members": list(members),
@@ -291,7 +298,7 @@ class AudioGroupingOwner:
         return current, remove
 
     def volume_level(self, player):
-        """Public grouped player volume is the complete confirmed-room mean."""
+        """Explicit group-volume attribute: complete confirmed-room mean."""
         group = next((g for g in self.native.snapshot.groups
                       if g.kind == "dynamic" and player in g.players and len(g.players) > 1), None) if self.native.snapshot else None
         if group is None:
@@ -579,7 +586,7 @@ class AudioGroupingOwner:
             await self.native.async_volume(target, percent, lambda p: self.entities[p]._room_volume_percent,
                                            send, room_only=room_only, qualified=qualified)
         except (AudioCommandError, ValueError, TimeoutError):
-            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_playback_failed") from None
+            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="audioserver_volume_failed") from None
         finally:
             for remove in removers:
                 remove()

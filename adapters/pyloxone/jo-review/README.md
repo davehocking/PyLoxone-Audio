@@ -1,19 +1,24 @@
-# Review the audio adapter — 0.1.6
+# Review the audio adapter — 0.1.7
 
-**Library and adapter 0.1.6 · unchanged frontend r13 · PyLoxone base 0.10.3.**
+**Library and adapter 0.1.7 · frontend r14 · stock PyLoxone base 0.10.3.**
 
-## Review and reproduce
+Start with the [full stock 0.10.3 patch](audio-0.1.7-on-stock-0.10.3.patch), the [file map](FILE-MAP-0.1.7.md) and [exact-input manifest](PATCH-MANIFEST-0.1.7.json). The library supplies audio communication/state; the adapter retains the existing Loxone configuration, entities, authentication and lifecycle.
 
-1. Inspect the [focused 0.1.5 → 0.1.6 adapter patch](audio-0.1.5-to-0.1.6.patch) and [per-file map](FILE-MAP-0.1.6.md). The [complete patch](audio-0.1.6-on-stock-0.10.3.patch) is for a clean stock 0.10.3 base. Their [manifest](PATCH-MANIFEST-0.1.6.json) pins the exact inputs and reconstructed files.
-2. Review the library's `native.py`, `session.py` and `metadata.py`: one entry-owned authenticated command connection, one reader and one in-flight request, conservative retirement on uncertainty, and bounded playback/idle/unload ownership. Existing command/source/group eligibility and no-replay guards remain in their original callers.
-3. Reproduce the [offline checks](OFFLINE-VALIDATION.md), including the real registered services, Browse fairness and mapped playback/unload controls. The [release notes](../../../RELEASE-NOTES-0.1.6.md) distinguish synthetic latency evidence from household performance.
-4. For adoption into a newer upstream branch, rebase the focused changes onto that branch rather than copying this entire snapshot. Retain its configuration, entity and lifecycle ownership and rerun the affected tests.
-5. Release the host adapter and exact `PyLoxone-Audio==0.1.6` pin together. A separately published library does not update existing HA integration files by itself.
+## Review and adopt
 
-The adapter still uses the existing Loxone entry, entities and authentication provider. The library owns Audio Server command/reply sessions; the Miniserver and metadata/event connections are separate, not duplicate command sockets. No daemon or connection pool is added.
+1. Inspect the focused adapter changes and library `session.py` / `grouping.py`; review native frontend source separately. Group and room volume are separate actions, and queued room targets use current room feedback.
+2. Optionally reproduce the [offline checks](OFFLINE-VALIDATION.md) from the complete source download. Normal testers need only the [installer](../../../preview-build/README.md).
+3. Rebase the intended changes onto the actual destination branch, preserving newer host changes; do not overwrite a newer host with an old whole-file snapshot.
+4. Test affected configuration, services and lifecycle on that branch, then release its adapter with the exact `PyLoxone-Audio==0.1.7` pin and matching r14 frontend.
+
+The [0.1.6 → 0.1.7 patch](audio-0.1.6-to-0.1.7.patch) targets the public 0.1.6 adapter; the [0.1.5 → 0.1.7 patch](audio-0.1.5-to-0.1.7.patch) targets the exact public 0.1.5 adapter. Both assume stock 0.10.3 beneath the adapter and reconstruct the same complete target. They are not interchangeable with an unknown feature branch.
+
+## Customised installations
+
+If you have custom climate, sensor, translation or other changes, keep your full backup and original tree. Make an offline copy on a separate branch. Select the patch matching its original **public adapter** version and run `git apply --check` there first. Even if it applies, inspect the diff and retained custom files; resolve conflicts individually rather than forcing or replacing the component. Compare the result with the file map and exact-input manifest, retain the matching library pin/frontend, then test your custom features in a separate HA test installation before adoption. If the starting tree is not one of those public baselines, first identify its actual base and adapt the focused changes manually. The guarded installer deliberately refuses modified trees; it is not the adoption tool for a custom branch.
 
 ## Try the complete build
 
-Follow the [installation and rollback guide](../../../preview-build/README.md). Set **Audioserver host** and enable **Use Audio Server player play/pause (experimental; off by default)** in the existing Loxone entry; that also gates Browse/Search, source return, seeking, modes, announcements and enhanced grouping. Diagnostics is separate and optional. Frontend r13 is unchanged.
+Follow [installation/update/rollback](../../../preview-build/README.md). Set **Audioserver host** and enable **Use Audio Server player play/pause (experimental; off by default)** in the existing Loxone entry. That option also gates Browse/Search, source return, supported seeking, modes, announcements and enhanced grouping; diagnostics is separate and optional. Update both early-module and any retained dashboard resource registration to the same new URL, or remove the obsolete audio duplicate.
 
-Keep the existing entry/entities and test ordinary room/group/source controls, cold and warm Browse/transport, idle reopen and unload/reload on your installation. Connection reuse does not diagnose the separately reported static-group or capability issues. [The user guide](../../../USER-GUIDE.md) covers normal controls.
+Try your usual room/group/source controls and report what you tried, expected and heard/saw. Native player volume affects only its room; the custom manager's **Group volume** is explicit. See [normal controls](../../../USER-GUIDE.md) and [current limits](../../../KNOWN-ISSUES.md).

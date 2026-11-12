@@ -31,7 +31,7 @@ async def test_actual_feedback_is_not_target_and_late_feedback_never_replays(has
             await callback({f'volume-{p}':int(event.data['value'].split('/')[1])})
         elif phase=='outside-volume': await callback({f'volume-{second}':50})
     remove=hass.bus.async_listen(SENDDOMAIN,feedback)
-    task=asyncio.create_task(hass.services.async_call('media_player','volume_set',{'volume_level':.07},target={'entity_id':ids[second]},blocking=True))
+    task=asyncio.create_task(hass.services.async_call('loxone','audio_group_volume',{'volume_percent':7},target={'entity_id':ids[second]},blocking=True))
     try:
         await sent.wait()
         if phase=='cancel':task.cancel()
@@ -44,16 +44,16 @@ async def test_actual_feedback_is_not_target_and_late_feedback_never_replays(has
         expected_second=50 if phase=='outside-volume' else 38
         assert g.entities[ids[first]]._room_volume_percent==expected_first
         assert g.entities[ids[second]]._room_volume_percent==expected_second
-        assert hass.states.get(ids[first]).attributes['volume_level']==(expected_first+expected_second)/200
+        assert hass.states.get(ids[first]).attributes['loxone_group_volume_level']==(expected_first+expected_second)/200
         before=list(writes)
         await callback({f'volume-{first}':0})
         await hass.async_block_till_done()
-        assert writes==before and hass.states.get(ids[first]).attributes['volume_level']==expected_second/200
+        assert writes==before and hass.states.get(ids[first]).attributes['loxone_group_volume_level']==expected_second/200
         confirm=True
         await hass.services.async_call('loxone','audio_room_volume',{'volume_percent':21},target={'entity_id':ids[second]},blocking=True)
         assert writes==before+[{'uuid':action(second),'value':'volume/21'}]
         assert g.entities[ids[first]]._room_volume_percent==0
-        assert hass.states.get(ids[first]).attributes['volume_level']==.11
+        assert hass.states.get(ids[first]).attributes['loxone_group_volume_level']==.11
         assert not owner.native._scope and not owner.native._requests and not owner.native._tasks
     finally:
         task.cancel();await asyncio.gather(task,return_exceptions=True);remove()
@@ -96,7 +96,7 @@ async def test_revoked_actual_volume_never_continues_and_unknown_topology_stays_
     remove=hass.bus.async_listen(SENDDOMAIN,on_send)
     try:
         with pytest.raises((HomeAssistantError,asyncio.CancelledError)):
-            await hass.services.async_call('media_player','volume_set',{'volume_level':.35},target={'entity_id':ids[1]},blocking=True)
+            await hass.services.async_call('loxone','audio_group_volume',{'volume_percent':35},target={'entity_id':ids[1]},blocking=True)
         assert writes==[{'uuid':action(2),'value':'volume/40'}]
         assert not owner.native._scope and not owner.native._tasks and not owner.native._requests
         if boundary in ('unknown','disconnect','unload'):
